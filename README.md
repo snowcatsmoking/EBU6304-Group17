@@ -121,10 +121,17 @@ refactor: code restructure without behaviour change
 
 ```
 EBU6304-Group17/
-├── src/                  # Source code
-├── test/                 # Test programs
-├── data/                 # JSON data files
-├── docs/                 # JavaDocs and user manual
-├── requirements/         # Project handout and requirement documents
+├── docs/
+│   ├── assessment1/      # Assessment 1: Backlog, Prototype, Report
+│   ├── assessment2/      # Assessment 2: Design documents
+│   └── assessment3/      # Assessment 3: Testing reports
+├── src/
+│   ├── main/java/        # Production source code
+│   └── test/java/        # Test source code
+├── resources/
+│   ├── handout/          # Original course handout
+│   ├── analysis/         # Internal working notes and analysis
+│   ├── figma/            # Prototype source files
+│   └── survey/           # Survey and interview evidence
 └── README.md
 ```
