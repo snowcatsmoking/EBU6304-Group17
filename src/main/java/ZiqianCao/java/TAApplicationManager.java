@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TAApplicationManager {
-    // 本地JSON存储文件路径
-    private static final String STORAGE_FILE = "resources/Data/TAData/ta_applications.json";
+    // 本地JSON存储目录路径
+    private static final String STORAGE_DIR = "resources/Data/TAData/";
     // Jackson JSON序列化工具
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -25,7 +25,9 @@ public class TAApplicationManager {
         validateRequiredFields(application);
         // 2. 校验学号唯一性
         validateStudentIdUnique(application.getTAId());
-        // 3. 持久化到本地JSON文件
+        // 3. 确保存储目录存在
+        ensureStorageDirectoryExists();
+        // 4. 持久化到本地JSON文件（每个TA一个文件）
         saveApplication(application);
     }
 
@@ -51,12 +53,20 @@ public class TAApplicationManager {
     /**
      * 校验学号是否已存在（不可重复创建）
      */
-    private void validateStudentIdUnique(String studentId) throws IOException, ValidationException {
-        List<TAApplication> existingApps = loadAllApplications();
-        boolean isDuplicate = existingApps.stream()
-                .anyMatch(app -> studentId.equals(app.getTAId()));
-        if (isDuplicate) {
+    private void validateStudentIdUnique(String studentId) throws ValidationException {
+        File studentFile = new File(STORAGE_DIR + studentId + ".json");
+        if (studentFile.exists()) {
             throw new ValidationException("学号 " + studentId + " 已存在申请档案，不可重复创建");
+        }
+    }
+
+    /**
+     * 确保存储目录存在
+     */
+    private void ensureStorageDirectoryExists() {
+        File dir = new File(STORAGE_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
     }
 
@@ -64,20 +74,30 @@ public class TAApplicationManager {
      * 加载本地已存在的所有申请记录
      */
     private List<TAApplication> loadAllApplications() throws IOException {
-        File file = new File(STORAGE_FILE);
-        if (!file.exists()) {
-            return new ArrayList<>(); // 文件不存在时返回空列表
+        List<TAApplication> applications = new ArrayList<>();
+        File dir = new File(STORAGE_DIR);
+        
+        if (!dir.exists() || !dir.isDirectory()) {
+            return applications;
         }
-        return objectMapper.readValue(file, new TypeReference<List<TAApplication>>() {});
+        
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
+        if (files != null) {
+            for (File file : files) {
+                TAApplication app = objectMapper.readValue(file, new TypeReference<TAApplication>() {});
+                applications.add(app);
+            }
+        }
+        
+        return applications;
     }
 
     /**
-     * 将新申请追加保存到JSON文件
+     * 将申请保存到单独的JSON文件（以学号命名）
      */
     private void saveApplication(TAApplication application) throws IOException {
-        List<TAApplication> existingApps = loadAllApplications();
-        existingApps.add(application);
-        objectMapper.writeValue(new File(STORAGE_FILE), existingApps);
+        String fileName = STORAGE_DIR + application.getTAId() + ".json";
+        objectMapper.writeValue(new File(fileName), application);
     }
 
     /**
