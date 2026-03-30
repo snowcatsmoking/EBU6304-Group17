@@ -19,7 +19,7 @@ public class ProfileView {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public BorderPane getView() {
-        loadUserData("2024004");
+        loadUserData("2024999");
         
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #fafafa;");
@@ -84,7 +84,7 @@ public class ProfileView {
 
         Button cancelButton = new Button("取消");
         cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
-        cancelButton.setOnAction(e -> loadUserData("2024004"));
+        cancelButton.setOnAction(e -> loadUserData("2024999"));
 
         buttonBox.getChildren().addAll(saveButton, cancelButton);
 

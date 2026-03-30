@@ -28,7 +28,7 @@ public class TAPositionListUI extends Application {
     private DashboardView dashboardView;
     private List<TAJob> jobList;
     private TAApplicationRecordManager recordManager;
-    private String currentStudentId = "2024004";
+    private String currentStudentId = "2024999";
     private Stage primaryStage;
     private VBox overlay;
 

@@ -23,7 +23,7 @@ public class DashboardView {
     private NavigationListener navigationListener;
 
     public BorderPane getView() {
-        loadUserData("2024004");
+        loadUserData("2024999");
         
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #fafafa;");
