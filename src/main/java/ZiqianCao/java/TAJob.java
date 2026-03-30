@@ -1,0 +1,90 @@
+package ZiqianCao.java;
+
+public class TAJob {
+    private String jobId;
+    private String positionName;
+    private String courseName;
+    private int recruitmentCount;
+    private String requirements;
+    private String deadline;
+    private String publisher;
+    private boolean isActive;
+
+    public TAJob() {}
+
+    public TAJob(String jobId, String positionName, String courseName, int recruitmentCount, 
+                String requirements, String deadline, String publisher, boolean isActive) {
+        this.jobId = jobId;
+        this.positionName = positionName;
+        this.courseName = courseName;
+        this.recruitmentCount = recruitmentCount;
+        this.requirements = requirements;
+        this.deadline = deadline;
+        this.publisher = publisher;
+        this.isActive = isActive;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getPositionName() {
+        return positionName;
+    }
+
+    public void setPositionName(String positionName) {
+        this.positionName = positionName;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public int getRecruitmentCount() {
+        return recruitmentCount;
+    }
+
+    public void setRecruitmentCount(int recruitmentCount) {
+        this.recruitmentCount = recruitmentCount;
+    }
+
+    public String getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(String requirements) {
+        this.requirements = requirements;
+    }
+
+    public String getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(String deadline) {
+        this.deadline = deadline;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+}
