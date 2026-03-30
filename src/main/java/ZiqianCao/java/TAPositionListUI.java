@@ -8,22 +8,41 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TAPositionListUI extends Application {
 
     private BorderPane root;
+    private StackPane rootContainer;
     private Label navItem1;
     private Label navItem2;
     private Label navItem3;
     private Label navItem4;
     private DashboardView dashboardView;
+    private List<TAJob> jobList;
+    private TAApplicationRecordManager recordManager;
+    private String currentStudentId = "2024004";
+    private Stage primaryStage;
+    private VBox overlay;
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        rootContainer = new StackPane();
+        rootContainer.setStyle("-fx-background-color: #f5f5f5;");
+
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f5f5f5;");
+
+        recordManager = new TAApplicationRecordManager();
+        initJobList();
 
         VBox sidebar = createSidebar();
         root.setLeft(sidebar);
@@ -33,10 +52,24 @@ public class TAPositionListUI extends Application {
         root.setCenter(dashboardView.getView());
         navItem1.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
 
-        Scene scene = new Scene(root, 1200, 700);
+        overlay = new VBox();
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        overlay.setVisible(false);
+
+        rootContainer.getChildren().addAll(root, overlay);
+
+        Scene scene = new Scene(rootContainer, 1200, 700);
         primaryStage.setTitle("TA Application System");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void initJobList() {
+        jobList = new ArrayList<>();
+        jobList.add(new TAJob("J001", "软件工程课程助教", "软件工程", 2, "3.5及以上", "2025年9月15日", "张老师", false));
+        jobList.add(new TAJob("J002", "数据结构助教", "数据结构", 3, "3.0及以上", "2025年10月1日", "李老师", false));
+        jobList.add(new TAJob("J003", "算法竞赛指导助教", "算法竞赛", 1, "有竞赛经验者优先", "已截止", "王老师", true));
+        jobList.add(new TAJob("J004", "Java程序设计助教", "Java程序设计", 2, "熟悉Java编程", "2025年10月15日", "赵老师", false));
     }
 
     private VBox createSidebar() {
@@ -88,7 +121,7 @@ public class TAPositionListUI extends Application {
                 navItem1.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "positions":
-                root.setCenter(createContent());
+                root.setCenter(createPositionListView());
                 navItem2.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "applications":
@@ -102,7 +135,7 @@ public class TAPositionListUI extends Application {
         }
     }
 
-    private VBox createContent() {
+    private VBox createPositionListView() {
         VBox content = new VBox();
         content.setPadding(new Insets(20, 20, 20, 20));
         content.setSpacing(20);
@@ -131,47 +164,17 @@ public class TAPositionListUI extends Application {
         positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
         positionListBox.setSpacing(0);
 
-        VBox position1 = createPositionBox(
-            "软件工程课程助教",
-            "软件工程",
-            "计算机学院",
-            2,
-            "3.5及以上",
-            "2025年9月15日",
-            "张老师",
-            false
-        );
-
-        VBox position2 = createPositionBox(
-            "数据结构助教",
-            "数据结构",
-            "计算机学院",
-            3,
-            "3.0及以上",
-            "2025年10月1日",
-            "李老师",
-            false
-        );
-
-        VBox position3 = createPositionBox(
-            "算法竞赛指导助教",
-            "算法竞赛",
-            "计算机学院",
-            1,
-            "有竞赛经验者优先",
-            "已截止",
-            "王老师",
-            true
-        );
-
-        positionListBox.getChildren().addAll(position1, position2, position3);
+        for (TAJob job : jobList) {
+            VBox positionBox = createPositionBox(job);
+            positionListBox.getChildren().add(positionBox);
+        }
 
         content.getChildren().addAll(filterBox, positionListBox);
 
         return content;
     }
 
-    private VBox createPositionBox(String title, String course, String department, int recruitCount, String requirement, String deadline, String publisher, boolean isClosed) {
+    private VBox createPositionBox(TAJob job) {
         VBox positionBox = new VBox();
         positionBox.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
         positionBox.setPadding(new Insets(16, 16, 16, 16));
@@ -182,10 +185,10 @@ public class TAPositionListUI extends Application {
         titleBox.setSpacing(12);
         titleBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label titleLabel = new Label(title);
+        Label titleLabel = new Label(job.getPositionName());
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        if (isClosed) {
+        if (job.isActive()) {
             Label closedLabel = new Label("不可申请");
             closedLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, closedLabel);
@@ -197,48 +200,66 @@ public class TAPositionListUI extends Application {
         infoBox.setSpacing(24);
         infoBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label courseLabel = new Label("所属课程/活动: " + course);
+        Label courseLabel = new Label("所属课程/活动: " + job.getCourseName());
         courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label deptLabel = new Label("院系: " + department);
-        deptLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-        Label countLabel = new Label("招聘人数: " + recruitCount + "人");
+        Label countLabel = new Label("招聘人数: " + job.getRecruitmentCount() + "人");
         countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label requirementLabel = new Label("任职要求: " + requirement);
+        Label requirementLabel = new Label("任职要求: " + job.getRequirements());
         requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
         HBox deadlineBox = new HBox();
         deadlineBox.setSpacing(24);
         deadlineBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label deadlineLabel = new Label("申请截止时间: " + deadline);
+        Label deadlineLabel = new Label("申请截止时间: " + job.getDeadline());
         deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label publisherLabel = new Label("发布人: " + publisher);
+        Label publisherLabel = new Label("发布人: " + job.getPublisher());
         publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
         HBox actionBox = new HBox();
         actionBox.setAlignment(Pos.CENTER_LEFT);
         actionBox.setPadding(new Insets(8, 0, 0, 0));
 
-        if (isClosed) {
+        if (job.isActive()) {
             Button closedButton = new Button("不可申请");
             closedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #999999; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
             actionBox.getChildren().add(closedButton);
         } else {
-            Button applyButton = new Button("申请");
-            applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
-            applyButton.setOnAction(e -> System.out.println("申请职位: " + title));
-            actionBox.getChildren().add(applyButton);
+            boolean hasApplied = recordManager.hasDuplicateApplication(currentStudentId, job.getJobId());
+            if (hasApplied) {
+                Button appliedButton = new Button("申请中");
+                appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 6 20 6 20; -fx-cursor: default;");
+                appliedButton.setDisable(true);
+                actionBox.getChildren().add(appliedButton);
+            } else {
+                Button applyButton = new Button("申请");
+                applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                applyButton.setOnAction(e -> openApplicationForm(job));
+                actionBox.getChildren().add(applyButton);
+            }
         }
 
-        infoBox.getChildren().addAll(courseLabel, deptLabel, countLabel, requirementLabel);
+        infoBox.getChildren().addAll(courseLabel, countLabel, requirementLabel);
         deadlineBox.getChildren().addAll(deadlineLabel, publisherLabel);
         positionBox.getChildren().addAll(titleBox, infoBox, deadlineBox, actionBox);
 
         return positionBox;
+    }
+
+    private void openApplicationForm(TAJob job) {
+        overlay.setVisible(true);
+        TAApplicationFormView formView = new TAApplicationFormView(job);
+        formView.setApplicationListener(() -> {
+            overlay.setVisible(false);
+            switchToView("positions");
+        });
+        formView.setDialogCloseListener(() -> {
+            overlay.setVisible(false);
+        });
+        formView.showDialog(primaryStage);
     }
 
     public static void main(String[] args) {

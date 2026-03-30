@@ -1,7 +1,10 @@
 package ZiqianCao.java;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class TAApplication {
     private String name;
+    @JsonProperty("taid")
     private String TAId;
     private String major;
     private String phone;
