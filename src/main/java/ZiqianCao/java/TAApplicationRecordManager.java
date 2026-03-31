@@ -79,4 +79,31 @@ public class TAApplicationRecordManager {
         }
         return records;
     }
+
+    public TAApplicationRecord getApplicationById(String applicationId) {
+        File[] files = new File(APPLICATION_DATA_DIR).listFiles();
+        if (files != null) {
+            for (File file : files) {
+                try {
+                    TAApplicationRecord record = objectMapper.readValue(file, TAApplicationRecord.class);
+                    if (record.getApplicationId().equals(applicationId)) {
+                        return record;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean withdrawApplication(String applicationId) {
+        TAApplicationRecord record = getApplicationById(applicationId);
+        if (record != null && "审核中".equals(record.getStatus())) {
+            record.setStatus("已撤回");
+            saveApplication(record);
+            return true;
+        }
+        return false;
+    }
 }
