@@ -125,7 +125,7 @@ public class TAPositionListUI extends Application {
                 navItem2.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "applications":
-                root.setCenter(new MyApplicationsView().getView());
+                root.setCenter(new MyApplicationsView(currentStudentId).getView());
                 navItem3.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "profile":

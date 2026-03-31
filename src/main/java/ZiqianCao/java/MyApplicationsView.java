@@ -2,12 +2,15 @@ package ZiqianCao.java;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.ScrollPane;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -17,6 +20,13 @@ public class MyApplicationsView {
     private String currentStudentId = "2024999";
     private TAApplicationRecordManager recordManager;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    public MyApplicationsView() {
+    }
+
+    public MyApplicationsView(String studentId) {
+        this.currentStudentId = studentId;
+    }
 
     public BorderPane getView() {
         recordManager = new TAApplicationRecordManager();
@@ -166,7 +176,29 @@ public class MyApplicationsView {
             Button withdrawButton = new Button("撤回");
             withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
             withdrawButton.setOnAction(e -> {
-                System.out.println("撤回申请: " + applicationId);
+                boolean success = recordManager.withdrawApplication(applicationId);
+                if (success) {
+                    System.out.println("成功撤回申请: " + applicationId);
+                    // 刷新界面 - 更安全的方式
+                    if (row.getScene() != null && row.getScene().getRoot() != null) {
+                        BorderPane newView = getView();
+                        // 查找 BorderPane 容器
+                        Parent root = row.getScene().getRoot();
+                        if (root instanceof StackPane) {
+                            StackPane stackPane = (StackPane) root;
+                            for (Node node : stackPane.getChildren()) {
+                                if (node instanceof BorderPane) {
+                                    ((BorderPane) node).setCenter(newView.getCenter());
+                                    break;
+                                }
+                            }
+                        } else if (root instanceof BorderPane) {
+                            ((BorderPane) root).setCenter(newView.getCenter());
+                        }
+                    }
+                } else {
+                    System.out.println("撤回失败: " + applicationId);
+                }
             });
             actionBox.getChildren().add(withdrawButton);
         } else {
