@@ -26,7 +26,7 @@ public class TAApplicationRecordManager {
             for (File file : files) {
                 try {
                     TAApplicationRecord record = objectMapper.readValue(file, TAApplicationRecord.class);
-                    if (record.getStudentId().equals(studentId) && record.getJobId().equals(jobId)) {
+                    if (record.getStudentId().equals(studentId) && record.getJobId().equals(jobId) && !"已撤回".equals(record.getStatus())) {
                         return true;
                     }
                 } catch (IOException e) {
