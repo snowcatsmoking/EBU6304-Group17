@@ -43,6 +43,14 @@ public class MyApplicationsView {
 
         List<TAApplicationRecord> applications = recordManager.getApplicationsByStudentId(currentStudentId);
         
+        // 按照申请时间排序，从新到旧
+        java.util.Collections.sort(applications, (a1, a2) -> {
+            if (a1.getApplicationDate() != null && a2.getApplicationDate() != null) {
+                return a2.getApplicationDate().compareTo(a1.getApplicationDate());
+            }
+            return 0;
+        });
+        
         if (applications.isEmpty()) {
             Label emptyLabel = new Label("暂无申请记录");
             emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #888888;");
