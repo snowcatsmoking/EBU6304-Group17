@@ -17,7 +17,7 @@ public class LoginView extends Application {
     private Label registerTab;
 
     public interface LoginHandler {
-        void onLogin(String account, String password, String role);
+        void onLogin(String account, String password);
         void onRegister(String account, String password, String role);
     }
 
@@ -33,8 +33,8 @@ public class LoginView extends Application {
 
         setLoginHandler(new LoginHandler() {
             @Override
-            public void onLogin(String account, String password, String role) {
-                System.out.println("登录: 账号=" + account + ", 密码=" + password + ", 身份=" + role);
+            public void onLogin(String account, String password) {
+                System.out.println("登录: 账号=" + account + ", 密码=" + password);
             }
 
             @Override
@@ -132,20 +132,6 @@ public class LoginView extends Application {
         VBox accountField = createFormField("账号 (学号 / 工号)", "请输入账号", false);
         VBox passwordField = createPasswordField("密码", "请输入密码");
 
-        VBox roleBox = new VBox();
-        roleBox.setSpacing(6);
-
-        Label roleLabel = new Label("登录身份");
-        roleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
-
-        ComboBox<String> roleCombo = new ComboBox<>();
-        roleCombo.getItems().addAll("-- 请选择登录身份 --", "应聘者 (TA Applicant)", "课程组织者 (Module Organiser)", "系统管理员 (Admin)");
-        roleCombo.getSelectionModel().select(0);
-        roleCombo.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1;");
-        roleCombo.setPrefWidth(Double.MAX_VALUE);
-
-        roleBox.getChildren().addAll(roleLabel, roleCombo);
-
         Label messageLabel = new Label("");
         messageLabel.setMaxWidth(Double.MAX_VALUE);
         messageLabel.setPadding(new Insets(10, 0, 0, 0));
@@ -157,13 +143,10 @@ public class LoginView extends Application {
         loginButton.setOnAction(e -> {
             TextField accountInput = (TextField) accountField.getChildren().get(1);
             PasswordField passInput = (PasswordField) passwordField.getChildren().get(1);
-            String role = roleCombo.getSelectionModel().getSelectedIndex() == 0 ? "" :
-                          roleCombo.getSelectionModel().getSelectedItem().toString();
 
             String result = userManager.login(
                 accountInput.getText(),
-                passInput.getText(),
-                role
+                passInput.getText()
             );
 
             if (result.startsWith("SUCCESS:")) {
@@ -212,7 +195,7 @@ public class LoginView extends Application {
             }
         });
 
-        panel.getChildren().addAll(accountField, passwordField, roleBox, loginButton, messageLabel);
+        panel.getChildren().addAll(accountField, passwordField, loginButton, messageLabel);
 
         return panel;
     }
