@@ -56,7 +56,7 @@ public class TAApplicationFormView {
 
     private void loadUserData(String studentId) {
         try {
-            String filePath = "resources/Data/TAData/" + studentId + ".json";
+            String filePath = data.DataConfig.TA_DIR + studentId + ".json";
             File file = new File(filePath);
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);

@@ -63,7 +63,7 @@ public class DashboardView {
 
     private void loadUserData(String studentId) {
         try {
-            File file = new File("resources/Data/TAData/" + studentId + ".json");
+            File file = new File(data.DataConfig.TA_DIR + studentId + ".json");
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
@@ -170,18 +170,7 @@ public class DashboardView {
         addProfileItem(singleColumn, "可任职时间", currentUser != null ? currentUser.getAvailableTime() : "");
         addProfileItem(singleColumn, "技能", currentUser != null ? currentUser.getSkill() : "");
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(singleColumn);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(false);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        scrollPane.setPadding(new Insets(0, 0, 0, 0));
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setPrefViewportHeight(200);
-        scrollPane.setMaxHeight(200);
-
-        profileBox.getChildren().addAll(titleBox, scrollPane);
+        profileBox.getChildren().addAll(titleBox, singleColumn);
 
         return profileBox;
     }

@@ -367,7 +367,7 @@ public class TAPositionListUI extends Application {
     private boolean checkProfileComplete() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            File file = new File("resources/Data/TAData/" + currentStudentId + ".json");
+            File file = new File(data.DataConfig.TA_DIR + currentStudentId + ".json");
             if (file.exists()) {
                 TAApplication user = mapper.readValue(file, TAApplication.class);
                 return user.getName() != null && !user.getName().trim().isEmpty()

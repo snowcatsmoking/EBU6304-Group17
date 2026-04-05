@@ -54,7 +54,7 @@ public class ProfileView {
 
     private void loadUserData(String studentId) {
         try {
-            File file = new File("resources/Data/TAData/" + studentId + ".json");
+            File file = new File(data.DataConfig.TA_DIR + studentId + ".json");
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
@@ -229,7 +229,7 @@ public class ProfileView {
 
     private void saveProfile() {
         try {
-            String fileName = "resources/Data/TAData/" + currentUser.getTAId() + ".json";
+            String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
             objectMapper.writeValue(new File(fileName), currentUser);
             System.out.println("个人档案已保存！");
         } catch (IOException e) {
