@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TA招聘管理系统 - 应聘者列表</title>
+    <title>TA Recruitment Management System - Applicant List</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: #fafafa; color: #333; }
@@ -150,21 +150,21 @@
 <body>
 
 <div class="topbar">
-    <div class="topbar-title">TA 招聘管理系统</div>
+    <div class="topbar-title">TA Recruitment Management System</div>
     <div class="topbar-right">
-        李教授 (MO2001) · 课程组织者
-        <a href="mo_dashboard.html">返回控制台</a>
-        <a href="login.html">退出登录</a>
+        Prof. Li (MO2001) · Module Organiser
+        <a href="mo_dashboard.html">Back to Dashboard</a>
+        <a href="login.html">Log out</a>
     </div>
 </div>
 
 <div class="main">
     <div class="sidebar">
-        <a class="nav-item" href="mo_dashboard.html">控制台</a>
-        <a class="nav-item" href="#">我的岗位</a>
-        <a class="nav-item" href="mo_post_position.html">发布岗位</a>
-        <a class="nav-item active" href="#">应聘者管理</a>
-        <a class="nav-item" href="#">岗位统计</a>
+        <a class="nav-item" href="mo_dashboard.html">Dashboard</a>
+        <a class="nav-item" href="#">My Positions</a>
+        <a class="nav-item" href="mo_post_position.html">Post Position</a>
+        <a class="nav-item active" href="#">Applicant Management</a>
+        <a class="nav-item" href="#">Position Analytics</a>
     </div>
 
     <div class="content">
@@ -175,43 +175,43 @@
                 <div>
                     <h2>EBU6304 Software Engineering TA</h2>
                     <div class="pos-summary-info">
-                        <span>招聘人数：3</span>
-                        <span>已申请：7</span>
-                        <span>已通过：1</span>
-                        <span>截止：2026-04-15</span>
+                        <span>Openings: 3</span>
+                        <span>Applied: 7</span>
+                        <span>Accepted: 1</span>
+                        <span>Deadline: 2026-04-15</span>
                     </div>
                 </div>
             </div>
 
             <!-- Filters -->
             <div class="filter-bar">
-                <input type="text" placeholder="搜索姓名 / 学号...">
+                <input type="text" placeholder="Search by name / student ID...">
                 <select>
-                    <option value="">专业</option>
-                    <option>计算机科学</option>
-                    <option>数据科学</option>
-                    <option>统计学</option>
+                    <option value="">Major</option>
+                    <option>Computer Science</option>
+                    <option>Data Science</option>
+                    <option>Statistics</option>
                 </select>
                 <select>
-                    <option value="">可任职时间</option>
-                    <option>2026 春季学期</option>
-                    <option>2026 秋季学期</option>
+                    <option value="">Available term</option>
+                    <option>Spring 2026</option>
+                    <option>Autumn 2026</option>
                 </select>
                 <select>
-                    <option value="">技能</option>
+                    <option value="">Skills</option>
                     <option>Java</option>
                     <option>Python</option>
                     <option>SQL</option>
                     <option>Git</option>
                 </select>
-                <button class="btn-filter">筛选</button>
+                <button class="btn-filter">Filter</button>
             </div>
 
             <!-- Batch actions -->
             <div class="batch-bar">
-                <span>已选 <strong>0</strong> 项</span>
-                <button class="btn-batch btn-batch-pass">批量通过</button>
-                <button class="btn-batch btn-batch-fail">批量未通过</button>
+                <span><strong>0</strong> selected</span>
+                <button class="btn-batch btn-batch-pass">Batch Accept</button>
+                <button class="btn-batch btn-batch-fail">Batch Reject</button>
             </div>
 
             <!-- Applicant table -->
@@ -219,84 +219,84 @@
                 <thead>
                     <tr>
                         <th><input type="checkbox"></th>
-                        <th>姓名</th>
-                        <th>学号</th>
-                        <th>专业</th>
-                        <th>技能</th>
-                        <th>申请时间</th>
-                        <th>状态</th>
-                        <th>操作</th>
+                        <th>Name</th>
+                        <th>Student ID</th>
+                        <th>Major</th>
+                        <th>Skills</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td><input type="checkbox"></td>
-                        <td>张三</td>
+                        <td>Alex Zhang</td>
                         <td>2024001</td>
-                        <td>计算机科学</td>
+                        <td>Computer Science</td>
                         <td><span class="skill-tag">Java</span><span class="skill-tag">Git</span><span class="skill-tag">Python</span></td>
                         <td>2026-03-10</td>
-                        <td><span class="badge badge-pending">审核中</span></td>
-                        <td><button class="btn-sm">通过</button><button class="btn-sm">未通过</button></td>
+                        <td><span class="badge badge-pending">Under Review</span></td>
+                        <td><button class="btn-sm">Accept</button><button class="btn-sm">Reject</button></td>
                     </tr>
                     <tr>
                         <td><input type="checkbox"></td>
-                        <td>王五</td>
+                        <td>Wang Wu</td>
                         <td>2024015</td>
-                        <td>数据科学</td>
+                        <td>Data Science</td>
                         <td><span class="skill-tag">Python</span><span class="skill-tag">SQL</span></td>
                         <td>2026-03-12</td>
-                        <td><span class="badge badge-pending">审核中</span></td>
-                        <td><button class="btn-sm">通过</button><button class="btn-sm">未通过</button></td>
+                        <td><span class="badge badge-pending">Under Review</span></td>
+                        <td><button class="btn-sm">Accept</button><button class="btn-sm">Reject</button></td>
                     </tr>
                     <tr>
                         <td><input type="checkbox"></td>
-                        <td>刘七</td>
+                        <td>Liu Qi</td>
                         <td>2024030</td>
-                        <td>计算机科学</td>
+                        <td>Computer Science</td>
                         <td><span class="skill-tag">Java</span><span class="skill-tag">Linux</span></td>
                         <td>2026-03-13</td>
-                        <td><span class="badge badge-pending">审核中</span></td>
-                        <td><button class="btn-sm">通过</button><button class="btn-sm">未通过</button></td>
+                        <td><span class="badge badge-pending">Under Review</span></td>
+                        <td><button class="btn-sm">Accept</button><button class="btn-sm">Reject</button></td>
                     </tr>
                     <tr>
                         <td><input type="checkbox"></td>
-                        <td>孙八</td>
+                        <td>Sun Ba</td>
                         <td>2024041</td>
-                        <td>统计学</td>
+                        <td>Statistics</td>
                         <td><span class="skill-tag">R</span><span class="skill-tag">Python</span></td>
                         <td>2026-03-14</td>
-                        <td><span class="badge badge-pending">审核中</span></td>
-                        <td><button class="btn-sm">通过</button><button class="btn-sm">未通过</button></td>
+                        <td><span class="badge badge-pending">Under Review</span></td>
+                        <td><button class="btn-sm">Accept</button><button class="btn-sm">Reject</button></td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>李四</td>
+                        <td>Li Si</td>
                         <td>2024008</td>
-                        <td>计算机科学</td>
+                        <td>Computer Science</td>
                         <td><span class="skill-tag">Java</span><span class="skill-tag">Git</span><span class="skill-tag">SQL</span></td>
                         <td>2026-03-08</td>
-                        <td><span class="badge badge-pass">已通过</span></td>
+                        <td><span class="badge badge-pass">Accepted</span></td>
                         <td>—</td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>周九</td>
+                        <td>Zhou Jiu</td>
                         <td>2024055</td>
-                        <td>数据科学</td>
+                        <td>Data Science</td>
                         <td><span class="skill-tag">Python</span></td>
                         <td>2026-03-06</td>
-                        <td><span class="badge badge-fail">未通过</span></td>
+                        <td><span class="badge badge-fail">Rejected</span></td>
                         <td>—</td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>吴十</td>
+                        <td>Wu Shi</td>
                         <td>2024063</td>
-                        <td>计算机科学</td>
+                        <td>Computer Science</td>
                         <td><span class="skill-tag">C++</span><span class="skill-tag">Linux</span></td>
                         <td>2026-03-05</td>
-                        <td><span class="badge badge-fail">未通过</span></td>
+                        <td><span class="badge badge-fail">Rejected</span></td>
                         <td>—</td>
                     </tr>
                 </tbody>

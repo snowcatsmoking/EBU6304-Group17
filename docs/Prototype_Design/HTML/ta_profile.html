@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TA招聘管理系统 - 发布岗位</title>
+    <title>TA Recruitment Management System - Profile</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: #fafafa; color: #333; }
@@ -65,7 +65,28 @@
             font-size: 14px;
             outline: none;
         }
-        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .skill-tag {
+            padding: 4px 12px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            background: #f5f5f5;
+        }
+
+        .file-upload {
+            padding: 20px;
+            border: 1px dashed #ccc;
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+        }
 
         .actions {
             display: flex;
@@ -85,89 +106,94 @@
 <body>
 
 <div class="topbar">
-    <div class="topbar-title">TA 招聘管理系统</div>
+    <div class="topbar-title">TA Recruitment Management System</div>
     <div class="topbar-right">
-        李教授 (MO2001) · 课程组织者
-        <a href="mo_dashboard.html">返回控制台</a>
-        <a href="login.html">退出登录</a>
+        Alex Zhang (2024001) · Applicant
+        <a href="ta_dashboard.html">Back to Dashboard</a>
+        <a href="login.html">Log out</a>
     </div>
 </div>
 
 <div class="main">
     <div class="sidebar">
-        <a class="nav-item" href="mo_dashboard.html">控制台</a>
-        <a class="nav-item" href="#">我的岗位</a>
-        <a class="nav-item active" href="#">发布岗位</a>
-        <a class="nav-item" href="#">应聘者管理</a>
-        <a class="nav-item" href="#">岗位统计</a>
+        <a class="nav-item" href="ta_dashboard.html">Dashboard</a>
+        <a class="nav-item" href="#">Positions</a>
+        <a class="nav-item" href="#">My Applications</a>
+        <a class="nav-item active" href="#">Profile</a>
     </div>
 
     <div class="content">
 
+        <!-- Basic info -->
         <div class="card">
-            <h2>岗位基础信息</h2>
+            <h2>Basic Information</h2>
             <div class="form-row">
                 <div class="form-group">
-                    <label>岗位名称</label>
-                    <input type="text" placeholder="如：EBU6304 Software Engineering TA">
+                    <label>Name</label>
+                    <input type="text" value="Alex Zhang">
                 </div>
                 <div class="form-group">
-                    <label>所属课程 / 活动</label>
-                    <input type="text" placeholder="如：EBU6304 Software Engineering">
+                    <label>Student ID</label>
+                    <input type="text" value="2024001" disabled style="background:#f5f5f5;">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>招聘人数</label>
-                    <input type="number" placeholder="如：3">
+                    <label>Major</label>
+                    <input type="text" value="Computer Science and Technology">
                 </div>
                 <div class="form-group">
-                    <label>申请截止时间</label>
-                    <input type="date" value="2026-04-30">
+                    <label>Available Term</label>
+                    <select>
+                        <option selected>Spring 2026</option>
+                        <option>Autumn 2026</option>
+                        <option>Spring + Autumn 2026</option>
+                    </select>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>任职时间段</label>
-                    <select>
-                        <option value="">-- 请选择 --</option>
-                        <option>2026 春季学期</option>
-                        <option>2026 秋季学期</option>
-                        <option>2026 春季 + 秋季学期</option>
-                    </select>
+                    <label>Phone</label>
+                    <input type="text" value="138-0000-1234">
                 </div>
                 <div class="form-group">
-                    <label>岗位类型</label>
-                    <select>
-                        <option value="">-- 请选择 --</option>
-                        <option>课程助教</option>
-                        <option>实验助教</option>
-                        <option>活动助教</option>
-                    </select>
+                    <label>Email</label>
+                    <input type="text" value="zhangsan@mail.uic.edu.cn">
                 </div>
             </div>
         </div>
 
+        <!-- Skills -->
         <div class="card">
-            <h2>任职要求</h2>
-            <div class="form-row full">
-                <div class="form-group">
-                    <label>岗位描述</label>
-                    <textarea placeholder="请描述岗位的主要职责和工作内容..."></textarea>
-                </div>
+            <h2>Skills</h2>
+            <div class="skill-tags">
+                <span class="skill-tag">Java</span>
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">SQL</span>
+                <span class="skill-tag">Git</span>
+                <span class="skill-tag">Linux</span>
             </div>
-            <div class="form-row full">
+            <div class="form-row full" style="margin-top: 16px;">
                 <div class="form-group">
-                    <label>技能要求</label>
-                    <textarea placeholder="如：熟悉 Java、Git，有项目开发经验优先..." style="min-height: 60px;"></textarea>
+                    <label>Additional Notes</label>
+                    <textarea>One semester of TA experience for CSC1001, familiar with tutoring workflows.</textarea>
                 </div>
             </div>
         </div>
 
+        <!-- Resume upload -->
+        <div class="card">
+            <h2>Resume</h2>
+            <div class="file-upload">
+                Click to upload your resume (.txt / .docx supported)<br>
+                <span style="font-size: 12px; color: #aaa;">Uploaded: AlexZhang_Resume.docx</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
         <div class="actions">
-            <button class="btn btn-primary">发布岗位</button>
-            <button class="btn">保存草稿</button>
-            <button class="btn">取消</button>
+            <button class="btn btn-primary">Save Profile</button>
+            <button class="btn">Export as JSON</button>
         </div>
 
     </div>

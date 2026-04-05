@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TA招聘管理系统 - 课程组织者控制台</title>
+    <title>TA Recruitment Management System - Module Organiser Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: #fafafa; color: #333; }
@@ -95,21 +95,21 @@
 <body>
 
 <div class="topbar">
-    <div class="topbar-title">TA 招聘管理系统</div>
+    <div class="topbar-title">TA Recruitment Management System</div>
     <div class="topbar-right">
-        李教授 (MO2001) · 课程组织者
-        <a href="login.html">退出登录</a>
+        Prof. Li (MO2001) · Module Organiser
+        <a href="login.html">Log out</a>
     </div>
 </div>
 
 <div class="main">
 
     <div class="sidebar">
-        <a class="nav-item active" href="#">控制台</a>
-        <a class="nav-item" href="#">我的岗位</a>
-        <a class="nav-item" href="#">发布岗位</a>
-        <a class="nav-item" href="#">应聘者管理</a>
-        <a class="nav-item" href="#">岗位统计</a>
+        <a class="nav-item active" href="#">Dashboard</a>
+        <a class="nav-item" href="#">My Positions</a>
+        <a class="nav-item" href="#">Post Position</a>
+        <a class="nav-item" href="#">Applicant Management</a>
+        <a class="nav-item" href="#">Position Analytics</a>
     </div>
 
     <div class="content">
@@ -118,37 +118,37 @@
         <div class="stats">
             <div class="stat-box">
                 <div class="num">4</div>
-                <div class="desc">已发布岗位</div>
+                <div class="desc">Published Positions</div>
             </div>
             <div class="stat-box">
                 <div class="num">12</div>
-                <div class="desc">收到申请</div>
+                <div class="desc">Applications Received</div>
             </div>
             <div class="stat-box">
                 <div class="num">5</div>
-                <div class="desc">待审核</div>
+                <div class="desc">Pending Reviews</div>
             </div>
             <div class="stat-box">
                 <div class="num">3</div>
-                <div class="desc">已录用</div>
+                <div class="desc">Accepted Applicants</div>
             </div>
         </div>
 
         <!-- My positions -->
         <div class="card">
             <div class="card-header">
-                <h2>我发布的岗位</h2>
-                <button class="btn-primary">+ 发布新岗位</button>
+                <h2>Positions I Posted</h2>
+                <button class="btn-primary">+ Post New Position</button>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>岗位名称</th>
-                        <th>招聘人数</th>
-                        <th>申请人数</th>
-                        <th>截止时间</th>
-                        <th>状态</th>
-                        <th>操作</th>
+                        <th>Position</th>
+                        <th>Openings</th>
+                        <th>Applications</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -157,31 +157,31 @@
                         <td>3</td>
                         <td>7</td>
                         <td>2026-04-15</td>
-                        <td><span class="badge badge-active">招聘中</span></td>
-                        <td><button class="btn-sm">查看应聘者</button> <button class="btn-sm">下架</button></td>
+                        <td><span class="badge badge-active">Open</span></td>
+                        <td><button class="btn-sm">View Applicants</button> <button class="btn-sm">Unpublish</button></td>
                     </tr>
                     <tr>
                         <td>EBU6305 Database Systems TA</td>
                         <td>2</td>
                         <td>3</td>
                         <td>2026-04-10</td>
-                        <td><span class="badge badge-active">招聘中</span></td>
-                        <td><button class="btn-sm">查看应聘者</button> <button class="btn-sm">下架</button></td>
+                        <td><span class="badge badge-active">Open</span></td>
+                        <td><button class="btn-sm">View Applicants</button> <button class="btn-sm">Unpublish</button></td>
                     </tr>
                     <tr>
                         <td>CSC3001 Operating Systems TA</td>
                         <td>2</td>
                         <td>2</td>
                         <td>2026-03-01</td>
-                        <td><span class="badge badge-closed">已截止</span></td>
-                        <td><button class="btn-sm">查看应聘者</button></td>
+                        <td><span class="badge badge-closed">Closed</span></td>
+                        <td><button class="btn-sm">View Applicants</button></td>
                     </tr>
                     <tr>
                         <td>MAT1001 Linear Algebra TA</td>
                         <td>1</td>
                         <td>0</td>
                         <td>—</td>
-                        <td><span class="badge badge-down">已下架</span></td>
+                        <td><span class="badge badge-down">Unpublished</span></td>
                         <td>—</td>
                     </tr>
                 </tbody>
@@ -190,42 +190,42 @@
 
         <!-- Pending reviews -->
         <div class="card">
-            <h2>待审核申请</h2>
+            <h2>Applications Pending Review</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>应聘者</th>
-                        <th>学号</th>
-                        <th>专业</th>
-                        <th>申请岗位</th>
-                        <th>申请时间</th>
-                        <th>操作</th>
+                        <th>Applicant</th>
+                        <th>Student ID</th>
+                        <th>Major</th>
+                        <th>Applied Position</th>
+                        <th>Applied On</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>张三</td>
+                        <td>Alex Zhang</td>
                         <td>2024001</td>
-                        <td>计算机科学</td>
+                        <td>Computer Science</td>
                         <td>EBU6304 Software Engineering TA</td>
                         <td>2026-03-10</td>
-                        <td><button class="btn-sm">通过</button> <button class="btn-sm">未通过</button></td>
+                        <td><button class="btn-sm">Accept</button> <button class="btn-sm">Reject</button></td>
                     </tr>
                     <tr>
-                        <td>王五</td>
+                        <td>Wang Wu</td>
                         <td>2024015</td>
-                        <td>数据科学</td>
+                        <td>Data Science</td>
                         <td>EBU6304 Software Engineering TA</td>
                         <td>2026-03-12</td>
-                        <td><button class="btn-sm">通过</button> <button class="btn-sm">未通过</button></td>
+                        <td><button class="btn-sm">Accept</button> <button class="btn-sm">Reject</button></td>
                     </tr>
                     <tr>
-                        <td>赵六</td>
+                        <td>Zhao Liu</td>
                         <td>2024022</td>
-                        <td>计算机科学</td>
+                        <td>Computer Science</td>
                         <td>EBU6305 Database Systems TA</td>
                         <td>2026-03-13</td>
-                        <td><button class="btn-sm">通过</button> <button class="btn-sm">未通过</button></td>
+                        <td><button class="btn-sm">Accept</button> <button class="btn-sm">Reject</button></td>
                     </tr>
                 </tbody>
             </table>

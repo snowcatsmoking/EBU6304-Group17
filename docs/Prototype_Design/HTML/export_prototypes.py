@@ -22,7 +22,7 @@ PAGES = [
 ]
 
 BASE_DIR = Path(__file__).parent
-OUTPUT_PDF = BASE_DIR / "prototypes.pdf"
+OUTPUT_PDF = BASE_DIR / "prototypes_new.pdf"
 VIEWPORT_WIDTH = 1280
 
 
