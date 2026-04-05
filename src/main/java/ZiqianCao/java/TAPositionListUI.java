@@ -32,6 +32,9 @@ public class TAPositionListUI extends Application {
     private List<TAJob> jobList;
     private TAApplicationRecordManager recordManager;
     private String currentStudentId = "2024999";
+    private int currentPage = 1;
+    private static final int PAGE_SIZE = 3;
+    private VBox positionListBox;
 
     public void setCurrentStudentId(String studentId) {
         this.currentStudentId = studentId;
@@ -87,6 +90,14 @@ public class TAPositionListUI extends Application {
         jobList.add(new TAJob("J002", "数据结构助教", "数据结构", "EBU6302", 3, "3.0及以上", "2025年10月1日", "李老师", false));
         jobList.add(new TAJob("J003", "算法竞赛指导助教", "算法竞赛", "EBU6303", 1, "有竞赛经验者优先", "已截止", "王老师", true));
         jobList.add(new TAJob("J004", "Java程序设计助教", "Java程序设计", "EBU6304", 2, "熟悉Java编程", "2025年10月15日", "赵老师", false));
+        jobList.add(new TAJob("J005", "数据库系统助教", "数据库系统", "EBU6305", 2, "熟悉SQL", "2025年10月20日", "钱老师", false));
+        jobList.add(new TAJob("J006", "计算机网络助教", "计算机网络", "EBU6306", 3, "有CCNA认证优先", "2025年10月25日", "孙老师", false));
+        jobList.add(new TAJob("J007", "操作系统助教", "操作系统", "EBU6307", 2, "熟悉Linux", "2025年11月1日", "周老师", false));
+        jobList.add(new TAJob("J008", "人工智能导论助教", "人工智能导论", "EBU6308", 2, "熟悉Python", "2025年11月5日", "吴老师", false));
+        jobList.add(new TAJob("J009", "机器学习助教", "机器学习", "EBU6309", 1, "有科研经验优先", "2025年11月10日", "郑老师", false));
+        jobList.add(new TAJob("J010", "计算机图形学助教", "计算机图形学", "EBU6310", 2, "熟悉OpenGL", "2025年11月15日", "王老师", false));
+        jobList.add(new TAJob("J011", "云计算技术助教", "云计算技术", "EBU6311", 2, "熟悉Docker", "2025年11月20日", "冯老师", false));
+        jobList.add(new TAJob("J012", "信息安全助教", "信息安全", "EBU6312", 3, "有CTF经验优先", "已截止", "陈老师", true));
     }
 
     private VBox createSidebar() {
@@ -185,18 +196,74 @@ public class TAPositionListUI extends Application {
 
         filterBox.getChildren().addAll(courseButton, activityButton, filterLabel, resetLabel);
 
-        VBox positionListBox = new VBox();
+        positionListBox = new VBox();
         positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
         positionListBox.setSpacing(0);
 
-        for (TAJob job : jobList) {
+        HBox paginationBox = createPaginationBox();
+
+        refreshPositionList();
+
+        content.getChildren().addAll(filterBox, positionListBox, paginationBox);
+
+        return content;
+    }
+
+    private void refreshPositionList() {
+        positionListBox.getChildren().clear();
+        int start = (currentPage - 1) * PAGE_SIZE;
+        int end = Math.min(start + PAGE_SIZE, jobList.size());
+
+        for (int i = start; i < end; i++) {
+            TAJob job = jobList.get(i);
             VBox positionBox = createPositionBox(job);
             positionListBox.getChildren().add(positionBox);
         }
+    }
 
-        content.getChildren().addAll(filterBox, positionListBox);
+    private HBox createPaginationBox() {
+        HBox paginationBox = new HBox();
+        paginationBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 1 1;");
+        paginationBox.setPadding(new Insets(16, 20, 16, 20));
+        paginationBox.setSpacing(16);
+        paginationBox.setAlignment(Pos.CENTER);
 
-        return content;
+        int totalPages = (int) Math.ceil((double) jobList.size() / PAGE_SIZE);
+
+        Button prevButton = new Button("上一页");
+        prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        prevButton.setDisable(currentPage == 1);
+        if (currentPage == 1) {
+            prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #cccccc; -fx-background-color: #f5f5f5; -fx-border-color: #eeeeee; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
+        }
+        prevButton.setOnAction(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                refreshPositionList();
+                switchToView("positions");
+            }
+        });
+
+        Label pageInfo = new Label("第 " + currentPage + " / " + totalPages + " 页  （共 " + jobList.size() + " 个岗位）");
+        pageInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+        Button nextButton = new Button("下一页");
+        nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        nextButton.setDisable(currentPage == totalPages);
+        if (currentPage == totalPages) {
+            nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #cccccc; -fx-background-color: #f5f5f5; -fx-border-color: #eeeeee; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
+        }
+        nextButton.setOnAction(e -> {
+            if (currentPage < totalPages) {
+                currentPage++;
+                refreshPositionList();
+                switchToView("positions");
+            }
+        });
+
+        paginationBox.getChildren().addAll(prevButton, pageInfo, nextButton);
+
+        return paginationBox;
     }
 
     private VBox createPositionBox(TAJob job) {
