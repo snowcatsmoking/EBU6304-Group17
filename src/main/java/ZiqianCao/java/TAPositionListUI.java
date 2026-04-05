@@ -15,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import data.JobDataManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -85,19 +86,7 @@ public class TAPositionListUI extends Application {
     }
 
     private void initJobList() {
-        jobList = new ArrayList<>();
-        jobList.add(new TAJob("J001", "软件工程课程助教", "软件工程", "EBU6301", 2, "3.5及以上", "2025年9月15日", "张老师", false));
-        jobList.add(new TAJob("J002", "数据结构助教", "数据结构", "EBU6302", 3, "3.0及以上", "2025年10月1日", "李老师", false));
-        jobList.add(new TAJob("J003", "算法竞赛指导助教", "算法竞赛", "EBU6303", 1, "有竞赛经验者优先", "已截止", "王老师", true));
-        jobList.add(new TAJob("J004", "Java程序设计助教", "Java程序设计", "EBU6304", 2, "熟悉Java编程", "2025年10月15日", "赵老师", false));
-        jobList.add(new TAJob("J005", "数据库系统助教", "数据库系统", "EBU6305", 2, "熟悉SQL", "2025年10月20日", "钱老师", false));
-        jobList.add(new TAJob("J006", "计算机网络助教", "计算机网络", "EBU6306", 3, "有CCNA认证优先", "2025年10月25日", "孙老师", false));
-        jobList.add(new TAJob("J007", "操作系统助教", "操作系统", "EBU6307", 2, "熟悉Linux", "2025年11月1日", "周老师", false));
-        jobList.add(new TAJob("J008", "人工智能导论助教", "人工智能导论", "EBU6308", 2, "熟悉Python", "2025年11月5日", "吴老师", false));
-        jobList.add(new TAJob("J009", "机器学习助教", "机器学习", "EBU6309", 1, "有科研经验优先", "2025年11月10日", "郑老师", false));
-        jobList.add(new TAJob("J010", "计算机图形学助教", "计算机图形学", "EBU6310", 2, "熟悉OpenGL", "2025年11月15日", "王老师", false));
-        jobList.add(new TAJob("J011", "云计算技术助教", "云计算技术", "EBU6311", 2, "熟悉Docker", "2025年11月20日", "冯老师", false));
-        jobList.add(new TAJob("J012", "信息安全助教", "信息安全", "EBU6312", 3, "有CTF经验优先", "已截止", "陈老师", true));
+        jobList = new JobDataManager().getAllJobs();
     }
 
     private VBox createSidebar() {

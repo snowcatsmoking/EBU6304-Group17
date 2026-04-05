@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TA Recruitment Management System - Applicant Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: #fafafa; color: #333; }
+
+        /* Top bar */
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-title { font-size: 15px; font-weight: 600; }
+        .topbar-right { font-size: 13px; color: #666; }
+        .topbar-right a { color: #333; text-decoration: none; margin-left: 16px; }
+
+        /* Layout */
+        .main { display: flex; max-width: 1080px; margin: 32px auto; gap: 24px; padding: 0 16px; }
+        .sidebar { width: 200px; flex-shrink: 0; }
+        .content { flex: 1; }
+
+        /* Sidebar nav */
+        .nav-item {
+            display: block;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #555;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        .nav-item.active { color: #000; font-weight: 600; border-left-color: #000; background: #f0f0f0; }
+
+        /* Cards */
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+
+        /* Profile grid */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 32px;
+            font-size: 13px;
+        }
+        .profile-grid .label { color: #888; }
+        .profile-grid .value { color: #111; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 8px 12px; border-bottom: 1px solid #ddd; color: #888; font-weight: 500; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            font-size: 12px;
+            border: 1px solid;
+        }
+        .badge-pending { color: #b08800; border-color: #e0c860; background: #fffbe6; }
+        .badge-pass { color: #080; border-color: #aca; background: #efffef; }
+        .badge-fail { color: #c00; border-color: #eaa; background: #fff0f0; }
+        .badge-withdrawn { color: #888; border-color: #ccc; background: #f5f5f5; }
+
+        /* Buttons */
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+        }
+        .btn-link { font-size: 13px; color: #333; text-decoration: underline; cursor: pointer; background: none; border: none; }
+
+        /* Quick stats */
+        .stats { display: flex; gap: 16px; margin-bottom: 20px; }
+        .stat-box {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-box .num { font-size: 24px; font-weight: 600; }
+        .stat-box .desc { font-size: 12px; color: #888; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+    <div class="topbar-title">TA Recruitment Management System</div>
+    <div class="topbar-right">
+        Alex Zhang (2024001) · Applicant
+        <a href="login.html">Log out</a>
+    </div>
+</div>
+
+<!-- Main layout -->
+<div class="main">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a class="nav-item active" href="#">Dashboard</a>
+        <a class="nav-item" href="#">Positions</a>
+        <a class="nav-item" href="#">My Applications</a>
+        <a class="nav-item" href="#">Profile</a>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+        <!-- Quick stats -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="num">3</div>
+                <div class="desc">Submitted Applications</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">1</div>
+                <div class="desc">Accepted</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">1</div>
+                <div class="desc">Under Review</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">5</div>
+                <div class="desc">Open Positions</div>
+            </div>
+        </div>
+
+        <!-- Profile summary -->
+        <div class="card">
+            <h2>Profile Summary <button class="btn-link">Edit Profile</button></h2>
+            <div class="profile-grid">
+                <div><span class="label">Name</span></div>
+                <div><span class="value">Alex Zhang</span></div>
+                <div><span class="label">Student ID</span></div>
+                <div><span class="value">2024001</span></div>
+                <div><span class="label">Major</span></div>
+                <div><span class="value">Computer Science and Technology</span></div>
+                <div><span class="label">Phone</span></div>
+                <div><span class="value">138-0000-1234</span></div>
+                <div><span class="label">Email</span></div>
+                <div><span class="value">zhangsan@mail.uic.edu.cn</span></div>
+                <div><span class="label">Available Term</span></div>
+                <div><span class="value">Spring 2026</span></div>
+            </div>
+        </div>
+
+        <!-- Recent applications -->
+        <div class="card">
+            <h2>Recent Application Records</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>EBU6304 Software Engineering TA</td>
+                        <td>2026-03-10</td>
+                        <td><span class="badge badge-pending">Under Review</span></td>
+                        <td><button class="btn-sm">Withdraw</button></td>
+                    </tr>
+                    <tr>
+                        <td>CSC1001 Introduction to CS TA</td>
+                        <td>2026-03-05</td>
+                        <td><span class="badge badge-pass">Accepted</span></td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>STA2001 Probability & Statistics TA</td>
+                        <td>2026-02-28</td>
+                        <td><span class="badge badge-fail">Rejected</span></td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -3,6 +3,8 @@ package LoginScreen;
 import ZiqianCao.java.TAApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import data.DataConfig;
+import data.LogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,12 +12,12 @@ import java.io.IOException;
 public class UserManager {
 
     private static final String ADMIN_AUTH_CODE = "BUPTAdmin";
-    private static final String BASE_DIR = "resources/Data/";
-    private static final String TA_DIR = BASE_DIR + "TAData/";
-    private static final String MO_DIR = BASE_DIR + "MOData/";
-    private static final String ADMIN_DIR = BASE_DIR + "AdminData/";
+    private static final String TA_DIR    = DataConfig.TA_DIR;
+    private static final String MO_DIR    = DataConfig.MO_DIR;
+    private static final String ADMIN_DIR = DataConfig.ADMIN_DIR;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+    private LogManager logManager = new LogManager();
 
     public UserManager() {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -23,9 +25,7 @@ public class UserManager {
     }
 
     private void initDirectories() {
-        new File(TA_DIR).mkdirs();
-        new File(MO_DIR).mkdirs();
-        new File(ADMIN_DIR).mkdirs();
+        DataConfig.initAllDirs();
     }
 
     private String getDirectoryByRole(String role) {
@@ -88,6 +88,7 @@ public class UserManager {
                 objectMapper.writeValue(taFile, taProfile);
             }
 
+            logManager.log(account, "注册账号", account, "角色: " + getRoleKey(role));
             return "SUCCESS";
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,6 +115,7 @@ public class UserManager {
             try {
                 TAApplication ta = objectMapper.readValue(taFile, TAApplication.class);
                 if (ta.getPassword() != null && ta.getPassword().equals(password)) {
+                    logManager.log(account, "登录", account, "角色: TA");
                     return "SUCCESS:TA";
                 } else {
                     return "密码错误，请重试";
@@ -133,6 +135,7 @@ public class UserManager {
             try {
                 User user = objectMapper.readValue(userFile, User.class);
                 if (user.getPassword().equals(password)) {
+                    logManager.log(account, "登录", account, "角色: " + user.getRole());
                     return "SUCCESS:" + user.getRole();
                 } else {
                     return "密码错误，请重试";

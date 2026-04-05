@@ -188,6 +188,19 @@ public class LoginView extends Application {
                             ex.printStackTrace();
                         }
                     }).start();
+                } else if (userRole.equals("ADMIN")) {
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(500);
+                            javafx.application.Platform.runLater(() -> {
+                                primaryStage.close();
+                                Admin.AdminDashboard dashboard = new Admin.AdminDashboard(studentId);
+                                dashboard.start(new Stage());
+                            });
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }).start();
                 } else {
                     messageLabel.setText(userRole + " 界面开发中...");
                     messageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #008800; -fx-alignment: center;");
