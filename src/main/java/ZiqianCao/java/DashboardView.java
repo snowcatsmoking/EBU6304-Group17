@@ -92,18 +92,10 @@ public class DashboardView {
         Label idLabel = new Label(currentUser != null ? currentUser.getTAId() : "");
         idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
 
-        Button logoutButton = new Button("退出登录");
-        logoutButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
-        logoutButton.setOnAction(e -> {
-            if (logoutListener != null) {
-                logoutListener.onLogout();
-            }
-        });
-
         HBox userInfoBox = new HBox();
         userInfoBox.setSpacing(8);
         userInfoBox.setAlignment(Pos.CENTER);
-        userInfoBox.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, idLabel, logoutButton);
+        userInfoBox.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, idLabel);
 
         headerBox.getChildren().add(userInfoBox);
 
