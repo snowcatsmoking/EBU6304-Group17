@@ -31,20 +31,27 @@ public class AdminDashboard extends Application {
         this.adminId = adminId;
     }
 
-    @Override
-    public void start(Stage stage) {
-        root = new BorderPane();
-        root.setStyle("-fx-background-color: #fafafa;");
-        root.setLeft(buildSidebar(stage));
-        showDashboard();
-
-        Scene scene = new Scene(root, 1100, 720);
-        stage.setTitle("TA 招聘管理系统 - 管理员控制台");
-        stage.setScene(scene);
-        stage.show();
+    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
+    public void navigateTo() {
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA 招聘管理系统 - 管理员控制台");
     }
 
-    private VBox buildSidebar(Stage stage) {
+    @Override
+    public void start(Stage stage) {
+        core.AppNavigator.getInstance().init(stage);
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA 招聘管理系统 - 管理员控制台");
+    }
+
+    private void buildUI() {
+        root = new BorderPane();
+        root.setStyle("-fx-background-color: #fafafa;");
+        root.setLeft(buildSidebar());
+        showDashboard();
+    }
+
+    private VBox buildSidebar() {
         VBox sidebar = new VBox();
         sidebar.setPrefWidth(220);
         sidebar.setStyle("-fx-background-color: #ffffff;");
@@ -75,8 +82,12 @@ public class AdminDashboard extends Application {
             "-fx-font-size: 14px; -fx-text-fill: #888888; -fx-cursor: hand;" +
             "-fx-padding: 10 16 24 16;");
         logoutLabel.setOnMouseClicked(e -> {
-            stage.close();
-            new LoginScreen.LoginView().start(new Stage());
+            try {
+                LoginScreen.LoginView loginView = new LoginScreen.LoginView();
+                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA招聘管理系统 - 登录");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
         sidebar.getChildren().addAll(

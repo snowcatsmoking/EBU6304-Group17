@@ -30,6 +30,7 @@ public class LoginView extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        core.AppNavigator.getInstance().init(primaryStage);
 
         setLoginHandler(new LoginHandler() {
             @Override
@@ -43,6 +44,10 @@ public class LoginView extends Application {
             }
         });
 
+        core.AppNavigator.getInstance().navigateTo(buildLoginScene(), "TA招聘管理系统 - 登录");
+    }
+
+    public Scene buildLoginScene() {
         StackPane rootWrapper = new StackPane();
         rootWrapper.setStyle("-fx-background-color: #fafafa;");
         rootWrapper.setAlignment(Pos.CENTER);
@@ -72,7 +77,6 @@ public class LoginView extends Application {
         HBox tabsBox = createTabs();
 
         StackPane contentPane = new StackPane();
-        contentPane.setPadding(new Insets(0, 0, 0, 0));
 
         loginPanel = createLoginPanel();
         registerPanel = createRegisterPanel();
@@ -91,10 +95,7 @@ public class LoginView extends Application {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        Scene scene = new Scene(scrollPane, 900, 700);
-        primaryStage.setTitle("TA招聘管理系统 - 登录");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        return new Scene(scrollPane);
     }
 
     private HBox createTabs() {
@@ -162,10 +163,9 @@ public class LoginView extends Application {
                         try {
                             Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
-                                primaryStage.close();
                                 ZiqianCao.java.TAPositionListUI ui = new ZiqianCao.java.TAPositionListUI();
                                 ui.setCurrentStudentId(studentId);
-                                ui.start(new Stage());
+                                ui.navigateTo();
                             });
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -176,9 +176,8 @@ public class LoginView extends Application {
                         try {
                             Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
-                                primaryStage.close();
                                 Admin.AdminDashboard dashboard = new Admin.AdminDashboard(studentId);
-                                dashboard.start(new Stage());
+                                dashboard.navigateTo();
                             });
                         } catch (Exception ex) {
                             ex.printStackTrace();

@@ -44,9 +44,22 @@ public class TAPositionListUI extends Application {
     private Stage primaryStage;
     private VBox overlay;
 
+    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
+    public void navigateTo() {
+        this.primaryStage = core.AppNavigator.getInstance().getStage();
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(rootContainer), "TA Application System");
+    }
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        core.AppNavigator.getInstance().init(primaryStage);
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(rootContainer), "TA Application System");
+    }
+
+    private void buildUI() {
         rootContainer = new StackPane();
         rootContainer.setStyle("-fx-background-color: #f5f5f5;");
 
@@ -63,9 +76,9 @@ public class TAPositionListUI extends Application {
         dashboardView.setCurrentStudentId(currentStudentId);
         dashboardView.setNavigationListener(() -> switchToView("profile"));
         dashboardView.setLogoutListener(() -> {
-            primaryStage.close();
             try {
-                new LoginScreen.LoginView().start(new Stage());
+                LoginScreen.LoginView loginView = new LoginScreen.LoginView();
+                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA招聘管理系统 - 登录");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -78,11 +91,6 @@ public class TAPositionListUI extends Application {
         overlay.setVisible(false);
 
         rootContainer.getChildren().addAll(root, overlay);
-
-        Scene scene = new Scene(rootContainer, 1200, 700);
-        primaryStage.setTitle("TA Application System");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     private void initJobList() {
