@@ -366,7 +366,7 @@ public class TAApplicationFormView {
 
         TAApplicationRecord record = new TAApplicationRecord(
             currentUser.getTAId(),
-            "MO001",
+            currentJob.getMoStaffId() != null ? currentJob.getMoStaffId() : "",
             currentJob.getCourseCode(),
             currentJob.getJobId(),
             currentJob.getPositionName(),

@@ -1,7 +1,8 @@
-    package ZiqianCao.java;
+package ZiqianCao.java;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import data.DataConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,15 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TAApplicationRecordManager {
-    private static final String APPLICATION_DATA_DIR = "resources/Data/ApplicationData/";
+    private static final String APPLICATION_DATA_DIR = DataConfig.APPLICATION_DIR;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public TAApplicationRecordManager() {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        File dataDir = new File(APPLICATION_DATA_DIR);
-        if (!dataDir.exists()) {
-            dataDir.mkdirs();
-        }
+        DataConfig.ensureDir(APPLICATION_DATA_DIR);
     }
 
     public boolean hasDuplicateApplication(String taStudentId, String jobId) {
