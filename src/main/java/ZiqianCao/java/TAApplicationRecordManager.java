@@ -38,6 +38,24 @@ public class TAApplicationRecordManager {
         return false;
     }
 
+    public List<TAApplicationRecord> getApplicationsByTA(String taStudentId) {
+        List<TAApplicationRecord> result = new ArrayList<>();
+        File[] files = new File(APPLICATION_DATA_DIR).listFiles();
+        if (files != null) {
+            for (File file : files) {
+                try {
+                    TAApplicationRecord record = objectMapper.readValue(file, TAApplicationRecord.class);
+                    if (record.getTaStudentId().equals(taStudentId)) {
+                        result.add(record);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
+    }
+
     public void saveApplication(TAApplicationRecord record) {
         try {
             String fileName = APPLICATION_DATA_DIR + record.getApplicationId() + ".json";

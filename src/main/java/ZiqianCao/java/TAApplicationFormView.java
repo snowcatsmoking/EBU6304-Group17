@@ -348,6 +348,16 @@ public class TAApplicationFormView {
         System.out.println("学生ID: " + currentUser.getTAId());
         System.out.println("岗位ID: " + currentJob.getJobId());
 
+        if (currentUser.getName() == null || currentUser.getName().trim().isEmpty()
+            || currentUser.getMajor() == null || currentUser.getMajor().trim().isEmpty()
+            || currentUser.getPhone() == null || currentUser.getPhone().trim().isEmpty()
+            || currentUser.getAvailableTime() == null || currentUser.getAvailableTime().trim().isEmpty()
+            || currentUser.getSkill() == null || currentUser.getSkill().trim().isEmpty()) {
+            System.out.println("检测到档案不完整，已阻止");
+            showAlert("申请被拒绝", "个人档案不完整！\n\n请完善姓名、专业、联系电话、可任职时间、专业技能后再申请。");
+            return;
+        }
+
         if (recordManager.hasDuplicateApplication(currentUser.getTAId(), currentJob.getJobId())) {
             System.out.println("检测到重复申请，已阻止");
             showAlert("重复申请", "您已经申请过该岗位，请勿重复申请！");

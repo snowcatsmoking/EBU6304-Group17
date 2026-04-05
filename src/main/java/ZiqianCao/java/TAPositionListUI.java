@@ -14,6 +14,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -251,11 +254,25 @@ public class TAPositionListUI extends Application {
             actionBox.getChildren().add(closedButton);
         } else {
             boolean hasApplied = recordManager.hasDuplicateApplication(currentStudentId, job.getJobId());
+            boolean profileComplete = checkProfileComplete();
+            
             if (hasApplied) {
                 Button appliedButton = new Button("申请中");
                 appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 6 20 6 20; -fx-cursor: default;");
                 appliedButton.setDisable(true);
                 actionBox.getChildren().add(appliedButton);
+            } else if (!profileComplete) {
+                Button incompleteButton = new Button("请完善档案");
+                incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #856404; -fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                incompleteButton.setOnAction(e -> {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                    alert.setTitle("档案不完整");
+                    alert.setHeaderText("申请前请先完善个人档案");
+                    alert.setContentText("请前往「个人档案」页面填写：\n• 姓名\n• 专业\n• 联系电话\n• 可任职时间\n• 专业技能");
+                    alert.showAndWait();
+                    switchToView("profile");
+                });
+                actionBox.getChildren().add(incompleteButton);
             } else {
                 Button applyButton = new Button("申请");
                 applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
@@ -271,7 +288,34 @@ public class TAPositionListUI extends Application {
         return positionBox;
     }
 
+    private boolean checkProfileComplete() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            File file = new File("resources/Data/TAData/" + currentStudentId + ".json");
+            if (file.exists()) {
+                TAApplication user = mapper.readValue(file, TAApplication.class);
+                return user.getName() != null && !user.getName().trim().isEmpty()
+                    && user.getMajor() != null && !user.getMajor().trim().isEmpty()
+                    && user.getPhone() != null && !user.getPhone().trim().isEmpty()
+                    && user.getAvailableTime() != null && !user.getAvailableTime().trim().isEmpty()
+                    && user.getSkill() != null && !user.getSkill().trim().isEmpty();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private void openApplicationForm(TAJob job) {
+        if (!checkProfileComplete()) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
+            alert.setTitle("申请被拒绝");
+            alert.setHeaderText("个人档案不完整");
+            alert.setContentText("申请TA岗位前请先完善个人档案！\n\n必填项：姓名、专业、联系电话、可任职时间、专业技能\n\n请前往「个人档案」页面填写完整后再申请。");
+            alert.showAndWait();
+            return;
+        }
+
         overlay.setVisible(true);
         TAApplicationFormView formView = new TAApplicationFormView(job, currentStudentId);
         formView.setApplicationListener(() -> {
