@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -31,7 +32,14 @@ public class ProfileView {
         VBox profileForm = createProfileForm();
         content.getChildren().add(profileForm);
 
-        root.setCenter(content);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        root.setCenter(scrollPane);
 
         return root;
     }
@@ -73,6 +81,9 @@ public class ProfileView {
         VBox field6 = createFormField("可任职时间", currentUser != null ? currentUser.getAvailableTime() : "", "availableTime");
         VBox field7 = createFormField("技能", currentUser != null ? currentUser.getSkill() : "", "skill");
 
+        FileUploader fileUploader = new FileUploader(currentUser.getTAId());
+        VBox fileUploadBox = fileUploader.getUploadComponent();
+
         HBox buttonBox = new HBox();
         buttonBox.setAlignment(Pos.CENTER_LEFT);
         buttonBox.setSpacing(12);
@@ -88,7 +99,7 @@ public class ProfileView {
 
         buttonBox.getChildren().addAll(saveButton, cancelButton);
 
-        formBox.getChildren().addAll(titleBox, field1, field2, field3, field4, field5, field6, field7, buttonBox);
+        formBox.getChildren().addAll(titleBox, field1, field2, field3, field4, field5, field6, field7, fileUploadBox, buttonBox);
 
         return formBox;
     }

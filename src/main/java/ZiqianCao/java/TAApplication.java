@@ -2,6 +2,8 @@ package ZiqianCao.java;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.sql.SQLOutput;
+
 public class TAApplication {
     private String name;
     @JsonProperty("taid")
@@ -65,4 +67,5 @@ public class TAApplication {
     public void setSkill(String skill){
         this.skill = skill;
     }
+
 }

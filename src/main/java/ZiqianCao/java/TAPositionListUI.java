@@ -50,7 +50,7 @@ public class TAPositionListUI extends Application {
         dashboardView = new DashboardView();
         dashboardView.setNavigationListener(() -> switchToView("profile"));
         root.setCenter(dashboardView.getView());
-        navItem1.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
+        navItem1.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
 
         overlay = new VBox();
         overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
@@ -78,6 +78,7 @@ public class TAPositionListUI extends Application {
         sidebar.setPrefWidth(220);
         sidebar.setPadding(new Insets(20, 0, 20, 0));
         sidebar.setSpacing(0);
+        sidebar.setAlignment(Pos.TOP_LEFT);
 
         Label titleLabel = new Label("TA系统");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #000000;");
@@ -85,6 +86,7 @@ public class TAPositionListUI extends Application {
 
         VBox navBox = new VBox();
         navBox.setSpacing(0);
+        navBox.setAlignment(Pos.TOP_LEFT);
 
         navItem1 = createNavItem("控制台", "dashboard");
         navItem2 = createNavItem("岗位列表", "positions");
@@ -102,6 +104,10 @@ public class TAPositionListUI extends Application {
         Label item = new Label(text);
         item.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333; -fx-padding: 10 16 10 16; -fx-cursor: hand;");
         item.setPrefWidth(220);
+        item.setPrefHeight(40);
+        item.setMinHeight(40);
+        item.setMaxHeight(40);
+        item.setAlignment(Pos.CENTER_LEFT);
         item.setOnMouseClicked(e -> switchToView(viewName));
         return item;
     }
@@ -118,19 +124,19 @@ public class TAPositionListUI extends Application {
         switch (viewName) {
             case "dashboard":
                 root.setCenter(dashboardView.getView());
-                navItem1.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
+                navItem1.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "positions":
                 root.setCenter(createPositionListView());
-                navItem2.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
+                navItem2.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "applications":
                 root.setCenter(new MyApplicationsView(currentStudentId).getView());
-                navItem3.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
+                navItem3.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "profile":
                 root.setCenter(new ProfileView().getView());
-                navItem4.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
+                navItem4.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
         }
     }
