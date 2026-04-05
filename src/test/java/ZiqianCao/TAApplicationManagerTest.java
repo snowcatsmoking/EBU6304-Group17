@@ -1,4 +1,4 @@
-package ZiqianCao.Test;
+package ZiqianCao;
 
 import ZiqianCao.java.TAApplication;
 import ZiqianCao.java.TAApplicationManager;

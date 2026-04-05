@@ -1,4 +1,4 @@
-package ZiqianCao.Test;
+package ZiqianCao;
 
 public class Test1 {
 }
