@@ -29,6 +29,11 @@ public class TAPositionListUI extends Application {
     private List<TAJob> jobList;
     private TAApplicationRecordManager recordManager;
     private String currentStudentId = "2024999";
+
+    public void setCurrentStudentId(String studentId) {
+        this.currentStudentId = studentId;
+    }
+
     private Stage primaryStage;
     private VBox overlay;
 
@@ -48,7 +53,16 @@ public class TAPositionListUI extends Application {
         root.setLeft(sidebar);
 
         dashboardView = new DashboardView();
+        dashboardView.setCurrentStudentId(currentStudentId);
         dashboardView.setNavigationListener(() -> switchToView("profile"));
+        dashboardView.setLogoutListener(() -> {
+            primaryStage.close();
+            try {
+                new LoginScreen.LoginView().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
         root.setCenter(dashboardView.getView());
         navItem1.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
 
@@ -66,10 +80,10 @@ public class TAPositionListUI extends Application {
 
     private void initJobList() {
         jobList = new ArrayList<>();
-        jobList.add(new TAJob("J001", "软件工程课程助教", "软件工程", 2, "3.5及以上", "2025年9月15日", "张老师", false));
-        jobList.add(new TAJob("J002", "数据结构助教", "数据结构", 3, "3.0及以上", "2025年10月1日", "李老师", false));
-        jobList.add(new TAJob("J003", "算法竞赛指导助教", "算法竞赛", 1, "有竞赛经验者优先", "已截止", "王老师", true));
-        jobList.add(new TAJob("J004", "Java程序设计助教", "Java程序设计", 2, "熟悉Java编程", "2025年10月15日", "赵老师", false));
+        jobList.add(new TAJob("J001", "软件工程课程助教", "软件工程", "EBU6301", 2, "3.5及以上", "2025年9月15日", "张老师", false));
+        jobList.add(new TAJob("J002", "数据结构助教", "数据结构", "EBU6302", 3, "3.0及以上", "2025年10月1日", "李老师", false));
+        jobList.add(new TAJob("J003", "算法竞赛指导助教", "算法竞赛", "EBU6303", 1, "有竞赛经验者优先", "已截止", "王老师", true));
+        jobList.add(new TAJob("J004", "Java程序设计助教", "Java程序设计", "EBU6304", 2, "熟悉Java编程", "2025年10月15日", "赵老师", false));
     }
 
     private VBox createSidebar() {
@@ -135,7 +149,9 @@ public class TAPositionListUI extends Application {
                 navItem3.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
             case "profile":
-                root.setCenter(new ProfileView().getView());
+                ProfileView profileView = new ProfileView();
+                profileView.setCurrentStudentId(currentStudentId);
+                root.setCenter(profileView.getView());
                 navItem4.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
                 break;
         }
@@ -257,7 +273,7 @@ public class TAPositionListUI extends Application {
 
     private void openApplicationForm(TAJob job) {
         overlay.setVisible(true);
-        TAApplicationFormView formView = new TAApplicationFormView(job);
+        TAApplicationFormView formView = new TAApplicationFormView(job, currentStudentId);
         formView.setApplicationListener(() -> {
             overlay.setVisible(false);
             switchToView("positions");

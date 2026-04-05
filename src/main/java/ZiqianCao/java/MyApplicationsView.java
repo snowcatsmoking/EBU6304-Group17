@@ -109,11 +109,11 @@ public class MyApplicationsView {
 
         for (TAApplicationRecord record : applications) {
             String statusType = getStatusType(record.getStatus());
-            boolean canWithdraw = "审核中".equals(record.getStatus());
+            boolean canWithdraw = TAApplicationRecord.STATUS_PENDING.equals(record.getStatus());
             HBox row = createTableRow(
                 record.getPositionName(),
                 dateFormat.format(record.getApplicationDate()),
-                record.getStatus(),
+                getStatusDisplay(record.getStatus()),
                 statusType,
                 canWithdraw,
                 record.getApplicationId()
@@ -124,16 +124,30 @@ public class MyApplicationsView {
         return content;
     }
 
+    private String getStatusDisplay(String status) {
+        switch (status) {
+            case TAApplicationRecord.STATUS_PENDING:
+                return "审核中";
+            case TAApplicationRecord.STATUS_APPROVED:
+                return "已通过";
+            case TAApplicationRecord.STATUS_REJECTED:
+                return "已拒绝";
+            case TAApplicationRecord.STATUS_WITHDRAWN:
+                return "已撤回";
+            default:
+                return status;
+        }
+    }
+
     private String getStatusType(String status) {
         switch (status) {
-            case "已提交":
-            case "审核中":
+            case TAApplicationRecord.STATUS_PENDING:
                 return "pending";
-            case "通过":
+            case TAApplicationRecord.STATUS_APPROVED:
                 return "pass";
-            case "未通过":
+            case TAApplicationRecord.STATUS_REJECTED:
                 return "fail";
-            case "已撤回":
+            case TAApplicationRecord.STATUS_WITHDRAWN:
                 return "withdrawn";
             default:
                 return "default";

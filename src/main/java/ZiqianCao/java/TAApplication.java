@@ -13,6 +13,7 @@ public class TAApplication {
     private String email;
     private String availableTime;
     private String skill;
+    private String password;
 
     public TAApplication(){};
 
@@ -24,6 +25,18 @@ public class TAApplication {
         this.email = email;
         this.availableTime = availableTime;
         this.skill = skill;
+        this.password = "123456";
+    }
+
+    public TAApplication(String name, String TAId, String major, String phone, String email, String availableTime, String skill, String password){
+        this.name = name;
+        this.TAId = TAId;
+        this.major = major;
+        this.phone = phone;
+        this.email = email;
+        this.availableTime = availableTime;
+        this.skill = skill;
+        this.password = password;
     }
     public String getName(){
         return name;
@@ -66,6 +79,14 @@ public class TAApplication {
     }
     public void setSkill(String skill){
         this.skill = skill;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
 }

@@ -20,13 +20,14 @@ public class TAApplicationRecordManager {
         }
     }
 
-    public boolean hasDuplicateApplication(String studentId, String jobId) {
+    public boolean hasDuplicateApplication(String taStudentId, String jobId) {
         File[] files = new File(APPLICATION_DATA_DIR).listFiles();
         if (files != null) {
             for (File file : files) {
                 try {
                     TAApplicationRecord record = objectMapper.readValue(file, TAApplicationRecord.class);
-                    if (record.getStudentId().equals(studentId) && record.getJobId().equals(jobId) && !"已撤回".equals(record.getStatus())) {
+                    if (record.getTaStudentId().equals(taStudentId) && record.getJobId().equals(jobId) 
+                        && !TAApplicationRecord.STATUS_WITHDRAWN.equals(record.getStatus())) {
                         return true;
                     }
                 } catch (IOException e) {
@@ -62,14 +63,32 @@ public class TAApplicationRecordManager {
         return records;
     }
 
-    public List<TAApplicationRecord> getApplicationsByStudentId(String studentId) {
+    public List<TAApplicationRecord> getApplicationsByStudentId(String taStudentId) {
         List<TAApplicationRecord> records = new ArrayList<>();
         File[] files = new File(APPLICATION_DATA_DIR).listFiles();
         if (files != null) {
             for (File file : files) {
                 try {
                     TAApplicationRecord record = objectMapper.readValue(file, TAApplicationRecord.class);
-                    if (record.getStudentId().equals(studentId)) {
+                    if (record.getTaStudentId().equals(taStudentId)) {
+                        records.add(record);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return records;
+    }
+
+    public List<TAApplicationRecord> getApplicationsByMoStaffId(String moStaffId) {
+        List<TAApplicationRecord> records = new ArrayList<>();
+        File[] files = new File(APPLICATION_DATA_DIR).listFiles();
+        if (files != null) {
+            for (File file : files) {
+                try {
+                    TAApplicationRecord record = objectMapper.readValue(file, TAApplicationRecord.class);
+                    if (record.getMoStaffId() != null && record.getMoStaffId().equals(moStaffId)) {
                         records.add(record);
                     }
                 } catch (IOException e) {
@@ -99,8 +118,28 @@ public class TAApplicationRecordManager {
 
     public boolean withdrawApplication(String applicationId) {
         TAApplicationRecord record = getApplicationById(applicationId);
-        if (record != null && "审核中".equals(record.getStatus())) {
-            record.setStatus("已撤回");
+        if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
+            record.setStatus(TAApplicationRecord.STATUS_WITHDRAWN);
+            saveApplication(record);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean approveApplication(String applicationId) {
+        TAApplicationRecord record = getApplicationById(applicationId);
+        if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
+            record.setStatus(TAApplicationRecord.STATUS_APPROVED);
+            saveApplication(record);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean rejectApplication(String applicationId) {
+        TAApplicationRecord record = getApplicationById(applicationId);
+        if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
+            record.setStatus(TAApplicationRecord.STATUS_REJECTED);
             saveApplication(record);
             return true;
         }

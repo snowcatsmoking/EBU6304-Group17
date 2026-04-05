@@ -6,7 +6,7 @@ public class TAApplicationTest {
         System.out.println("=== 测试申请功能 ===\n");
 
         TAApplicationRecordManager manager = new TAApplicationRecordManager();
-        TAJob job = new TAJob("J001", "软件工程课程助教", "软件工程", 2, "3.5及以上", "2025年9月15日", "张老师", false);
+        TAJob job = new TAJob("J001", "软件工程课程助教", "软件工程", "EBU6301", 2, "3.5及以上", "2025年9月15日", "张老师", false);
 
         System.out.println("测试1: 检查重复申请");
         boolean hasDuplicate = manager.hasDuplicateApplication("2024004", job.getJobId());
@@ -16,6 +16,8 @@ public class TAApplicationTest {
         System.out.println("测试2: 创建申请记录");
         TAApplicationRecord record = new TAApplicationRecord(
             "2024004",
+            "MO001",
+            job.getCourseCode(),
             job.getJobId(),
             job.getPositionName(),
             job.getCourseName(),
@@ -28,7 +30,7 @@ public class TAApplicationTest {
         );
 
         System.out.println("申请ID: " + record.getApplicationId());
-        System.out.println("学生ID: " + record.getStudentId());
+        System.out.println("学生ID: " + record.getTaStudentId());
         System.out.println("岗位ID: " + record.getJobId());
         System.out.println("岗位名称: " + record.getPositionName());
         System.out.println("课程名称: " + record.getCourseName());

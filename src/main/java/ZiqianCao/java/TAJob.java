@@ -4,6 +4,7 @@ public class TAJob {
     private String jobId;
     private String positionName;
     private String courseName;
+    private String courseCode;
     private int recruitmentCount;
     private String requirements;
     private String deadline;
@@ -12,11 +13,13 @@ public class TAJob {
 
     public TAJob() {}
 
-    public TAJob(String jobId, String positionName, String courseName, int recruitmentCount, 
-                String requirements, String deadline, String publisher, boolean isActive) {
+    public TAJob(String jobId, String positionName, String courseName, String courseCode, 
+                int recruitmentCount, String requirements, String deadline, 
+                String publisher, boolean isActive) {
         this.jobId = jobId;
         this.positionName = positionName;
         this.courseName = courseName;
+        this.courseCode = courseCode;
         this.recruitmentCount = recruitmentCount;
         this.requirements = requirements;
         this.deadline = deadline;
@@ -46,6 +49,14 @@ public class TAJob {
 
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
     }
 
     public int getRecruitmentCount() {

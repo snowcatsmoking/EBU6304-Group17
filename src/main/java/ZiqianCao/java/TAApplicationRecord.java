@@ -4,8 +4,16 @@ import java.util.Date;
 import java.util.UUID;
 
 public class TAApplicationRecord {
+
+    public static final String STATUS_PENDING = "PENDING";
+    public static final String STATUS_APPROVED = "APPROVED";
+    public static final String STATUS_REJECTED = "REJECTED";
+    public static final String STATUS_WITHDRAWN = "WITHDRAWN";
+
     private String applicationId;
-    private String studentId;
+    private String taStudentId;
+    private String moStaffId;
+    private String moduleCode;
     private String jobId;
     private String positionName;
     private String courseName;
@@ -21,14 +29,17 @@ public class TAApplicationRecord {
     public TAApplicationRecord() {
         this.applicationId = UUID.randomUUID().toString();
         this.applicationDate = new Date();
-        this.status = "审核中";
+        this.status = "PENDING";
     }
 
-    public TAApplicationRecord(String studentId, String jobId, String positionName, String courseName,
+    public TAApplicationRecord(String taStudentId, String moStaffId, String moduleCode, String jobId,
+                              String positionName, String courseName,
                               String studentName, String major, String phone, String email,
                               String availableTime, String skills) {
         this();
-        this.studentId = studentId;
+        this.taStudentId = taStudentId;
+        this.moStaffId = moStaffId;
+        this.moduleCode = moduleCode;
         this.jobId = jobId;
         this.positionName = positionName;
         this.courseName = courseName;
@@ -48,12 +59,28 @@ public class TAApplicationRecord {
         this.applicationId = applicationId;
     }
 
-    public String getStudentId() {
-        return studentId;
+    public String getTaStudentId() {
+        return taStudentId;
     }
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
+    public void setTaStudentId(String taStudentId) {
+        this.taStudentId = taStudentId;
+    }
+
+    public String getMoStaffId() {
+        return moStaffId;
+    }
+
+    public void setMoStaffId(String moStaffId) {
+        this.moStaffId = moStaffId;
+    }
+
+    public String getModuleCode() {
+        return moduleCode;
+    }
+
+    public void setModuleCode(String moduleCode) {
+        this.moduleCode = moduleCode;
     }
 
     public String getJobId() {

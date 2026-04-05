@@ -18,12 +18,22 @@ public class DashboardView {
         void onNavigateToProfile();
     }
 
+    public interface LogoutListener {
+        void onLogout();
+    }
+
     private TAApplication currentUser;
     private ObjectMapper objectMapper = new ObjectMapper();
     private NavigationListener navigationListener;
+    private LogoutListener logoutListener;
+    private String currentStudentId = "2024999";
+
+    public void setCurrentStudentId(String studentId) {
+        this.currentStudentId = studentId;
+    }
 
     public BorderPane getView() {
-        loadUserData("2024999");
+        loadUserData(currentStudentId);
         
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #fafafa;");
@@ -45,6 +55,10 @@ public class DashboardView {
 
     public void setNavigationListener(NavigationListener listener) {
         this.navigationListener = listener;
+    }
+
+    public void setLogoutListener(LogoutListener listener) {
+        this.logoutListener = listener;
     }
 
     private void loadUserData(String studentId) {
@@ -80,7 +94,11 @@ public class DashboardView {
 
         Button logoutButton = new Button("退出登录");
         logoutButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
-        logoutButton.setOnAction(e -> System.out.println("退出登录"));
+        logoutButton.setOnAction(e -> {
+            if (logoutListener != null) {
+                logoutListener.onLogout();
+            }
+        });
 
         HBox userInfoBox = new HBox();
         userInfoBox.setSpacing(8);

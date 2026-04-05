@@ -40,6 +40,12 @@ public class TAApplicationFormView {
         loadUserData("2024999");
     }
 
+    public TAApplicationFormView(TAJob job, String studentId) {
+        this.currentJob = job;
+        this.recordManager = new TAApplicationRecordManager();
+        loadUserData(studentId);
+    }
+
     public void setApplicationListener(ApplicationListener listener) {
         this.applicationListener = listener;
     }
@@ -350,6 +356,8 @@ public class TAApplicationFormView {
 
         TAApplicationRecord record = new TAApplicationRecord(
             currentUser.getTAId(),
+            "MO001",
+            currentJob.getCourseCode(),
             currentJob.getJobId(),
             currentJob.getPositionName(),
             currentJob.getCourseName(),
