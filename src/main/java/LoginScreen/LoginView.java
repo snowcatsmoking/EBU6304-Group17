@@ -1,11 +1,19 @@
 package LoginScreen;
 
+import data.LocalStorageManager;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class LoginView extends Application {
@@ -175,6 +183,7 @@ public class LoginView extends Application {
                 System.out.println("登录成功，用户角色: " + userRole + ", 学号: " + studentId);
 
                 if (userRole.equals("TA")) {
+                    new LocalStorageManager().saveLastLogin(accountInput.getText(), userRole);
                     new Thread(() -> {
                         try {
                             Thread.sleep(500);
@@ -189,12 +198,27 @@ public class LoginView extends Application {
                         }
                     }).start();
                 } else if (userRole.equals("ADMIN")) {
+                    new LocalStorageManager().saveLastLogin(accountInput.getText(), userRole);
                     new Thread(() -> {
                         try {
                             Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
                                 primaryStage.close();
                                 Admin.AdminDashboard dashboard = new Admin.AdminDashboard(studentId);
+                                dashboard.start(new Stage());
+                            });
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }).start();
+                } else if (userRole.equals("MO")) {
+                    new LocalStorageManager().saveLastLogin(accountInput.getText(), userRole);
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(500);
+                            javafx.application.Platform.runLater(() -> {
+                                primaryStage.close();
+                                Admin.MODashboard dashboard = new Admin.MODashboard(studentId);
                                 dashboard.start(new Stage());
                             });
                         } catch (Exception ex) {
