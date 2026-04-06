@@ -1,13 +1,17 @@
 package data;
 
-import ZiqianCao.java.TAJob;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import ZiqianCao.java.TAJob;
 
 /**
  * 职位数据管理类。
@@ -84,6 +88,8 @@ public class JobDataManager {
      * 获取所有职位（包括已下架的）。
      * TA 端职位列表从这里读取，替代原来的硬编码。
      */
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     public List<TAJob> getAllJobs() {
         List<TAJob> jobs = new ArrayList<>();
         File dir = new File(DataConfig.JOB_DIR);
@@ -92,6 +98,7 @@ public class JobDataManager {
         for (File file : files) {
             try {
                 TAJob job = objectMapper.readValue(file, TAJob.class);
+                refreshExpiredJob(job);
                 jobs.add(job);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -112,6 +119,23 @@ public class JobDataManager {
             }
         }
         return result;
+    }
+
+    private void refreshExpiredJob(TAJob job) {
+        if (job == null || job.isActive()) {
+            return;
+        }
+        if (job.getDeadline() == null || job.getDeadline().trim().isEmpty()) {
+            return;
+        }
+        try {
+            LocalDate deadline = LocalDate.parse(job.getDeadline(), DATE_FORMATTER);
+            if (deadline.isBefore(LocalDate.now())) {
+                job.setActive(true);
+                saveJob(job);
+            }
+        } catch (DateTimeParseException | IOException ignored) {
+        }
     }
 
     /**
