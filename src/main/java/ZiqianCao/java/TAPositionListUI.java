@@ -44,9 +44,22 @@ public class TAPositionListUI extends Application {
     private Stage primaryStage;
     private VBox overlay;
 
+    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
+    public void navigateTo() {
+        this.primaryStage = core.AppNavigator.getInstance().getStage();
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(rootContainer), "TA Application System");
+    }
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        core.AppNavigator.getInstance().init(primaryStage);
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(rootContainer), "TA Application System");
+    }
+
+    private void buildUI() {
         rootContainer = new StackPane();
         rootContainer.setStyle("-fx-background-color: #f5f5f5;");
 
@@ -62,14 +75,6 @@ public class TAPositionListUI extends Application {
         dashboardView = new DashboardView();
         dashboardView.setCurrentStudentId(currentStudentId);
         dashboardView.setNavigationListener(() -> switchToView("profile"));
-        dashboardView.setLogoutListener(() -> {
-            primaryStage.close();
-            try {
-                new LoginScreen.LoginView().start(new Stage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
         root.setCenter(dashboardView.getView());
         navItem1.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-padding: 10 16 10 16; -fx-border-width: 0 0 0 3; -fx-border-color: #000000; -fx-background-color: #f0f0f0; -fx-cursor: hand;");
 
@@ -78,11 +83,6 @@ public class TAPositionListUI extends Application {
         overlay.setVisible(false);
 
         rootContainer.getChildren().addAll(root, overlay);
-
-        Scene scene = new Scene(rootContainer, 1200, 700);
-        primaryStage.setTitle("TA Application System");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     private void initJobList() {
@@ -112,7 +112,27 @@ public class TAPositionListUI extends Application {
 
         navBox.getChildren().addAll(navItem1, navItem2, navItem3, navItem4);
 
-        sidebar.getChildren().addAll(titleLabel, navBox);
+        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+        VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        javafx.scene.control.Button logoutButton = new javafx.scene.control.Button("退出登录");
+        logoutButton.setMaxWidth(Double.MAX_VALUE);
+        logoutButton.setStyle(
+            "-fx-font-size: 13px; -fx-text-fill: #cc0000; -fx-background-color: transparent;" +
+            "-fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        logoutButton.setOnAction(e -> {
+            try {
+                LoginScreen.LoginView loginView = new LoginScreen.LoginView();
+                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA招聘管理系统 - 登录");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        VBox logoutBox = new VBox(logoutButton);
+        logoutBox.setPadding(new Insets(0, 16, 16, 16));
+
+        sidebar.getChildren().addAll(titleLabel, navBox, spacer, logoutBox);
 
         return sidebar;
     }
@@ -347,7 +367,7 @@ public class TAPositionListUI extends Application {
     private boolean checkProfileComplete() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            File file = new File("resources/Data/TAData/" + currentStudentId + ".json");
+            File file = new File(data.DataConfig.TA_DIR + currentStudentId + ".json");
             if (file.exists()) {
                 TAApplication user = mapper.readValue(file, TAApplication.class);
                 return user.getName() != null && !user.getName().trim().isEmpty()

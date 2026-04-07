@@ -96,22 +96,17 @@ public class UserManager {
         }
     }
 
-    public String login(String account, String password, String role) {
+    public String login(String account, String password) {
         if (account == null || account.trim().isEmpty()) {
             return "请输入账号";
         }
         if (password == null || password.isEmpty()) {
             return "请输入密码";
         }
-        if (role == null || role.isEmpty()) {
-            return "请选择登录身份";
-        }
 
-        if (role.contains("应聘者")) {
-            File taFile = new File(TA_DIR + account + ".json");
-            if (!taFile.exists()) {
-                return "账号不存在，请先注册";
-            }
+        // Try TA first
+        File taFile = new File(TA_DIR + account + ".json");
+        if (taFile.exists()) {
             try {
                 TAApplication ta = objectMapper.readValue(taFile, TAApplication.class);
                 if (ta.getPassword() != null && ta.getPassword().equals(password)) {
@@ -124,26 +119,27 @@ public class UserManager {
                 e.printStackTrace();
                 return "登录失败：" + e.getMessage();
             }
-        } else {
-            String dir = getDirectoryByRole(role);
+        }
+
+        // Try MO and Admin directories
+        for (String dir : new String[]{MO_DIR, ADMIN_DIR}) {
             File userFile = new File(dir + account + ".json");
-
-            if (!userFile.exists()) {
-                return "账号不存在，请先注册";
-            }
-
-            try {
-                User user = objectMapper.readValue(userFile, User.class);
-                if (user.getPassword().equals(password)) {
-                    logManager.log(account, "登录", account, "角色: " + user.getRole());
-                    return "SUCCESS:" + user.getRole();
-                } else {
-                    return "密码错误，请重试";
+            if (userFile.exists()) {
+                try {
+                    User user = objectMapper.readValue(userFile, User.class);
+                    if (user.getPassword().equals(password)) {
+                        logManager.log(account, "登录", account, "角色: " + user.getRole());
+                        return "SUCCESS:" + user.getRole();
+                    } else {
+                        return "密码错误，请重试";
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return "登录失败：" + e.getMessage();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "登录失败：" + e.getMessage();
             }
         }
+
+        return "账号不存在，请先注册";
     }
 }
