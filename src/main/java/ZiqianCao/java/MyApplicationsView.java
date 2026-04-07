@@ -116,7 +116,8 @@ public class MyApplicationsView {
                 getStatusDisplay(record.getStatus()),
                 statusType,
                 canWithdraw,
-                record.getApplicationId()
+                record.getApplicationId(),
+                record
             );
             content.getChildren().add(row);
         }
@@ -154,9 +155,9 @@ public class MyApplicationsView {
         }
     }
 
-    private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw, String applicationId) {
+    private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw, String applicationId, TAApplicationRecord record) {
         HBox row = new HBox();
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-cursor: hand;");
         row.setPadding(new Insets(10, 12, 10, 12));
         row.setSpacing(12);
         row.setAlignment(Pos.CENTER_LEFT);
@@ -230,6 +231,14 @@ public class MyApplicationsView {
         }
 
         row.getChildren().addAll(positionLabel, dateLabel, statusLabel, actionBox);
+
+        // 添加点击事件，打开详情页
+        row.setOnMouseClicked(e -> {
+            ApplicationDetailView detailView = new ApplicationDetailView(record);
+            if (row.getScene() != null && row.getScene().getWindow() != null) {
+                detailView.showDialog((javafx.stage.Stage) row.getScene().getWindow());
+            }
+        });
 
         return row;
     }
