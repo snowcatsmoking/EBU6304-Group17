@@ -248,11 +248,7 @@ public class DashboardView {
         header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
-        Label header4 = new Label("操作");
-        header4.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
-        header4.setPrefWidth(100);
-
-        header.getChildren().addAll(header1, header2, header3, header4);
+        header.getChildren().addAll(header1, header2, header3);
 
         return header;
     }
@@ -286,8 +282,7 @@ public class DashboardView {
                 record.getPositionName(),
                 dateFormat.format(record.getApplicationDate()),
                 status,
-                statusType,
-                canWithdraw
+                statusType
             );
             content.getChildren().add(row);
             count++;
@@ -337,7 +332,7 @@ public class DashboardView {
         }
     }
 
-    private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw) {
+    private HBox createTableRow(String position, String date, String status, String statusType) {
         HBox row = new HBox();
         row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
         row.setPadding(new Insets(10, 12, 10, 12));
@@ -373,21 +368,7 @@ public class DashboardView {
                 break;
         }
 
-        HBox actionBox = new HBox();
-        actionBox.setPrefWidth(100);
-        actionBox.setAlignment(Pos.CENTER_LEFT);
-
-        if (canWithdraw) {
-            Button withdrawButton = new Button("撤回");
-            withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
-            actionBox.getChildren().add(withdrawButton);
-        } else {
-            Label noActionLabel = new Label("—");
-            noActionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
-            actionBox.getChildren().add(noActionLabel);
-        }
-
-        row.getChildren().addAll(positionLabel, dateLabel, statusLabel, actionBox);
+        row.getChildren().addAll(positionLabel, dateLabel, statusLabel);
 
         return row;
     }
