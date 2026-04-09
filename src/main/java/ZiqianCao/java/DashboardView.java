@@ -63,7 +63,7 @@ public class DashboardView {
 
     private void loadUserData(String studentId) {
         try {
-            File file = new File("resources/Data/TAData/" + studentId + ".json");
+            File file = new File(data.DataConfig.TA_DIR + studentId + ".json");
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
@@ -92,18 +92,10 @@ public class DashboardView {
         Label idLabel = new Label(currentUser != null ? currentUser.getTAId() : "");
         idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
 
-        Button logoutButton = new Button("退出登录");
-        logoutButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
-        logoutButton.setOnAction(e -> {
-            if (logoutListener != null) {
-                logoutListener.onLogout();
-            }
-        });
-
         HBox userInfoBox = new HBox();
         userInfoBox.setSpacing(8);
         userInfoBox.setAlignment(Pos.CENTER);
-        userInfoBox.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, idLabel, logoutButton);
+        userInfoBox.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, idLabel);
 
         headerBox.getChildren().add(userInfoBox);
 
@@ -178,18 +170,7 @@ public class DashboardView {
         addProfileItem(singleColumn, "可任职时间", currentUser != null ? currentUser.getAvailableTime() : "");
         addProfileItem(singleColumn, "技能", currentUser != null ? currentUser.getSkill() : "");
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(singleColumn);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(false);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        scrollPane.setPadding(new Insets(0, 0, 0, 0));
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setPrefViewportHeight(200);
-        scrollPane.setMaxHeight(200);
-
-        profileBox.getChildren().addAll(titleBox, scrollPane);
+        profileBox.getChildren().addAll(titleBox, singleColumn);
 
         return profileBox;
     }

@@ -9,6 +9,7 @@ public class TAJob {
     private String requirements;
     private String deadline;
     private String publisher;
+    private String moStaffId;
     private boolean isActive;
 
     public TAJob() {}
@@ -89,6 +90,14 @@ public class TAJob {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public String getMoStaffId() {
+        return moStaffId;
+    }
+
+    public void setMoStaffId(String moStaffId) {
+        this.moStaffId = moStaffId;
     }
 
     public boolean isActive() {
