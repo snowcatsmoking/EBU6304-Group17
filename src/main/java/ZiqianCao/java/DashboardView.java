@@ -23,6 +23,7 @@ public class DashboardView {
     }
 
     private TAApplication currentUser;
+    private TAApplicationRecordManager recordManager;
     private ObjectMapper objectMapper = new ObjectMapper();
     private NavigationListener navigationListener;
     private LogoutListener logoutListener;
@@ -34,6 +35,7 @@ public class DashboardView {
 
     public BorderPane getView() {
         loadUserData(currentStudentId);
+        recordManager = new TAApplicationRecordManager();
         
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #fafafa;");
@@ -227,11 +229,7 @@ public class DashboardView {
         header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
-        Label header4 = new Label("操作");
-        header4.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
-        header4.setPrefWidth(100);
-
-        header.getChildren().addAll(header1, header2, header3, header4);
+        header.getChildren().addAll(header1, header2, header3);
 
         return header;
     }
@@ -240,16 +238,82 @@ public class DashboardView {
         VBox content = new VBox();
         content.setSpacing(0);
 
-        HBox row1 = createTableRow("EBU6304 Software Engineering TA", "2026-03-10", "审核中", "pending", true);
-        HBox row2 = createTableRow("CSC1001 Introduction to CS TA", "2026-03-05", "已通过", "pass", false);
-        HBox row3 = createTableRow("STA2001 Probability & Statistics TA", "2026-02-28", "未通过", "fail", false);
-
-        content.getChildren().addAll(row1, row2, row3);
+        // 获取当前学生的所有申请记录
+        java.util.List<TAApplicationRecord> applications = recordManager.getApplicationsByStudentId(currentStudentId);
+        
+        // 按照申请时间排序，从新到旧
+        java.util.Collections.sort(applications, (a1, a2) -> {
+            if (a1.getApplicationDate() != null && a2.getApplicationDate() != null) {
+                return a2.getApplicationDate().compareTo(a1.getApplicationDate());
+            }
+            return 0;
+        });
+        
+        // 只取最近三条记录
+        int count = 0;
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        for (TAApplicationRecord record : applications) {
+            if (count >= 3) break;
+            
+            String status = getStatusDisplay(record.getStatus());
+            String statusType = getStatusType(record.getStatus());
+            boolean canWithdraw = TAApplicationRecord.STATUS_PENDING.equals(record.getStatus());
+            
+            HBox row = createTableRow(
+                record.getPositionName(),
+                dateFormat.format(record.getApplicationDate()),
+                status,
+                statusType
+            );
+            content.getChildren().add(row);
+            count++;
+        }
+        
+        // 如果没有申请记录，显示空状态
+        if (content.getChildren().isEmpty()) {
+            HBox emptyRow = new HBox();
+            emptyRow.setPadding(new Insets(20, 12, 20, 12));
+            emptyRow.setAlignment(Pos.CENTER);
+            Label emptyLabel = new Label("暂无申请记录");
+            emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
+            emptyRow.getChildren().add(emptyLabel);
+            content.getChildren().add(emptyRow);
+        }
 
         return content;
     }
 
-    private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw) {
+    private String getStatusDisplay(String status) {
+        switch (status) {
+            case TAApplicationRecord.STATUS_PENDING:
+                return "审核中";
+            case TAApplicationRecord.STATUS_APPROVED:
+                return "已通过";
+            case TAApplicationRecord.STATUS_REJECTED:
+                return "未通过";
+            case TAApplicationRecord.STATUS_WITHDRAWN:
+                return "已撤回";
+            default:
+                return status;
+        }
+    }
+
+    private String getStatusType(String status) {
+        switch (status) {
+            case TAApplicationRecord.STATUS_PENDING:
+                return "pending";
+            case TAApplicationRecord.STATUS_APPROVED:
+                return "pass";
+            case TAApplicationRecord.STATUS_REJECTED:
+                return "fail";
+            case TAApplicationRecord.STATUS_WITHDRAWN:
+                return "withdrawn";
+            default:
+                return "default";
+        }
+    }
+
+    private HBox createTableRow(String position, String date, String status, String statusType) {
         HBox row = new HBox();
         row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
         row.setPadding(new Insets(10, 12, 10, 12));
@@ -277,26 +341,15 @@ public class DashboardView {
             case "fail":
                 statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc0000; -fx-border-color: #eeaaaa; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #fff0f0;");
                 break;
+            case "withdrawn":
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
+                break;
             default:
                 statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
                 break;
         }
 
-        HBox actionBox = new HBox();
-        actionBox.setPrefWidth(100);
-        actionBox.setAlignment(Pos.CENTER_LEFT);
-
-        if (canWithdraw) {
-            Button withdrawButton = new Button("撤回");
-            withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
-            actionBox.getChildren().add(withdrawButton);
-        } else {
-            Label noActionLabel = new Label("—");
-            noActionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
-            actionBox.getChildren().add(noActionLabel);
-        }
-
-        row.getChildren().addAll(positionLabel, dateLabel, statusLabel, actionBox);
+        row.getChildren().addAll(positionLabel, dateLabel, statusLabel);
 
         return row;
     }

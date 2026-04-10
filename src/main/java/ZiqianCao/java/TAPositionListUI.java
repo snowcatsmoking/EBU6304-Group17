@@ -180,6 +180,11 @@ public class TAPositionListUI extends Application {
         }
     }
 
+    private javafx.scene.control.TextField courseNameField;
+    private javafx.scene.control.TextField availableTimeField;
+    private javafx.scene.control.TextField recruitmentCountField;
+    private List<TAJob> filteredJobList;
+
     private VBox createPositionListView() {
         VBox content = new VBox();
         content.setPadding(new Insets(20, 20, 20, 20));
@@ -191,23 +196,42 @@ public class TAPositionListUI extends Application {
         filterBox.setSpacing(12);
         filterBox.setAlignment(Pos.CENTER_LEFT);
 
-        Button courseButton = new Button("课程");
-        courseButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        Label courseLabel = new Label("课程名称:");
+        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        courseNameField = new javafx.scene.control.TextField();
+        courseNameField.setPromptText("输入课程名称");
+        courseNameField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        courseNameField.setPrefWidth(150);
 
-        Button activityButton = new Button("活动");
-        activityButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        Label timeLabel = new Label("可任职时间:");
+        timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        availableTimeField = new javafx.scene.control.TextField();
+        availableTimeField.setPromptText("输入可任职时间");
+        availableTimeField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        availableTimeField.setPrefWidth(150);
 
-        Label filterLabel = new Label("筛选");
-        filterLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-underline: true; -fx-cursor: hand;");
+        Label countLabel = new Label("招聘人数:");
+        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        recruitmentCountField = new javafx.scene.control.TextField();
+        recruitmentCountField.setPromptText("输入招聘人数");
+        recruitmentCountField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        recruitmentCountField.setPrefWidth(100);
 
-        Label resetLabel = new Label("重置");
-        resetLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-underline: true; -fx-cursor: hand;");
+        Button filterButton = new Button("筛选");
+        filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        filterButton.setOnAction(e -> applyFilters());
 
-        filterBox.getChildren().addAll(courseButton, activityButton, filterLabel, resetLabel);
+        Button resetButton = new Button("重置");
+        resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        resetButton.setOnAction(e -> resetFilters());
+
+        filterBox.getChildren().addAll(courseLabel, courseNameField, timeLabel, availableTimeField, countLabel, recruitmentCountField, filterButton, resetButton);
 
         positionListBox = new VBox();
         positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
         positionListBox.setSpacing(0);
+
+        filteredJobList = new ArrayList<>(jobList);
 
         HBox paginationBox = createPaginationBox();
 
@@ -218,13 +242,60 @@ public class TAPositionListUI extends Application {
         return content;
     }
 
+    private void applyFilters() {
+        String courseName = courseNameField.getText().trim();
+        String availableTime = availableTimeField.getText().trim();
+        String recruitmentCount = recruitmentCountField.getText().trim();
+
+        filteredJobList = new ArrayList<>();
+        for (TAJob job : jobList) {
+            boolean match = true;
+
+            if (!courseName.isEmpty() && !job.getCourseName().toLowerCase().contains(courseName.toLowerCase())) {
+                match = false;
+            }
+
+            if (!availableTime.isEmpty() && !job.getDeadline().contains(availableTime)) {
+                match = false;
+            }
+
+            if (!recruitmentCount.isEmpty()) {
+                try {
+                    int count = Integer.parseInt(recruitmentCount);
+                    if (job.getRecruitmentCount() != count) {
+                        match = false;
+                    }
+                } catch (NumberFormatException e) {
+                    // 输入不是数字，不匹配
+                    match = false;
+                }
+            }
+
+            if (match) {
+                filteredJobList.add(job);
+            }
+        }
+
+        currentPage = 1;
+        refreshPositionList();
+    }
+
+    private void resetFilters() {
+        courseNameField.clear();
+        availableTimeField.clear();
+        recruitmentCountField.clear();
+        filteredJobList = new ArrayList<>(jobList);
+        currentPage = 1;
+        refreshPositionList();
+    }
+
     private void refreshPositionList() {
         positionListBox.getChildren().clear();
         int start = (currentPage - 1) * PAGE_SIZE;
-        int end = Math.min(start + PAGE_SIZE, jobList.size());
+        int end = Math.min(start + PAGE_SIZE, filteredJobList.size());
 
         for (int i = start; i < end; i++) {
-            TAJob job = jobList.get(i);
+            TAJob job = filteredJobList.get(i);
             VBox positionBox = createPositionBox(job);
             positionListBox.getChildren().add(positionBox);
         }
@@ -237,7 +308,7 @@ public class TAPositionListUI extends Application {
         paginationBox.setSpacing(16);
         paginationBox.setAlignment(Pos.CENTER);
 
-        int totalPages = (int) Math.ceil((double) jobList.size() / PAGE_SIZE);
+        int totalPages = (int) Math.ceil((double) filteredJobList.size() / PAGE_SIZE);
 
         Button prevButton = new Button("上一页");
         prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
@@ -253,7 +324,7 @@ public class TAPositionListUI extends Application {
             }
         });
 
-        Label pageInfo = new Label("第 " + currentPage + " / " + totalPages + " 页  （共 " + jobList.size() + " 个岗位）");
+        Label pageInfo = new Label("第 " + currentPage + " / " + totalPages + " 页  （共 " + filteredJobList.size() + " 个岗位）");
         pageInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
         Button nextButton = new Button("下一页");

@@ -20,6 +20,9 @@ public class MyApplicationsView {
     private String currentStudentId = "2024999";
     private TAApplicationRecordManager recordManager;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private javafx.scene.control.TextField startDateField;
+    private javafx.scene.control.TextField endDateField;
+    private List<TAApplicationRecord> allApplications;
 
     public MyApplicationsView() {
     }
@@ -41,23 +44,55 @@ public class MyApplicationsView {
         Label titleLabel = new Label("我的申请");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        List<TAApplicationRecord> applications = recordManager.getApplicationsByStudentId(currentStudentId);
+        // 添加时间筛选功能
+        HBox filterBox = new HBox();
+        filterBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        filterBox.setPadding(new Insets(16, 16, 16, 16));
+        filterBox.setSpacing(12);
+        filterBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label startDateLabel = new Label("开始日期:");
+        startDateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        startDateField = new javafx.scene.control.TextField();
+        startDateField.setPromptText("YYYY-MM-DD");
+        startDateField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        startDateField.setPrefWidth(120);
+
+        Label endDateLabel = new Label("结束日期:");
+        endDateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        endDateField = new javafx.scene.control.TextField();
+        endDateField.setPromptText("YYYY-MM-DD");
+        endDateField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        endDateField.setPrefWidth(120);
+
+        Button filterButton = new Button("筛选");
+        filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        filterButton.setOnAction(e -> applyDateFilter());
+
+        Button resetButton = new Button("重置");
+        resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        resetButton.setOnAction(e -> resetDateFilter());
+
+        filterBox.getChildren().addAll(startDateLabel, startDateField, endDateLabel, endDateField, filterButton, resetButton);
+
+        // 获取所有申请记录（含已撤回、未通过）
+        allApplications = recordManager.getApplicationsByStudentId(currentStudentId);
         
         // 按照申请时间排序，从新到旧
-        java.util.Collections.sort(applications, (a1, a2) -> {
+        java.util.Collections.sort(allApplications, (a1, a2) -> {
             if (a1.getApplicationDate() != null && a2.getApplicationDate() != null) {
                 return a2.getApplicationDate().compareTo(a1.getApplicationDate());
             }
             return 0;
         });
         
-        if (applications.isEmpty()) {
+        if (allApplications.isEmpty()) {
             Label emptyLabel = new Label("暂无申请记录");
             emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #888888;");
-            content.getChildren().addAll(titleLabel, emptyLabel);
+            content.getChildren().addAll(titleLabel, filterBox, emptyLabel);
         } else {
             HBox tableHeader = createTableHeader();
-            VBox tableContent = createTableContent(applications);
+            VBox tableContent = createTableContent(allApplications);
             
             ScrollPane scrollPane = new ScrollPane();
             scrollPane.setContent(tableContent);
@@ -67,12 +102,129 @@ public class MyApplicationsView {
             scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             
-            content.getChildren().addAll(titleLabel, tableHeader, scrollPane);
+            content.getChildren().addAll(titleLabel, filterBox, tableHeader, scrollPane);
         }
 
         root.setCenter(content);
 
         return root;
+    }
+
+    private void applyDateFilter() {
+        String startDateStr = startDateField.getText().trim();
+        String endDateStr = endDateField.getText().trim();
+
+        List<TAApplicationRecord> filteredApplications = new java.util.ArrayList<>();
+        
+        for (TAApplicationRecord record : allApplications) {
+            boolean match = true;
+            
+            if (!startDateStr.isEmpty()) {
+                try {
+                    java.util.Date startDate = dateFormat.parse(startDateStr);
+                    if (record.getApplicationDate().before(startDate)) {
+                        match = false;
+                    }
+                } catch (java.text.ParseException e) {
+                    // 日期格式错误，不匹配
+                    match = false;
+                }
+            }
+            
+            if (!endDateStr.isEmpty()) {
+                try {
+                    java.util.Date endDate = dateFormat.parse(endDateStr);
+                    // 将结束日期设置为当天的23:59:59
+                    endDate.setHours(23);
+                    endDate.setMinutes(59);
+                    endDate.setSeconds(59);
+                    if (record.getApplicationDate().after(endDate)) {
+                        match = false;
+                    }
+                } catch (java.text.ParseException e) {
+                    // 日期格式错误，不匹配
+                    match = false;
+                }
+            }
+            
+            if (match) {
+                filteredApplications.add(record);
+            }
+        }
+        
+        // 刷新界面
+        if (!filteredApplications.isEmpty()) {
+            VBox tableContent = createTableContent(filteredApplications);
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setContent(tableContent);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setFitToHeight(false);
+            scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            
+            // 替换现有内容
+            if (filteredApplications.get(0).getApplicationDate() != null) {
+                BorderPane newView = getView();
+                if (startDateField.getScene() != null && startDateField.getScene().getRoot() != null) {
+                    javafx.scene.Parent root = startDateField.getScene().getRoot();
+                    if (root instanceof javafx.scene.layout.StackPane) {
+                        javafx.scene.layout.StackPane stackPane = (javafx.scene.layout.StackPane) root;
+                        for (javafx.scene.Node node : stackPane.getChildren()) {
+                            if (node instanceof BorderPane) {
+                                ((BorderPane) node).setCenter(newView.getCenter());
+                                break;
+                            }
+                        }
+                    } else if (root instanceof BorderPane) {
+                        ((BorderPane) root).setCenter(newView.getCenter());
+                    }
+                }
+            }
+        } else {
+            // 无匹配记录
+            VBox emptyBox = new VBox();
+            emptyBox.setPadding(new Insets(40, 40, 40, 40));
+            Label emptyLabel = new Label("无匹配的申请记录");
+            emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #888888;");
+            emptyBox.getChildren().add(emptyLabel);
+            
+            if (startDateField.getScene() != null && startDateField.getScene().getRoot() != null) {
+                javafx.scene.Parent root = startDateField.getScene().getRoot();
+                if (root instanceof javafx.scene.layout.StackPane) {
+                    javafx.scene.layout.StackPane stackPane = (javafx.scene.layout.StackPane) root;
+                    for (javafx.scene.Node node : stackPane.getChildren()) {
+                        if (node instanceof BorderPane) {
+                            ((BorderPane) node).setCenter(emptyBox);
+                            break;
+                        }
+                    }
+                } else if (root instanceof BorderPane) {
+                    ((BorderPane) root).setCenter(emptyBox);
+                }
+            }
+        }
+    }
+
+    private void resetDateFilter() {
+        startDateField.clear();
+        endDateField.clear();
+        // 刷新界面，显示所有记录
+        BorderPane newView = getView();
+        if (startDateField.getScene() != null && startDateField.getScene().getRoot() != null) {
+            javafx.scene.Parent root = startDateField.getScene().getRoot();
+            if (root instanceof javafx.scene.layout.StackPane) {
+                javafx.scene.layout.StackPane stackPane = (javafx.scene.layout.StackPane) root;
+                for (javafx.scene.Node node : stackPane.getChildren()) {
+                    if (node instanceof BorderPane) {
+                        ((BorderPane) node).setCenter(newView.getCenter());
+                        break;
+                    }
+                }
+            } else if (root instanceof BorderPane) {
+                ((BorderPane) root).setCenter(newView.getCenter());
+            }
+        }
     }
 
     private HBox createTableHeader() {
@@ -116,7 +268,8 @@ public class MyApplicationsView {
                 getStatusDisplay(record.getStatus()),
                 statusType,
                 canWithdraw,
-                record.getApplicationId()
+                record.getApplicationId(),
+                record
             );
             content.getChildren().add(row);
         }
@@ -154,9 +307,9 @@ public class MyApplicationsView {
         }
     }
 
-    private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw, String applicationId) {
+    private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw, String applicationId, TAApplicationRecord record) {
         HBox row = new HBox();
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-cursor: hand;");
         row.setPadding(new Insets(10, 12, 10, 12));
         row.setSpacing(12);
         row.setAlignment(Pos.CENTER_LEFT);
@@ -230,6 +383,14 @@ public class MyApplicationsView {
         }
 
         row.getChildren().addAll(positionLabel, dateLabel, statusLabel, actionBox);
+
+        // 添加点击事件，打开详情页
+        row.setOnMouseClicked(e -> {
+            ApplicationDetailView detailView = new ApplicationDetailView(record);
+            if (row.getScene() != null && row.getScene().getWindow() != null) {
+                detailView.showDialog((javafx.stage.Stage) row.getScene().getWindow());
+            }
+        });
 
         return row;
     }
