@@ -786,30 +786,81 @@ public class MODashboard extends javafx.application.Application {
         Label subtitle = new Label("Review all applications submitted for the positions published by the current module organiser.");
         subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        List<TAApplicationRecord> records = recordManager.getApplicationsByMoStaffId(moStaffId);
-        long pendingCount = records.stream()
-            .filter(record -> TAApplicationRecord.STATUS_PENDING.equals(record.getStatus()))
-            .count();
+        HBox filterBox = new HBox();
+        filterBox.setSpacing(12);
 
-        Label summary = new Label("Total applications: " + records.size() + "  Pending review: " + pendingCount);
+        TextField majorFilterField = createTextField("Filter by major");
+        TextField availableTimeFilterField = createTextField("Filter by available time");
+        TextField skillsFilterField = createTextField("Filter by skills");
+        HBox.setHgrow(majorFilterField, Priority.ALWAYS);
+        HBox.setHgrow(availableTimeFilterField, Priority.ALWAYS);
+        HBox.setHgrow(skillsFilterField, Priority.ALWAYS);
+
+        Button clearButton = new Button("Clear Filters");
+        clearButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        filterBox.getChildren().addAll(majorFilterField, availableTimeFilterField, skillsFilterField, clearButton);
+
+        Label summary = new Label();
         summary.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
 
         VBox list = new VBox();
         list.setSpacing(12);
         list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
 
-        if (records.isEmpty()) {
-            Label empty = new Label("No applications are available for your positions yet.");
+        Runnable refreshList = () -> refreshApplicantReviewList(
+            list,
+            summary,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        );
+
+        majorFilterField.textProperty().addListener((obs, oldValue, newValue) -> refreshList.run());
+        availableTimeFilterField.textProperty().addListener((obs, oldValue, newValue) -> refreshList.run());
+        skillsFilterField.textProperty().addListener((obs, oldValue, newValue) -> refreshList.run());
+        clearButton.setOnAction(e -> {
+            majorFilterField.clear();
+            availableTimeFilterField.clear();
+            skillsFilterField.clear();
+            refreshList.run();
+        });
+
+        refreshList.run();
+
+        page.getChildren().addAll(title, subtitle, filterBox, summary, list);
+        return page;
+    }
+
+    private void refreshApplicantReviewList(
+        VBox list,
+        Label summary,
+        TextField majorFilterField,
+        TextField availableTimeFilterField,
+        TextField skillsFilterField
+    ) {
+        list.getChildren().clear();
+
+        List<TAApplicationRecord> filteredRecords = getFilteredApplicantRecords(
+            majorFilterField.getText(),
+            availableTimeFilterField.getText(),
+            skillsFilterField.getText()
+        );
+        long pendingCount = filteredRecords.stream()
+            .filter(record -> TAApplicationRecord.STATUS_PENDING.equals(record.getStatus()))
+            .count();
+
+        summary.setText("Matching applications: " + filteredRecords.size() + "  Pending review: " + pendingCount);
+
+        if (filteredRecords.isEmpty()) {
+            Label empty = new Label("No applications match the current filters.");
             empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
             list.getChildren().add(empty);
-        } else {
-            for (TAApplicationRecord record : records) {
-                list.getChildren().add(buildApplicantReviewItem(record));
-            }
+            return;
         }
 
-        page.getChildren().addAll(title, subtitle, summary, list);
-        return page;
+        for (TAApplicationRecord record : filteredRecords) {
+            list.getChildren().add(buildApplicantReviewItem(record));
+        }
     }
 
     private VBox buildApplicantReviewItem(TAApplicationRecord record) {
@@ -1075,6 +1126,42 @@ public class MODashboard extends javafx.application.Application {
             .filter(record -> jobId.equals(record.getJobId()))
             .filter(record -> TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()))
             .count();
+    }
+
+    private List<TAApplicationRecord> getFilteredApplicantRecords(
+        String majorFilter,
+        String availableTimeFilter,
+        String skillsFilter
+    ) {
+        return recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(record -> matchesApplicantFilters(record, majorFilter, availableTimeFilter, skillsFilter))
+            .collect(Collectors.toList());
+    }
+
+    private boolean matchesApplicantFilters(
+        TAApplicationRecord record,
+        String majorFilter,
+        String availableTimeFilter,
+        String skillsFilter
+    ) {
+        return matchesKeywordFilter(record.getMajor(), majorFilter)
+            && matchesKeywordFilter(record.getAvailableTime(), availableTimeFilter)
+            && matchesKeywordFilter(record.getSkills(), skillsFilter);
+    }
+
+    private boolean matchesKeywordFilter(String value, String filterText) {
+        if (isBlank(filterText)) {
+            return true;
+        }
+
+        String normalizedValue = value == null ? "" : value.trim().toLowerCase();
+        String[] keywords = filterText.trim().toLowerCase().split("[,，\\s]+");
+        for (String keyword : keywords) {
+            if (!keyword.isEmpty() && !normalizedValue.contains(keyword)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean canEditJob(TAJob job) {
