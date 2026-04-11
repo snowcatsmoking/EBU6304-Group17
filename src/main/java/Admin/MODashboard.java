@@ -324,6 +324,141 @@ public class MODashboard extends javafx.application.Application {
         return page;
     }
 
+    private Node buildEditPositionView(TAJob job) {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(18);
+
+        Button backButton = new Button("← Back to My Positions");
+        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
+        backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+
+        Label title = new Label("Edit Published Position");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label tip = new Label("Only positions with no applicants and a valid deadline can be edited.");
+        tip.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+        Label messageLabel = new Label();
+        messageLabel.setStyle("-fx-font-size: 13px;");
+
+        if (!canEditJob(job)) {
+            showMessage(messageLabel, getEditBlockedReason(job), false);
+            page.getChildren().addAll(backButton, title, tip, messageLabel);
+            return page;
+        }
+
+        VBox form = new VBox();
+        form.setSpacing(14);
+
+        TextField positionNameField = createTextField("Position Name");
+        positionNameField.setText(job.getPositionName());
+
+        TextField courseNameField = createTextField("Course Name");
+        courseNameField.setText(job.getCourseName());
+
+        TextField courseCodeField = createTextField("Course Code");
+        courseCodeField.setText(job.getCourseCode());
+
+        TextField recruitmentCountField = createTextField("Number of Openings");
+        recruitmentCountField.setText(String.valueOf(job.getRecruitmentCount()));
+
+        TextArea requirementsArea = new TextArea();
+        requirementsArea.setPromptText("Enter requirements, e.g. skills, experience, working hours.");
+        requirementsArea.setPrefRowCount(4);
+        requirementsArea.setWrapText(true);
+        requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
+        requirementsArea.setText(job.getRequirements());
+
+        DatePicker deadlinePicker = new DatePicker();
+        deadlinePicker.setPromptText("Application Deadline");
+        if (!isBlank(job.getDeadline())) {
+            try {
+                deadlinePicker.setValue(LocalDate.parse(job.getDeadline(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            } catch (DateTimeParseException ignored) {
+            }
+        }
+
+        Button saveButton = new Button("Save Changes");
+        saveButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        saveButton.setOnAction(e -> {
+            TAJob latestJob = jobManager.getJobById(job.getJobId());
+            if (latestJob == null) {
+                showMessage(messageLabel, "This position no longer exists.", false);
+                return;
+            }
+            if (!canEditJob(latestJob)) {
+                showMessage(messageLabel, getEditBlockedReason(latestJob), false);
+                return;
+            }
+
+            String positionName = positionNameField.getText();
+            String courseName = courseNameField.getText();
+            String courseCode = courseCodeField.getText();
+            String recruitText = recruitmentCountField.getText();
+            String requirements = requirementsArea.getText();
+            LocalDate deadline = deadlinePicker.getValue();
+
+            if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
+                showMessage(messageLabel, "Please fill in all required fields and select a deadline.", false);
+                return;
+            }
+
+            int count;
+            try {
+                count = Integer.parseInt(recruitText.trim());
+                if (count <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException ex) {
+                showMessage(messageLabel, "Number of openings must be a positive integer.", false);
+                return;
+            }
+
+            if (deadline.isBefore(LocalDate.now())) {
+                showMessage(messageLabel, "Deadline cannot be earlier than today.", false);
+                return;
+            }
+
+            latestJob.setPositionName(positionName.trim());
+            latestJob.setCourseName(courseName.trim());
+            latestJob.setCourseCode(courseCode.trim());
+            latestJob.setRecruitmentCount(count);
+            latestJob.setRequirements(requirements == null ? "" : requirements.trim());
+            latestJob.setDeadline(deadline.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+            try {
+                jobManager.saveJob(latestJob);
+                root.setCenter(buildMyPositionsView());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                showMessage(messageLabel, "Failed to save changes. Please try again.", false);
+            }
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        cancelButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+
+        HBox buttonBox = new HBox();
+        buttonBox.setSpacing(10);
+        buttonBox.getChildren().addAll(saveButton, cancelButton);
+
+        form.getChildren().addAll(
+            positionNameField,
+            courseNameField,
+            courseCodeField,
+            recruitmentCountField,
+            new Label("Requirements"), requirementsArea,
+            new Label("Application Deadline"), deadlinePicker,
+            buttonBox,
+            messageLabel
+        );
+
+        page.getChildren().addAll(backButton, title, tip, form);
+        return page;
+    }
+
     private Node buildMyPositionsView() {
         VBox page = new VBox();
         page.setPadding(new Insets(24));
@@ -389,6 +524,12 @@ public class MODashboard extends javafx.application.Application {
                 actionBox.setSpacing(8);
                 actionBox.setAlignment(Pos.CENTER_LEFT);
 
+                Button editButton = new Button("Edit Position");
+                editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                editButton.setDisable(!canEditJob(job));
+                editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+                actionBox.getChildren().add(editButton);
+
                 Button detailButton = new Button("View Details");
                 detailButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
                 detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job)));
@@ -442,6 +583,12 @@ public class MODashboard extends javafx.application.Application {
                 row.getChildren().addAll(textBox, actionBox);
                 HBox.setHgrow(textBox, Priority.ALWAYS);
                 list.getChildren().add(row);
+
+                if (!canEditJob(job)) {
+                    Label editHint = new Label("Edit locked: " + getEditBlockedReason(job));
+                    editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+                    textBox.getChildren().add(editHint);
+                }
             }
         }
 
@@ -562,6 +709,20 @@ public class MODashboard extends javafx.application.Application {
         desc.setWrapText(true);
         desc.setStyle("-fx-font-size: 14px; -fx-text-fill: #444444;");
 
+        HBox topActionBox = new HBox();
+        topActionBox.setSpacing(10);
+
+        Button editButton = new Button("Edit Position");
+        editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        editButton.setDisable(!canEditJob(job));
+        editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+
+        Label editHint = new Label(canEditJob(job)
+            ? "This position can still be edited."
+            : "Edit locked: " + getEditBlockedReason(job));
+        editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+        topActionBox.getChildren().addAll(editButton, editHint);
+
         VBox recordBox = new VBox();
         recordBox.setSpacing(12);
         recordBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
@@ -608,7 +769,7 @@ public class MODashboard extends javafx.application.Application {
             }
         }
 
-        page.getChildren().addAll(backButton, title, meta, desc, recordBox);
+        page.getChildren().addAll(backButton, title, meta, desc, topActionBox, recordBox);
         return page;
     }
 
@@ -847,6 +1008,20 @@ public class MODashboard extends javafx.application.Application {
             .filter(record -> jobId.equals(record.getJobId()))
             .filter(record -> TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()))
             .count();
+    }
+
+    private boolean canEditJob(TAJob job) {
+        return !isJobExpired(job) && countApplicationsForJob(job.getJobId()) == 0;
+    }
+
+    private String getEditBlockedReason(TAJob job) {
+        if (isJobExpired(job)) {
+            return "deadline has already passed";
+        }
+        if (countApplicationsForJob(job.getJobId()) > 0) {
+            return "the position already has applicants";
+        }
+        return "this position is not eligible for editing";
     }
 
     private boolean isJobOpen(TAJob job) {
