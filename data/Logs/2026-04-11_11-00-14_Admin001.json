@@ -1,0 +1,8 @@
+{
+  "logId" : "2026-04-11_11-00-14_Admin001",
+  "timestamp" : "2026-04-11 11:00:14",
+  "adminId" : "Admin001",
+  "action" : "Login",
+  "target" : "Admin001",
+  "detail" : "Role: ADMIN"
+}
