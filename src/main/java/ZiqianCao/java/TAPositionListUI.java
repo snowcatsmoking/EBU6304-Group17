@@ -206,7 +206,7 @@ public class TAPositionListUI extends Application {
         Label timeLabel = new Label("Available Time:");
         timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
         availableTimeField = new javafx.scene.control.TextField();
-        availableTimeField.setPromptText("Enter available time");
+        availableTimeField.setPromptText("YYYY-MM-DD");
         availableTimeField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
         availableTimeField.setPrefWidth(150);
 
@@ -255,8 +255,22 @@ public class TAPositionListUI extends Application {
                 match = false;
             }
 
-            if (!availableTime.isEmpty() && !job.getDeadline().contains(availableTime)) {
-                match = false;
+            if (!availableTime.isEmpty()) {
+                try {
+                    // 解析用户输入的日期
+                    java.time.LocalDate inputDate = java.time.LocalDate.parse(availableTime, 
+                        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    // 解析岗位的截止日期
+                    java.time.LocalDate deadlineDate = java.time.LocalDate.parse(job.getDeadline(), 
+                        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    // 只保留截止日期在输入日期及之前的岗位
+                    if (deadlineDate.isAfter(inputDate)) {
+                        match = false;
+                    }
+                } catch (Exception e) {
+                    // 输入格式不正确，不匹配
+                    match = false;
+                }
             }
 
             if (!recruitmentCount.isEmpty()) {
