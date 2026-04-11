@@ -109,10 +109,20 @@ public class DashboardView {
         statsBox.setSpacing(16);
         statsBox.setAlignment(Pos.CENTER_LEFT);
 
-        VBox stat1 = createStatBox("3", "Applications Submitted");
-        VBox stat2 = createStatBox("1", "Approved");
-        VBox stat3 = createStatBox("1", "Under Review");
-        VBox stat4 = createStatBox("5", "Available Positions");
+        java.util.List<TAApplicationRecord> myApps =
+            recordManager.getApplicationsByStudentId(currentStudentId);
+
+        long submitted = myApps.size();
+        long approved  = myApps.stream()
+            .filter(r -> TAApplicationRecord.STATUS_APPROVED.equals(r.getStatus())).count();
+        long pending   = myApps.stream()
+            .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
+        long available = new data.JobDataManager().getActiveJobs().size();
+
+        VBox stat1 = createStatBox(String.valueOf(submitted), "Applications Submitted");
+        VBox stat2 = createStatBox(String.valueOf(approved),  "Approved");
+        VBox stat3 = createStatBox(String.valueOf(pending),   "Under Review");
+        VBox stat4 = createStatBox(String.valueOf(available), "Available Positions");
 
         statsBox.getChildren().addAll(stat1, stat2, stat3, stat4);
 
