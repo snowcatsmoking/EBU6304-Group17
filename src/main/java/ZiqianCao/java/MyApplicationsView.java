@@ -210,18 +210,21 @@ public class MyApplicationsView {
         startDateField.clear();
         endDateField.clear();
         // 刷新界面，显示所有记录
-        BorderPane newView = getView();
         if (startDateField.getScene() != null && startDateField.getScene().getRoot() != null) {
             javafx.scene.Parent root = startDateField.getScene().getRoot();
             if (root instanceof javafx.scene.layout.StackPane) {
                 javafx.scene.layout.StackPane stackPane = (javafx.scene.layout.StackPane) root;
                 for (javafx.scene.Node node : stackPane.getChildren()) {
                     if (node instanceof BorderPane) {
+                        // 重新创建视图并更新中心内容
+                        BorderPane newView = getView();
                         ((BorderPane) node).setCenter(newView.getCenter());
                         break;
                     }
                 }
             } else if (root instanceof BorderPane) {
+                // 重新创建视图并更新中心内容
+                BorderPane newView = getView();
                 ((BorderPane) root).setCenter(newView.getCenter());
             }
         }
