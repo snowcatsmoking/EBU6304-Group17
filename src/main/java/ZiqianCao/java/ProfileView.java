@@ -186,6 +186,11 @@ public class ProfileView {
         valueField.setStyle("-fx-font-size: 13px; -fx-text-fill: #111111; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 8 12 8 12;");
         valueField.setPrefWidth(400);
 
+        // Add date format hint for available time field
+        if (fieldName.equals("availableTime")) {
+            valueField.setPromptText("YYYY-MM-DD");
+        }
+
         if (fieldName.equals("studentId") || isLocked) {
             valueField.setDisable(true);
             valueField.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-background-color: #f5f5f5; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 8 12 8 12;");

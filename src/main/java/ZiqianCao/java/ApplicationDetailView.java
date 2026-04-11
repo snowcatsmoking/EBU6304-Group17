@@ -26,7 +26,7 @@ public class ApplicationDetailView {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(primaryStage);
-        dialogStage.setTitle("申请详情");
+        dialogStage.setTitle("Application Details");
 
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #fafafa;");
@@ -35,20 +35,20 @@ public class ApplicationDetailView {
         content.setPadding(new Insets(30, 30, 30, 30));
         content.setSpacing(20);
 
-        Label titleLabel = new Label("申请详情");
+        Label titleLabel = new Label("Application Details");
         titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         VBox detailBox = new VBox();
         detailBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
         detailBox.setSpacing(15);
 
-        // 岗位信息
-        Label positionTitle = new Label("岗位信息");
+        // Position Information
+        Label positionTitle = new Label("Position Information");
         positionTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         HBox positionNameBox = new HBox();
         positionNameBox.setSpacing(10);
-        Label positionNameLabel = new Label("岗位名称:");
+        Label positionNameLabel = new Label("Position Name:");
         positionNameLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label positionNameValue = new Label(record.getPositionName());
         positionNameValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -56,7 +56,7 @@ public class ApplicationDetailView {
 
         HBox courseNameBox = new HBox();
         courseNameBox.setSpacing(10);
-        Label courseNameLabel = new Label("所属课程:");
+        Label courseNameLabel = new Label("Course:");
         courseNameLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label courseNameValue = new Label(record.getCourseName());
         courseNameValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -64,19 +64,19 @@ public class ApplicationDetailView {
 
         HBox moduleCodeBox = new HBox();
         moduleCodeBox.setSpacing(10);
-        Label moduleCodeLabel = new Label("课程代码:");
+        Label moduleCodeLabel = new Label("Module Code:");
         moduleCodeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label moduleCodeValue = new Label(record.getModuleCode());
         moduleCodeValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
         moduleCodeBox.getChildren().addAll(moduleCodeLabel, moduleCodeValue);
 
-        // 申请信息
-        Label applicationTitle = new Label("申请信息");
+        // Application Information
+        Label applicationTitle = new Label("Application Information");
         applicationTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333; -fx-margin: 20 0 0 0;");
 
         HBox applicationDateBox = new HBox();
         applicationDateBox.setSpacing(10);
-        Label applicationDateLabel = new Label("申请时间:");
+        Label applicationDateLabel = new Label("Application Time:");
         applicationDateLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label applicationDateValue = new Label(dateFormat.format(record.getApplicationDate()));
         applicationDateValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -84,39 +84,39 @@ public class ApplicationDetailView {
 
         HBox statusBox = new HBox();
         statusBox.setSpacing(10);
-        Label statusLabel = new Label("申请状态:");
+        Label statusLabel = new Label("Application Status:");
         statusLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label statusValue = new Label(getStatusDisplay(record.getStatus()));
         statusValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
         statusBox.getChildren().addAll(statusLabel, statusValue);
 
-        // 审核信息
-        Label reviewTitle = new Label("审核信息");
+        // Review Information
+        Label reviewTitle = new Label("Review Information");
         reviewTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333; -fx-margin: 20 0 0 0;");
 
         HBox reviewerBox = new HBox();
         reviewerBox.setSpacing(10);
-        Label reviewerLabel = new Label("审核人:");
+        Label reviewerLabel = new Label("Reviewer:");
         reviewerLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
-        Label reviewerValue = new Label(record.getReviewer() != null ? record.getReviewer() : "无");
+        Label reviewerValue = new Label(record.getReviewer() != null ? record.getReviewer() : "None");
         reviewerValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
         reviewerBox.getChildren().addAll(reviewerLabel, reviewerValue);
 
         VBox commentBox = new VBox();
         commentBox.setSpacing(5);
-        Label commentLabel = new Label("审核意见:");
+        Label commentLabel = new Label("Review Comments:");
         commentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
-        Label commentValue = new Label(record.getReviewComment() != null ? record.getReviewComment() : "无");
+        Label commentValue = new Label(record.getReviewComment() != null ? record.getReviewComment() : "None");
         commentValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333; -fx-wrap-text: true;");
         commentBox.getChildren().addAll(commentLabel, commentValue);
 
-        // 个人信息
-        Label personalTitle = new Label("个人信息");
+        // Personal Information
+        Label personalTitle = new Label("Personal Information");
         personalTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333333; -fx-margin: 20 0 0 0;");
 
         HBox studentNameBox = new HBox();
         studentNameBox.setSpacing(10);
-        Label studentNameLabel = new Label("姓名:");
+        Label studentNameLabel = new Label("Name:");
         studentNameLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label studentNameValue = new Label(record.getStudentName());
         studentNameValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -124,7 +124,7 @@ public class ApplicationDetailView {
 
         HBox majorBox = new HBox();
         majorBox.setSpacing(10);
-        Label majorLabel = new Label("专业:");
+        Label majorLabel = new Label("Major:");
         majorLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label majorValue = new Label(record.getMajor());
         majorValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -132,7 +132,7 @@ public class ApplicationDetailView {
 
         HBox phoneBox = new HBox();
         phoneBox.setSpacing(10);
-        Label phoneLabel = new Label("联系电话:");
+        Label phoneLabel = new Label("Phone:");
         phoneLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label phoneValue = new Label(record.getPhone());
         phoneValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -140,7 +140,7 @@ public class ApplicationDetailView {
 
         HBox emailBox = new HBox();
         emailBox.setSpacing(10);
-        Label emailLabel = new Label("邮箱:");
+        Label emailLabel = new Label("Email:");
         emailLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label emailValue = new Label(record.getEmail());
         emailValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -148,7 +148,7 @@ public class ApplicationDetailView {
 
         HBox availableTimeBox = new HBox();
         availableTimeBox.setSpacing(10);
-        Label availableTimeLabel = new Label("可任职时间:");
+        Label availableTimeLabel = new Label("Available Time:");
         availableTimeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label availableTimeValue = new Label(record.getAvailableTime());
         availableTimeValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -156,7 +156,7 @@ public class ApplicationDetailView {
 
         HBox skillsBox = new HBox();
         skillsBox.setSpacing(10);
-        Label skillsLabel = new Label("专业技能:");
+        Label skillsLabel = new Label("Skills:");
         skillsLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-min-width: 100px;");
         Label skillsValue = new Label(record.getSkills());
         skillsValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
@@ -173,7 +173,7 @@ public class ApplicationDetailView {
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setSpacing(10);
 
-        Button closeButton = new Button("关闭");
+        Button closeButton = new Button("Close");
         closeButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
         closeButton.setOnAction(e -> dialogStage.close());
 
@@ -191,13 +191,13 @@ public class ApplicationDetailView {
     private String getStatusDisplay(String status) {
         switch (status) {
             case TAApplicationRecord.STATUS_PENDING:
-                return "审核中";
+                return "Pending";
             case TAApplicationRecord.STATUS_APPROVED:
-                return "已通过";
+                return "Approved";
             case TAApplicationRecord.STATUS_REJECTED:
-                return "已拒绝";
+                return "Rejected";
             case TAApplicationRecord.STATUS_WITHDRAWN:
-                return "已撤回";
+                return "Withdrawn";
             default:
                 return status;
         }
