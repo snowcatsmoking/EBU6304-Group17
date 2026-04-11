@@ -91,11 +91,13 @@ public class MODashboard extends javafx.application.Application {
         Label navDashboard = buildNavItem("Dashboard");
         Label navPublish = buildNavItem("Post Position");
         HBox navMyPositions = buildNavItemWithBadge("My Positions");
+        Label navStatistics = buildNavItem("Position Statistics");
 
         setActive(navDashboard);
         navDashboard.setOnMouseClicked(e -> { setActive(navDashboard); root.setCenter(buildDashboardView()); });
         navPublish.setOnMouseClicked(e -> { setActive(navPublish); root.setCenter(buildPostPositionView()); });
         navMyPositions.setOnMouseClicked(e -> { setActive(navMyPositions); root.setCenter(buildMyPositionsView()); });
+        navStatistics.setOnMouseClicked(e -> { setActive(navStatistics); root.setCenter(buildPositionStatisticsView()); });
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
@@ -112,7 +114,7 @@ public class MODashboard extends javafx.application.Application {
             }
         });
 
-        sidebar.getChildren().addAll(titleLabel, navDashboard, navPublish, navMyPositions, spacer, logoutLabel);
+        sidebar.getChildren().addAll(titleLabel, navDashboard, navPublish, navMyPositions, navStatistics, spacer, logoutLabel);
         return sidebar;
     }
 
@@ -447,6 +449,100 @@ public class MODashboard extends javafx.application.Application {
         return page;
     }
 
+    private Node buildPositionStatisticsView() {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(18);
+
+        HBox headerRow = new HBox();
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        headerRow.setSpacing(12);
+
+        VBox titleBox = new VBox();
+        titleBox.setSpacing(6);
+        Label title = new Label("Position Statistics");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        Label subtitle = new Label("Track the status of your positions together with application and approval counts.");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        titleBox.getChildren().addAll(title, subtitle);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button refreshButton = new Button("Refresh");
+        refreshButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        refreshButton.setOnAction(e -> root.setCenter(buildPositionStatisticsView()));
+
+        headerRow.getChildren().addAll(titleBox, spacer, refreshButton);
+
+        List<TAJob> jobs = jobManager.getJobsByMo(moStaffId);
+        long openCount = jobs.stream().filter(job -> "Open".equals(getPositionStatisticsStatus(job))).count();
+        long closedCount = jobs.stream().filter(job -> "Closed".equals(getPositionStatisticsStatus(job))).count();
+        long expiredCount = jobs.stream().filter(job -> "Expired".equals(getPositionStatisticsStatus(job))).count();
+        int totalApplications = jobs.stream().mapToInt(job -> countApplicationsForJob(job.getJobId())).sum();
+        int totalApproved = jobs.stream().mapToInt(job -> countApprovedApplicationsForJob(job.getJobId())).sum();
+
+        HBox topStatRow = new HBox();
+        topStatRow.setSpacing(16);
+        topStatRow.getChildren().addAll(
+            buildStatCard((int) openCount, "Open Positions"),
+            buildStatCard((int) closedCount, "Closed Positions"),
+            buildStatCard((int) expiredCount, "Expired Positions")
+        );
+
+        HBox bottomStatRow = new HBox();
+        bottomStatRow.setSpacing(16);
+        bottomStatRow.getChildren().addAll(
+            buildStatCard(totalApplications, "Total Applications"),
+            buildStatCard(totalApproved, "Total Approved")
+        );
+
+        VBox list = new VBox();
+        list.setSpacing(12);
+        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
+
+        if (jobs.isEmpty()) {
+            Label empty = new Label("You have not published any positions yet. Publish one to start tracking progress here.");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            list.getChildren().add(empty);
+        } else {
+            for (TAJob job : jobs) {
+                list.getChildren().add(buildPositionStatisticsItem(job));
+            }
+        }
+
+        page.getChildren().addAll(headerRow, topStatRow, bottomStatRow, list);
+        return page;
+    }
+
+    private VBox buildPositionStatisticsItem(TAJob job) {
+        VBox item = new VBox();
+        item.setSpacing(8);
+        item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
+
+        Label title = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
+        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label status = new Label("Status: " + getPositionStatisticsStatus(job));
+        status.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+
+        Label meta = new Label(
+            "Course: " + showFallback(job.getCourseName())
+                + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline())
+                + "  Openings: " + job.getRecruitmentCount()
+        );
+        meta.setWrapText(true);
+        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        int applicationCount = countApplicationsForJob(job.getJobId());
+        int approvedCount = countApprovedApplicationsForJob(job.getJobId());
+        Label progress = new Label("Applications: " + applicationCount + "  Approved: " + approvedCount);
+        progress.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        item.getChildren().addAll(title, status, meta, progress);
+        return item;
+    }
+
     private Node buildJobDetailView(TAJob job) {
         VBox page = new VBox();
         page.setPadding(new Insets(24));
@@ -730,6 +826,29 @@ public class MODashboard extends javafx.application.Application {
         return "Open";
     }
 
+    private String getPositionStatisticsStatus(TAJob job) {
+        if (isJobExpired(job)) {
+            return "Expired";
+        }
+        if (job.isActive()) {
+            return "Closed";
+        }
+        return "Open";
+    }
+
+    private int countApplicationsForJob(String jobId) {
+        return (int) recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(record -> jobId.equals(record.getJobId()))
+            .count();
+    }
+
+    private int countApprovedApplicationsForJob(String jobId) {
+        return (int) recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(record -> jobId.equals(record.getJobId()))
+            .filter(record -> TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()))
+            .count();
+    }
+
     private boolean isJobOpen(TAJob job) {
         return !job.isActive() && !isJobExpired(job);
     }
@@ -760,6 +879,10 @@ public class MODashboard extends javafx.application.Application {
 
     private boolean isBlank(String text) {
         return text == null || text.trim().isEmpty();
+    }
+
+    private String showFallback(String text) {
+        return isBlank(text) ? "Not provided" : text.trim();
     }
 
     public static void main(String[] args) {
