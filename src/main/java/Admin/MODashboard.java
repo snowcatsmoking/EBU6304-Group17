@@ -92,12 +92,14 @@ public class MODashboard extends javafx.application.Application {
         Label navPublish = buildNavItem("Post Position");
         HBox navMyPositions = buildNavItemWithBadge("My Positions");
         Label navStatistics = buildNavItem("Position Statistics");
+        Label navReviews = buildNavItem("Application Review");
 
         setActive(navDashboard);
         navDashboard.setOnMouseClicked(e -> { setActive(navDashboard); root.setCenter(buildDashboardView()); });
         navPublish.setOnMouseClicked(e -> { setActive(navPublish); root.setCenter(buildPostPositionView()); });
         navMyPositions.setOnMouseClicked(e -> { setActive(navMyPositions); root.setCenter(buildMyPositionsView()); });
         navStatistics.setOnMouseClicked(e -> { setActive(navStatistics); root.setCenter(buildPositionStatisticsView()); });
+        navReviews.setOnMouseClicked(e -> { setActive(navReviews); root.setCenter(buildApplicantReviewView()); });
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
@@ -114,7 +116,7 @@ public class MODashboard extends javafx.application.Application {
             }
         });
 
-        sidebar.getChildren().addAll(titleLabel, navDashboard, navPublish, navMyPositions, navStatistics, spacer, logoutLabel);
+        sidebar.getChildren().addAll(titleLabel, navDashboard, navPublish, navMyPositions, navStatistics, navReviews, spacer, logoutLabel);
         return sidebar;
     }
 
@@ -771,6 +773,71 @@ public class MODashboard extends javafx.application.Application {
 
         page.getChildren().addAll(backButton, title, meta, desc, topActionBox, recordBox);
         return page;
+    }
+
+    private Node buildApplicantReviewView() {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(18);
+
+        Label title = new Label("Application Review");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label subtitle = new Label("Review all applications submitted for the positions published by the current module organiser.");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+        List<TAApplicationRecord> records = recordManager.getApplicationsByMoStaffId(moStaffId);
+        long pendingCount = records.stream()
+            .filter(record -> TAApplicationRecord.STATUS_PENDING.equals(record.getStatus()))
+            .count();
+
+        Label summary = new Label("Total applications: " + records.size() + "  Pending review: " + pendingCount);
+        summary.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        VBox list = new VBox();
+        list.setSpacing(12);
+        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
+
+        if (records.isEmpty()) {
+            Label empty = new Label("No applications are available for your positions yet.");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            list.getChildren().add(empty);
+        } else {
+            for (TAApplicationRecord record : records) {
+                list.getChildren().add(buildApplicantReviewItem(record));
+            }
+        }
+
+        page.getChildren().addAll(title, subtitle, summary, list);
+        return page;
+    }
+
+    private VBox buildApplicantReviewItem(TAApplicationRecord record) {
+        VBox item = new VBox();
+        item.setSpacing(8);
+        item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
+
+        Label summary = new Label(record.getPositionName() + " - " + record.getStudentName() + " (" + record.getTaStudentId() + ")");
+        summary.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label profile = new Label(
+            "Major: " + showFallback(record.getMajor())
+                + "  Available Time: " + showFallback(record.getAvailableTime())
+                + "  Skills: " + showFallback(record.getSkills())
+        );
+        profile.setWrapText(true);
+        profile.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Label meta = new Label("Applied: " + fmtDate(record.getApplicationDate()) + "  Status: " + formatStatus(record.getStatus()));
+        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Button openButton = new Button("Open Review");
+        openButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        openButton.setOnAction(e -> root.setCenter(
+            buildApplicationDetailView(record, () -> root.setCenter(buildApplicantReviewView()))));
+
+        item.getChildren().addAll(summary, profile, meta, openButton);
+        return item;
     }
 
     private Node buildApplicationDetailView(TAApplicationRecord record, Runnable onBack) {
