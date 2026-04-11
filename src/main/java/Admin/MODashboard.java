@@ -3,7 +3,9 @@ package Admin;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import ZiqianCao.java.TAApplicationRecord;
@@ -15,6 +17,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -800,16 +803,39 @@ public class MODashboard extends javafx.application.Application {
         clearButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
         filterBox.getChildren().addAll(majorFilterField, availableTimeFilterField, skillsFilterField, clearButton);
 
+        HBox batchActionBox = new HBox();
+        batchActionBox.setSpacing(12);
+
+        Button selectAllButton = new Button("Select Pending");
+        selectAllButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        Button clearSelectionButton = new Button("Clear Selection");
+        clearSelectionButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        Button batchApproveButton = new Button("Batch Approve");
+        batchApproveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        Button batchRejectButton = new Button("Batch Reject");
+        batchRejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        batchActionBox.getChildren().addAll(selectAllButton, clearSelectionButton, batchApproveButton, batchRejectButton);
+
         Label summary = new Label();
         summary.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Label selectionLabel = new Label();
+        selectionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Label feedbackLabel = new Label();
+        feedbackLabel.setStyle("-fx-font-size: 13px;");
 
         VBox list = new VBox();
         list.setSpacing(12);
         list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
 
+        Set<String> selectedApplicationIds = new HashSet<>();
         Runnable refreshList = () -> refreshApplicantReviewList(
             list,
             summary,
+            selectionLabel,
+            feedbackLabel,
+            selectedApplicationIds,
             majorFilterField,
             availableTimeFilterField,
             skillsFilterField
@@ -824,21 +850,78 @@ public class MODashboard extends javafx.application.Application {
             skillsFilterField.clear();
             refreshList.run();
         });
+        selectAllButton.setOnAction(e -> {
+            List<TAApplicationRecord> filteredPendingRecords = getFilteredApplicantRecords(
+                majorFilterField.getText(),
+                availableTimeFilterField.getText(),
+                skillsFilterField.getText()
+            ).stream()
+                .filter(this::isPendingApplication)
+                .collect(Collectors.toList());
+
+            if (filteredPendingRecords.isEmpty()) {
+                showMessage(feedbackLabel, "No pending applications match the current filters.", false);
+                refreshList.run();
+                return;
+            }
+
+            for (TAApplicationRecord record : filteredPendingRecords) {
+                selectedApplicationIds.add(record.getApplicationId());
+            }
+            showMessage(feedbackLabel, "Selected " + filteredPendingRecords.size() + " pending applications.", true);
+            refreshList.run();
+        });
+        clearSelectionButton.setOnAction(e -> {
+            selectedApplicationIds.clear();
+            showMessage(feedbackLabel, "Selection cleared.", true);
+            refreshList.run();
+        });
+        batchApproveButton.setOnAction(e -> handleBatchReviewAction(
+            true,
+            selectedApplicationIds,
+            feedbackLabel,
+            list,
+            summary,
+            selectionLabel,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        ));
+        batchRejectButton.setOnAction(e -> handleBatchReviewAction(
+            false,
+            selectedApplicationIds,
+            feedbackLabel,
+            list,
+            summary,
+            selectionLabel,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        ));
 
         refreshList.run();
 
-        page.getChildren().addAll(title, subtitle, filterBox, summary, list);
+        page.getChildren().addAll(title, subtitle, filterBox, batchActionBox, summary, selectionLabel, feedbackLabel, list);
         return page;
     }
 
     private void refreshApplicantReviewList(
         VBox list,
         Label summary,
+        Label selectionLabel,
+        Label feedbackLabel,
+        Set<String> selectedApplicationIds,
         TextField majorFilterField,
         TextField availableTimeFilterField,
         TextField skillsFilterField
     ) {
         list.getChildren().clear();
+
+        Set<String> pendingApplicationIds = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(this::isPendingApplication)
+            .map(TAApplicationRecord::getApplicationId)
+            .collect(Collectors.toSet());
+        selectedApplicationIds.retainAll(pendingApplicationIds);
 
         List<TAApplicationRecord> filteredRecords = getFilteredApplicantRecords(
             majorFilterField.getText(),
@@ -850,6 +933,7 @@ public class MODashboard extends javafx.application.Application {
             .count();
 
         summary.setText("Matching applications: " + filteredRecords.size() + "  Pending review: " + pendingCount);
+        updateSelectionLabel(selectionLabel, selectedApplicationIds);
 
         if (filteredRecords.isEmpty()) {
             Label empty = new Label("No applications match the current filters.");
@@ -858,18 +942,52 @@ public class MODashboard extends javafx.application.Application {
             return;
         }
 
+        Runnable refreshAction = () -> refreshApplicantReviewList(
+            list,
+            summary,
+            selectionLabel,
+            feedbackLabel,
+            selectedApplicationIds,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        );
+
         for (TAApplicationRecord record : filteredRecords) {
-            list.getChildren().add(buildApplicantReviewItem(record));
+            list.getChildren().add(buildApplicantReviewItem(record, selectedApplicationIds, selectionLabel, refreshAction));
         }
     }
 
-    private VBox buildApplicantReviewItem(TAApplicationRecord record) {
+    private VBox buildApplicantReviewItem(
+        TAApplicationRecord record,
+        Set<String> selectedApplicationIds,
+        Label selectionLabel,
+        Runnable refreshAction
+    ) {
         VBox item = new VBox();
         item.setSpacing(8);
         item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
 
+        HBox summaryRow = new HBox();
+        summaryRow.setSpacing(10);
+        summaryRow.setAlignment(Pos.CENTER_LEFT);
+
+        CheckBox selectBox = new CheckBox();
+        selectBox.setStyle("-fx-cursor: hand;");
+        selectBox.setSelected(selectedApplicationIds.contains(record.getApplicationId()));
+        selectBox.setDisable(!isPendingApplication(record));
+        selectBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            if (isSelected) {
+                selectedApplicationIds.add(record.getApplicationId());
+            } else {
+                selectedApplicationIds.remove(record.getApplicationId());
+            }
+            updateSelectionLabel(selectionLabel, selectedApplicationIds);
+        });
+
         Label summary = new Label(record.getPositionName() + " - " + record.getStudentName() + " (" + record.getTaStudentId() + ")");
         summary.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        summaryRow.getChildren().addAll(selectBox, summary);
 
         Label profile = new Label(
             "Major: " + showFallback(record.getMajor())
@@ -887,7 +1005,27 @@ public class MODashboard extends javafx.application.Application {
         openButton.setOnAction(e -> root.setCenter(
             buildApplicationDetailView(record, () -> root.setCenter(buildApplicantReviewView()))));
 
-        item.getChildren().addAll(summary, profile, meta, openButton);
+        HBox actionBox = new HBox();
+        actionBox.setSpacing(8);
+        actionBox.getChildren().add(openButton);
+        if (isPendingApplication(record)) {
+            Button approveButton = new Button("Approve");
+            approveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            approveButton.setOnAction(e -> {
+                recordManager.approveApplication(record.getApplicationId());
+                refreshAction.run();
+            });
+
+            Button rejectButton = new Button("Reject");
+            rejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            rejectButton.setOnAction(e -> {
+                recordManager.rejectApplication(record.getApplicationId());
+                refreshAction.run();
+            });
+            actionBox.getChildren().addAll(approveButton, rejectButton);
+        }
+
+        item.getChildren().addAll(summaryRow, profile, meta, actionBox);
         return item;
     }
 
@@ -1164,6 +1302,59 @@ public class MODashboard extends javafx.application.Application {
         return true;
     }
 
+    private void handleBatchReviewAction(
+        boolean approve,
+        Set<String> selectedApplicationIds,
+        Label feedbackLabel,
+        VBox list,
+        Label summary,
+        Label selectionLabel,
+        TextField majorFilterField,
+        TextField availableTimeFilterField,
+        TextField skillsFilterField
+    ) {
+        if (selectedApplicationIds.isEmpty()) {
+            showMessage(feedbackLabel, "Select at least one pending application first.", false);
+            return;
+        }
+
+        int selectedCount = selectedApplicationIds.size();
+        int updatedCount = 0;
+        for (String applicationId : new HashSet<>(selectedApplicationIds)) {
+            boolean updated = approve
+                ? recordManager.approveApplication(applicationId)
+                : recordManager.rejectApplication(applicationId);
+            if (updated) {
+                updatedCount++;
+                selectedApplicationIds.remove(applicationId);
+            }
+        }
+
+        if (updatedCount == 0) {
+            showMessage(feedbackLabel, "None of the selected applications could be updated.", false);
+        } else if (updatedCount == selectedCount) {
+            showMessage(feedbackLabel, (approve ? "Approved " : "Rejected ") + updatedCount + " applications.", true);
+        } else {
+            showMessage(
+                feedbackLabel,
+                "Updated " + updatedCount + " applications. "
+                    + (selectedCount - updatedCount) + " were skipped because their status changed.",
+                true
+            );
+        }
+
+        refreshApplicantReviewList(
+            list,
+            summary,
+            selectionLabel,
+            feedbackLabel,
+            selectedApplicationIds,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        );
+    }
+
     private boolean canEditJob(TAJob job) {
         return !isJobExpired(job) && countApplicationsForJob(job.getJobId()) == 0;
     }
@@ -1212,6 +1403,14 @@ public class MODashboard extends javafx.application.Application {
 
     private String showFallback(String text) {
         return isBlank(text) ? "Not provided" : text.trim();
+    }
+
+    private boolean isPendingApplication(TAApplicationRecord record) {
+        return TAApplicationRecord.STATUS_PENDING.equals(record.getStatus());
+    }
+
+    private void updateSelectionLabel(Label selectionLabel, Set<String> selectedApplicationIds) {
+        selectionLabel.setText("Selected pending applications: " + selectedApplicationIds.size());
     }
 
     public static void main(String[] args) {
