@@ -97,7 +97,7 @@ public class TAPositionListUI extends Application {
         sidebar.setSpacing(0);
         sidebar.setAlignment(Pos.TOP_LEFT);
 
-        Label titleLabel = new Label("TA系统");
+        Label titleLabel = new Label("TA System");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #000000;");
         titleLabel.setPadding(new Insets(0, 0, 20, 16));
 
@@ -105,17 +105,17 @@ public class TAPositionListUI extends Application {
         navBox.setSpacing(0);
         navBox.setAlignment(Pos.TOP_LEFT);
 
-        navItem1 = createNavItem("控制台", "dashboard");
-        navItem2 = createNavItem("岗位列表", "positions");
-        navItem3 = createNavItem("我的申请", "applications");
-        navItem4 = createNavItem("个人档案", "profile");
+        navItem1 = createNavItem("Dashboard", "dashboard");
+        navItem2 = createNavItem("Positions", "positions");
+        navItem3 = createNavItem("My Applications", "applications");
+        navItem4 = createNavItem("Profile", "profile");
 
         navBox.getChildren().addAll(navItem1, navItem2, navItem3, navItem4);
 
         javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
         VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
-        javafx.scene.control.Button logoutButton = new javafx.scene.control.Button("退出登录");
+        javafx.scene.control.Button logoutButton = new javafx.scene.control.Button("Log Out");
         logoutButton.setMaxWidth(Double.MAX_VALUE);
         logoutButton.setStyle(
             "-fx-font-size: 13px; -fx-text-fill: #cc0000; -fx-background-color: transparent;" +
@@ -123,7 +123,7 @@ public class TAPositionListUI extends Application {
         logoutButton.setOnAction(e -> {
             try {
                 LoginScreen.LoginView loginView = new LoginScreen.LoginView();
-                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA招聘管理系统 - 登录");
+                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA Recruitment System - Login");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -196,32 +196,32 @@ public class TAPositionListUI extends Application {
         filterBox.setSpacing(12);
         filterBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label courseLabel = new Label("课程名称:");
+        Label courseLabel = new Label("Course Name:");
         courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
         courseNameField = new javafx.scene.control.TextField();
-        courseNameField.setPromptText("输入课程名称");
+        courseNameField.setPromptText("Enter course name");
         courseNameField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
         courseNameField.setPrefWidth(150);
 
-        Label timeLabel = new Label("可任职时间:");
+        Label timeLabel = new Label("Available Time:");
         timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
         availableTimeField = new javafx.scene.control.TextField();
-        availableTimeField.setPromptText("输入可任职时间");
+        availableTimeField.setPromptText("Enter available time");
         availableTimeField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
         availableTimeField.setPrefWidth(150);
 
-        Label countLabel = new Label("招聘人数:");
+        Label countLabel = new Label("Openings:");
         countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
         recruitmentCountField = new javafx.scene.control.TextField();
-        recruitmentCountField.setPromptText("输入招聘人数");
+        recruitmentCountField.setPromptText("Enter number");
         recruitmentCountField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
         recruitmentCountField.setPrefWidth(100);
 
-        Button filterButton = new Button("筛选");
+        Button filterButton = new Button("Filter");
         filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         filterButton.setOnAction(e -> applyFilters());
 
-        Button resetButton = new Button("重置");
+        Button resetButton = new Button("Reset");
         resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         resetButton.setOnAction(e -> resetFilters());
 
@@ -310,7 +310,7 @@ public class TAPositionListUI extends Application {
 
         int totalPages = (int) Math.ceil((double) filteredJobList.size() / PAGE_SIZE);
 
-        Button prevButton = new Button("上一页");
+        Button prevButton = new Button("Previous");
         prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         prevButton.setDisable(currentPage == 1);
         if (currentPage == 1) {
@@ -324,10 +324,10 @@ public class TAPositionListUI extends Application {
             }
         });
 
-        Label pageInfo = new Label("第 " + currentPage + " / " + totalPages + " 页  （共 " + filteredJobList.size() + " 个岗位）");
+        Label pageInfo = new Label("Page " + currentPage + " of " + totalPages + "  (" + filteredJobList.size() + " positions)");
         pageInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Button nextButton = new Button("下一页");
+        Button nextButton = new Button("Next");
         nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         nextButton.setDisable(currentPage == totalPages);
         if (currentPage == totalPages) {
@@ -360,10 +360,17 @@ public class TAPositionListUI extends Application {
         Label titleLabel = new Label(job.getPositionName());
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        if (job.isActive()) {
-            Label closedLabel = new Label("不可申请");
-            closedLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
-            titleBox.getChildren().addAll(titleLabel, closedLabel);
+        boolean manuallyClosed = job.isActive();
+        boolean expired = isDeadlineExpired(job);
+
+        if (manuallyClosed) {
+            Label badge = new Label("Closed");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #eeeeee; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
+            titleBox.getChildren().addAll(titleLabel, badge);
+        } else if (expired) {
+            Label badge = new Label("Expired");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
+            titleBox.getChildren().addAll(titleLabel, badge);
         } else {
             titleBox.getChildren().add(titleLabel);
         }
@@ -372,56 +379,62 @@ public class TAPositionListUI extends Application {
         infoBox.setSpacing(24);
         infoBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label courseLabel = new Label("所属课程/活动: " + job.getCourseName());
+        Label courseLabel = new Label("Course/Activity: " + job.getCourseName());
         courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label countLabel = new Label("招聘人数: " + job.getRecruitmentCount() + "人");
+        Label countLabel = new Label("Openings: " + job.getRecruitmentCount());
         countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label requirementLabel = new Label("任职要求: " + job.getRequirements());
+        Label requirementLabel = new Label("Requirements: " + job.getRequirements());
         requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
         HBox deadlineBox = new HBox();
         deadlineBox.setSpacing(24);
         deadlineBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label deadlineLabel = new Label("申请截止时间: " + job.getDeadline());
+        Label deadlineLabel = new Label("Deadline: " + job.getDeadline());
         deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label publisherLabel = new Label("发布人: " + job.getPublisher());
+        Label publisherLabel = new Label("Posted By: " + job.getPublisher());
         publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
         HBox actionBox = new HBox();
         actionBox.setAlignment(Pos.CENTER_LEFT);
         actionBox.setPadding(new Insets(8, 0, 0, 0));
 
-        if (job.isActive()) {
-            Button closedButton = new Button("不可申请");
+        if (manuallyClosed) {
+            Button closedButton = new Button("Closed by Organiser");
             closedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #999999; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
+            closedButton.setDisable(true);
             actionBox.getChildren().add(closedButton);
+        } else if (expired) {
+            Button expiredButton = new Button("Deadline Passed");
+            expiredButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #999999; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
+            expiredButton.setDisable(true);
+            actionBox.getChildren().add(expiredButton);
         } else {
             boolean hasApplied = recordManager.hasDuplicateApplication(currentStudentId, job.getJobId());
             boolean profileComplete = checkProfileComplete();
-            
+
             if (hasApplied) {
-                Button appliedButton = new Button("申请中");
+                Button appliedButton = new Button("Applied");
                 appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 6 20 6 20; -fx-cursor: default;");
                 appliedButton.setDisable(true);
                 actionBox.getChildren().add(appliedButton);
             } else if (!profileComplete) {
-                Button incompleteButton = new Button("请完善档案");
+                Button incompleteButton = new Button("Complete Profile");
                 incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #856404; -fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
                 incompleteButton.setOnAction(e -> {
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                    alert.setTitle("档案不完整");
-                    alert.setHeaderText("申请前请先完善个人档案");
-                    alert.setContentText("请前往「个人档案」页面填写：\n• 姓名\n• 专业\n• 联系电话\n• 可任职时间\n• 专业技能");
+                    alert.setTitle("Incomplete Profile");
+                    alert.setHeaderText("Please complete your profile before applying");
+                    alert.setContentText("Please go to the \"Profile\" page and fill in:\n• Name\n• Major\n• Phone\n• Available Time\n• Skills");
                     alert.showAndWait();
                     switchToView("profile");
                 });
                 actionBox.getChildren().add(incompleteButton);
             } else {
-                Button applyButton = new Button("申请");
+                Button applyButton = new Button("Apply");
                 applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
                 applyButton.setOnAction(e -> openApplicationForm(job));
                 actionBox.getChildren().add(applyButton);
@@ -456,9 +469,9 @@ public class TAPositionListUI extends Application {
     private void openApplicationForm(TAJob job) {
         if (!checkProfileComplete()) {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
-            alert.setTitle("申请被拒绝");
-            alert.setHeaderText("个人档案不完整");
-            alert.setContentText("申请TA岗位前请先完善个人档案！\n\n必填项：姓名、专业、联系电话、可任职时间、专业技能\n\n请前往「个人档案」页面填写完整后再申请。");
+            alert.setTitle("Application Rejected");
+            alert.setHeaderText("Incomplete Profile");
+            alert.setContentText("Please complete your profile before applying for a TA position.\n\nRequired fields: Name, Major, Phone, Available Time, Skills\n\nGo to the \"Profile\" page to complete your details.");
             alert.showAndWait();
             return;
         }
@@ -473,6 +486,19 @@ public class TAPositionListUI extends Application {
             overlay.setVisible(false);
         });
         formView.showDialog(primaryStage);
+    }
+
+    private boolean isDeadlineExpired(TAJob job) {
+        if (job.getDeadline() == null || job.getDeadline().trim().isEmpty()) {
+            return false;
+        }
+        try {
+            java.time.LocalDate deadline = java.time.LocalDate.parse(job.getDeadline(),
+                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            return !deadline.isAfter(java.time.LocalDate.now());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static void main(String[] args) {

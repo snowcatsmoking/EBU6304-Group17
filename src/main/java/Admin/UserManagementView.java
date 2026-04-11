@@ -50,7 +50,7 @@ public class UserManagementView {
         // ── Build row data ───────────────────────────────────────────
         List<UserRow> rows = buildRows();
 
-        Label countLabel = new Label("共 " + rows.size() + " 个账号");
+        Label countLabel = new Label(rows.size() + " account(s)");
         countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
 
         // ── Table card ───────────────────────────────────────────────
@@ -224,7 +224,7 @@ public class UserManagementView {
             if (newPw.length() < 6) { showAlert("Error", "Password must be at least 6 characters."); return; }
             if (!newPw.equals(confirmField.getText())) { showAlert("Error", "Passwords do not match."); return; }
             if (userDataManager.resetPassword(account, role, newPw)) {
-                logManager.log(adminId, "重置密码", account, "角色: " + role);
+                logManager.log(adminId, "Reset Password", account, "Role: " + role);
                 showInfo("Success", "Password for " + account + " has been reset.");
             } else {
                 showAlert("Error", "Reset failed — user not found.");
@@ -240,7 +240,7 @@ public class UserManagementView {
         alert.showAndWait().ifPresent(btn -> {
             if (btn != ButtonType.OK) return;
             if (userDataManager.deleteUser(userRow.account, userRow.role)) {
-                logManager.log(adminId, "删除账号", userRow.account, "角色: " + userRow.role);
+                logManager.log(adminId, "Delete Account", userRow.account, "Role: " + userRow.role);
                 parentCard.getChildren().remove(rowNode);
                 showInfo("Deleted", "Account " + userRow.name + " has been removed.");
             } else {

@@ -41,7 +41,7 @@ public class MyApplicationsView {
         content.setPadding(new Insets(40, 40, 40, 40));
         content.setSpacing(20);
 
-        Label titleLabel = new Label("我的申请");
+        Label titleLabel = new Label("My Applications");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         // 添加时间筛选功能
@@ -51,25 +51,25 @@ public class MyApplicationsView {
         filterBox.setSpacing(12);
         filterBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label startDateLabel = new Label("开始日期:");
+        Label startDateLabel = new Label("Start Date:");
         startDateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
         startDateField = new javafx.scene.control.TextField();
         startDateField.setPromptText("YYYY-MM-DD");
         startDateField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
         startDateField.setPrefWidth(120);
 
-        Label endDateLabel = new Label("结束日期:");
+        Label endDateLabel = new Label("End Date:");
         endDateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
         endDateField = new javafx.scene.control.TextField();
         endDateField.setPromptText("YYYY-MM-DD");
         endDateField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
         endDateField.setPrefWidth(120);
 
-        Button filterButton = new Button("筛选");
+        Button filterButton = new Button("Filter");
         filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         filterButton.setOnAction(e -> applyDateFilter());
 
-        Button resetButton = new Button("重置");
+        Button resetButton = new Button("Reset");
         resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         resetButton.setOnAction(e -> resetDateFilter());
 
@@ -87,7 +87,7 @@ public class MyApplicationsView {
         });
         
         if (allApplications.isEmpty()) {
-            Label emptyLabel = new Label("暂无申请记录");
+            Label emptyLabel = new Label("No application records");
             emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #888888;");
             content.getChildren().addAll(titleLabel, filterBox, emptyLabel);
         } else {
@@ -185,7 +185,7 @@ public class MyApplicationsView {
             // 无匹配记录
             VBox emptyBox = new VBox();
             emptyBox.setPadding(new Insets(40, 40, 40, 40));
-            Label emptyLabel = new Label("无匹配的申请记录");
+            Label emptyLabel = new Label("No matching applications");
             emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #888888;");
             emptyBox.getChildren().add(emptyLabel);
             
@@ -234,19 +234,19 @@ public class MyApplicationsView {
         header.setSpacing(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label header1 = new Label("岗位名称");
+        Label header1 = new Label("Position");
         header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header1.setPrefWidth(300);
 
-        Label header2 = new Label("申请时间");
+        Label header2 = new Label("Applied On");
         header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header2.setPrefWidth(120);
 
-        Label header3 = new Label("状态");
+        Label header3 = new Label("Status");
         header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
-        Label header4 = new Label("操作");
+        Label header4 = new Label("Actions");
         header4.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header4.setPrefWidth(100);
 
@@ -280,13 +280,13 @@ public class MyApplicationsView {
     private String getStatusDisplay(String status) {
         switch (status) {
             case TAApplicationRecord.STATUS_PENDING:
-                return "审核中";
+                return "Under Review";
             case TAApplicationRecord.STATUS_APPROVED:
-                return "已通过";
+                return "Approved";
             case TAApplicationRecord.STATUS_REJECTED:
-                return "已拒绝";
+                return "Rejected";
             case TAApplicationRecord.STATUS_WITHDRAWN:
-                return "已撤回";
+                return "Withdrawn";
             default:
                 return status;
         }
@@ -348,7 +348,7 @@ public class MyApplicationsView {
         actionBox.setAlignment(Pos.CENTER_LEFT);
 
         if (canWithdraw) {
-            Button withdrawButton = new Button("撤回");
+            Button withdrawButton = new Button("Withdraw");
             withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
             withdrawButton.setOnAction(e -> {
                 boolean success = recordManager.withdrawApplication(applicationId);

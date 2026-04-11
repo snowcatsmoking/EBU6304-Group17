@@ -61,17 +61,17 @@ public class TAApplicationFormView {
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
-                currentUser = new TAApplication("未知用户", studentId, "未知专业", "", "", "", "");
+                currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            currentUser = new TAApplication("未知用户", studentId, "未知专业", "", "", "", "");
+            currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
         }
     }
 
     public void showDialog(Stage ownerStage) {
         dialogStage = new Stage();
-        dialogStage.setTitle("申请岗位");
+        dialogStage.setTitle("Apply for Position");
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(ownerStage);
 
@@ -117,7 +117,7 @@ public class TAApplicationFormView {
             }
         });
 
-        Label titleLabel = new Label("申请岗位");
+        Label titleLabel = new Label("Apply for Position");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         headerBox.getChildren().addAll(backButton, titleLabel);
@@ -131,7 +131,7 @@ public class TAApplicationFormView {
         jobBox.setPadding(new Insets(16, 16, 16, 16));
         jobBox.setSpacing(16);
 
-        Label sectionTitle = new Label("岗位信息");
+        Label sectionTitle = new Label("Position Details");
         sectionTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         VBox detailsBox = new VBox();
@@ -141,7 +141,7 @@ public class TAApplicationFormView {
         titleRow.setSpacing(12);
         titleRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label titleLabel = new Label("岗位名称：");
+        Label titleLabel = new Label("Position:");
         titleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label titleValue = new Label(currentJob.getPositionName());
@@ -153,7 +153,7 @@ public class TAApplicationFormView {
         courseRow.setSpacing(12);
         courseRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label courseLabel = new Label("所属课程/活动：");
+        Label courseLabel = new Label("Course/Activity:");
         courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label courseValue = new Label(currentJob.getCourseName());
@@ -165,10 +165,10 @@ public class TAApplicationFormView {
         countRow.setSpacing(12);
         countRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label countLabel = new Label("招聘人数：");
+        Label countLabel = new Label("Openings:");
         countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
-        Label countValue = new Label(currentJob.getRecruitmentCount() + "人");
+        Label countValue = new Label(String.valueOf(currentJob.getRecruitmentCount()));
         countValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
         countRow.getChildren().addAll(countLabel, countValue);
@@ -177,7 +177,7 @@ public class TAApplicationFormView {
         requirementRow.setSpacing(12);
         requirementRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label requirementLabel = new Label("任职要求：");
+        Label requirementLabel = new Label("Requirements:");
         requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label requirementValue = new Label(currentJob.getRequirements());
@@ -189,7 +189,7 @@ public class TAApplicationFormView {
         deadlineRow.setSpacing(12);
         deadlineRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label deadlineLabel = new Label("申请截止时间：");
+        Label deadlineLabel = new Label("Deadline:");
         deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label deadlineValue = new Label(currentJob.getDeadline());
@@ -201,7 +201,7 @@ public class TAApplicationFormView {
         publisherRow.setSpacing(12);
         publisherRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label publisherLabel = new Label("发布人：");
+        Label publisherLabel = new Label("Posted By:");
         publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label publisherValue = new Label(currentJob.getPublisher());
@@ -221,7 +221,7 @@ public class TAApplicationFormView {
         personalBox.setPadding(new Insets(16, 16, 16, 16));
         personalBox.setSpacing(16);
 
-        Label sectionTitle = new Label("个人信息");
+        Label sectionTitle = new Label("Personal Details");
         sectionTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         VBox detailsBox = new VBox();
@@ -231,7 +231,7 @@ public class TAApplicationFormView {
         nameRow.setSpacing(12);
         nameRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label nameLabel = new Label("姓名：");
+        Label nameLabel = new Label("Name:");
         nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label nameValue = new Label(currentUser.getName());
@@ -243,7 +243,7 @@ public class TAApplicationFormView {
         idRow.setSpacing(12);
         idRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label idLabel = new Label("学号：");
+        Label idLabel = new Label("Student ID:");
         idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label idValue = new Label(currentUser.getTAId());
@@ -255,7 +255,7 @@ public class TAApplicationFormView {
         majorRow.setSpacing(12);
         majorRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label majorLabel = new Label("专业：");
+        Label majorLabel = new Label("Major:");
         majorLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label majorValue = new Label(currentUser.getMajor());
@@ -267,7 +267,7 @@ public class TAApplicationFormView {
         emailRow.setSpacing(12);
         emailRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label emailLabel = new Label("邮箱：");
+        Label emailLabel = new Label("Email:");
         emailLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label emailValue = new Label(currentUser.getEmail());
@@ -279,7 +279,7 @@ public class TAApplicationFormView {
         phoneRow.setSpacing(12);
         phoneRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label phoneLabel = new Label("电话：");
+        Label phoneLabel = new Label("Phone:");
         phoneLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label phoneValue = new Label(currentUser.getPhone());
@@ -291,7 +291,7 @@ public class TAApplicationFormView {
         skillsRow.setSpacing(12);
         skillsRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label skillsLabel = new Label("专业技能：");
+        Label skillsLabel = new Label("Skills:");
         skillsLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label skillsValue = new Label(currentUser.getSkill());
@@ -303,7 +303,7 @@ public class TAApplicationFormView {
         timeRow.setSpacing(12);
         timeRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label timeLabel = new Label("可用时间：");
+        Label timeLabel = new Label("Availability:");
         timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         Label timeValue = new Label(currentUser.getAvailableTime());
@@ -323,7 +323,7 @@ public class TAApplicationFormView {
         actionBox.setSpacing(12);
         actionBox.setPadding(new Insets(8, 0, 0, 0));
 
-        Button cancelButton = new Button("取消");
+        Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
         cancelButton.setOnAction(e -> {
             if (dialogStage != null) {
@@ -334,7 +334,7 @@ public class TAApplicationFormView {
             }
         });
 
-        Button submitButton = new Button("提交申请");
+        Button submitButton = new Button("Submit Application");
         submitButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
         submitButton.setOnAction(e -> submitApplication());
 
@@ -354,13 +354,13 @@ public class TAApplicationFormView {
             || currentUser.getAvailableTime() == null || currentUser.getAvailableTime().trim().isEmpty()
             || currentUser.getSkill() == null || currentUser.getSkill().trim().isEmpty()) {
             System.out.println("检测到档案不完整，已阻止");
-            showAlert("申请被拒绝", "个人档案不完整！\n\n请完善姓名、专业、联系电话、可任职时间、专业技能后再申请。");
+            showAlert("Application Rejected", "Your profile is incomplete.\n\nPlease fill in your Name, Major, Phone, Available Time, and Skills before applying.");
             return;
         }
 
         if (recordManager.hasDuplicateApplication(currentUser.getTAId(), currentJob.getJobId())) {
             System.out.println("检测到重复申请，已阻止");
-            showAlert("重复申请", "您已经申请过该岗位，请勿重复申请！");
+            showAlert("Duplicate Application", "You have already applied for this position.");
             return;
         }
 
@@ -385,7 +385,7 @@ public class TAApplicationFormView {
         recordManager.saveApplication(record);
         System.out.println("申请记录已保存！");
         
-        showSuccess("申请成功", "您的申请已提交成功，状态为「审核中」！");
+        showSuccess("Application Submitted", "Your application has been submitted successfully. Status: Under Review.");
 
         if (dialogStage != null) {
             dialogStage.close();
@@ -402,7 +402,7 @@ public class TAApplicationFormView {
     private void showAlert(String title, String message) {
         System.out.println("显示警告弹窗: " + title + " - " + message);
         Alert alert = new Alert(AlertType.WARNING);
-        alert.setTitle("提示");
+        alert.setTitle("Notice");
         alert.setHeaderText(title);
         alert.setContentText(message);
         alert.showAndWait();
@@ -410,7 +410,7 @@ public class TAApplicationFormView {
 
     private void showSuccess(String title, String message) {
         Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("成功");
+        alert.setTitle("Success");
         alert.setHeaderText(title);
         alert.setContentText(message);
         alert.showAndWait();
