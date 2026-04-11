@@ -28,7 +28,7 @@ public class OperationLogView {
 
         List<LogManager.LogEntry> logs = logManager.getAllLogs();
 
-        Label countLabel = new Label(logs.isEmpty() ? "No records yet." : "共 " + logs.size() + " 条记录");
+        Label countLabel = new Label(logs.isEmpty() ? "No records yet." : logs.size() + " record(s)");
         countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
 
         // ── Card ─────────────────────────────────────────────────────

@@ -34,14 +34,14 @@ public class AdminDashboard extends Application {
     /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
     public void navigateTo() {
         buildUI();
-        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA 招聘管理系统 - 管理员控制台");
+        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA Recruitment System - Admin Console");
     }
 
     @Override
     public void start(Stage stage) {
         core.AppNavigator.getInstance().init(stage);
         buildUI();
-        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA 招聘管理系统 - 管理员控制台");
+        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA Recruitment System - Admin Console");
     }
 
     private void buildUI() {
@@ -84,7 +84,7 @@ public class AdminDashboard extends Application {
         logoutButton.setOnAction(e -> {
             try {
                 LoginScreen.LoginView loginView = new LoginScreen.LoginView();
-                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA招聘管理系统 - 登录");
+                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA Recruitment System - Login");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

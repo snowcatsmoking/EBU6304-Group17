@@ -46,7 +46,7 @@ public class GlobalPositionsView {
 
         List<TAJob> jobs = jobDataManager.getAllJobs();
 
-        Label countLabel = new Label("共 " + jobs.size() + " 个岗位");
+        Label countLabel = new Label(jobs.size() + " position(s)");
         countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
 
         // Card
