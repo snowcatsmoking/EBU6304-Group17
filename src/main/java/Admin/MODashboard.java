@@ -31,6 +31,10 @@ import javafx.stage.Stage;
 
 public class MODashboard extends javafx.application.Application {
 
+    private static final int POSITION_PAGE_SIZE = 5;
+    private static final int APPLICANT_PAGE_SIZE = 5;
+    private static final int APPLICATION_RECORD_PAGE_SIZE = 5;
+
     private static final String NAV_DEFAULT =
         "-fx-font-size: 14px; -fx-text-fill: #555555; -fx-cursor: hand;" +
         "-fx-padding: 10 16 10 16; -fx-alignment: CENTER_LEFT;" +
@@ -465,6 +469,10 @@ public class MODashboard extends javafx.application.Application {
     }
 
     private Node buildMyPositionsView() {
+        return buildMyPositionsView(1);
+    }
+
+    private Node buildMyPositionsView(int initialPage) {
         VBox page = new VBox();
         page.setPadding(new Insets(24));
         page.setSpacing(18);
@@ -479,126 +487,153 @@ public class MODashboard extends javafx.application.Application {
         list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
         list.setPadding(new Insets(16));
 
+        HBox paginationBox = createPaginationBox();
+        int[] currentPage = { initialPage };
+
+        refreshMyPositionsList(list, paginationBox, jobs, currentPage);
+
+        page.getChildren().addAll(title, list, paginationBox);
+        return page;
+    }
+
+    private void refreshMyPositionsList(VBox list, HBox paginationBox, List<TAJob> jobs, int[] currentPage) {
+        list.getChildren().clear();
+
         if (jobs.isEmpty()) {
             Label empty = new Label("You have not published any positions yet. Click \"Post Position\" on the left to get started.");
             empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
             list.getChildren().add(empty);
-        } else {
-            for (TAJob job : jobs) {
-                HBox row = new HBox();
-                row.setSpacing(14);
-                row.setAlignment(Pos.CENTER_LEFT);
-                row.setStyle("-fx-padding: 14 0 14 0; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;");
+            refreshPaginationBox(paginationBox, 1, 1, 0, POSITION_PAGE_SIZE, null, null);
+            return;
+        }
 
-                VBox textBox = new VBox();
-                textBox.setSpacing(6);
+        int totalPages = getTotalPages(jobs.size(), POSITION_PAGE_SIZE);
+        currentPage[0] = clampPage(currentPage[0], totalPages);
+        List<TAJob> pageJobs = getPageItems(jobs, currentPage[0], POSITION_PAGE_SIZE);
 
-                // 标题行 + 状态 badge
-                HBox titleRow = new HBox();
-                titleRow.setSpacing(10);
-                titleRow.setAlignment(Pos.CENTER_LEFT);
-                Label rowTitle = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
-                rowTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-                Label statusBadge = buildStatusBadge(job);
-                titleRow.getChildren().addAll(rowTitle, statusBadge);
+        for (TAJob job : pageJobs) {
+            HBox row = new HBox();
+            row.setSpacing(14);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setStyle("-fx-padding: 14 0 14 0; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;");
 
-                Label rowMeta = new Label("Openings: " + job.getRecruitmentCount()
-                    + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
-                rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-                List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId)
-                    .stream().filter(r -> r.getJobId().equals(job.getJobId())).collect(Collectors.toList());
-                long pendingCount = jobRecords.stream()
-                    .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
+            VBox textBox = new VBox();
+            textBox.setSpacing(6);
 
-                HBox applicantRow = new HBox();
-                applicantRow.setSpacing(8);
-                applicantRow.setAlignment(Pos.CENTER_LEFT);
-                Label applicants = new Label("Applicants: " + jobRecords.size());
-                applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-                applicantRow.getChildren().add(applicants);
-                if (pendingCount > 0) {
-                    Label pendingBadge = new Label(pendingCount + " pending review");
-                    pendingBadge.setStyle("-fx-font-size: 11px; -fx-text-fill: #cc0000;" +
-                        " -fx-background-color: #fff0f0; -fx-border-color: #ffaaaa;" +
-                        " -fx-border-width: 1; -fx-padding: 1 8 1 8;");
-                    applicantRow.getChildren().add(pendingBadge);
-                }
-                textBox.getChildren().addAll(titleRow, rowMeta, applicantRow);
+            HBox titleRow = new HBox();
+            titleRow.setSpacing(10);
+            titleRow.setAlignment(Pos.CENTER_LEFT);
+            Label rowTitle = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
+            rowTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+            Label statusBadge = buildStatusBadge(job);
+            titleRow.getChildren().addAll(rowTitle, statusBadge);
 
-                HBox actionBox = new HBox();
-                actionBox.setSpacing(8);
-                actionBox.setAlignment(Pos.CENTER_LEFT);
+            Label rowMeta = new Label("Openings: " + job.getRecruitmentCount()
+                + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
+            rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId)
+                .stream().filter(r -> r.getJobId().equals(job.getJobId())).collect(Collectors.toList());
+            long pendingCount = jobRecords.stream()
+                .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
 
-                Button editButton = new Button("Edit Position");
-                editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                editButton.setDisable(!canEditJob(job));
-                editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
-                actionBox.getChildren().add(editButton);
+            HBox applicantRow = new HBox();
+            applicantRow.setSpacing(8);
+            applicantRow.setAlignment(Pos.CENTER_LEFT);
+            Label applicants = new Label("Applicants: " + jobRecords.size());
+            applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            applicantRow.getChildren().add(applicants);
+            if (pendingCount > 0) {
+                Label pendingBadge = new Label(pendingCount + " pending review");
+                pendingBadge.setStyle("-fx-font-size: 11px; -fx-text-fill: #cc0000;"
+                    + " -fx-background-color: #fff0f0; -fx-border-color: #ffaaaa;"
+                    + " -fx-border-width: 1; -fx-padding: 1 8 1 8;");
+                applicantRow.getChildren().add(pendingBadge);
+            }
+            textBox.getChildren().addAll(titleRow, rowMeta, applicantRow);
 
-                Button detailButton = new Button("View Details");
-                detailButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job)));
-                actionBox.getChildren().add(detailButton);
+            HBox actionBox = new HBox();
+            actionBox.setSpacing(8);
+            actionBox.setAlignment(Pos.CENTER_LEFT);
 
-                boolean expired = isJobExpired(job);
-                if (expired) {
-                    // 已过期：显示不可操作提示
-                    Label expiredNote = new Label("Deadline has passed");
-                    expiredNote.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999; -fx-padding: 8 0 8 0;");
-                    actionBox.getChildren().add(expiredNote);
-                } else if (job.isActive()) {
-                    // 已手动关闭：显示 Reopen 按钮
-                    Button reopenButton = new Button("Reopen Position");
-                    reopenButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #008800; -fx-border-color: #008800; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                    reopenButton.setOnAction(e -> {
-                        job.setActive(false);
-                        try {
-                            jobManager.saveJob(job);
-                            root.setCenter(buildMyPositionsView());
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+            Button editButton = new Button("Edit Position");
+            editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            editButton.setDisable(!canEditJob(job));
+            editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+            actionBox.getChildren().add(editButton);
+
+            Button detailButton = new Button("View Details");
+            detailButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job, 1)));
+            actionBox.getChildren().add(detailButton);
+
+            boolean expired = isJobExpired(job);
+            if (expired) {
+                Label expiredNote = new Label("Deadline has passed");
+                expiredNote.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999; -fx-padding: 8 0 8 0;");
+                actionBox.getChildren().add(expiredNote);
+            } else if (job.isActive()) {
+                Button reopenButton = new Button("Reopen Position");
+                reopenButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #008800; -fx-border-color: #008800; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                reopenButton.setOnAction(e -> {
+                    job.setActive(false);
+                    try {
+                        jobManager.saveJob(job);
+                        root.setCenter(buildMyPositionsView(currentPage[0]));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
+                actionBox.getChildren().add(reopenButton);
+            } else {
+                Button closeButton = new Button("Close Position");
+                closeButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                closeButton.setOnAction(e -> {
+                    javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Close Position");
+                    confirm.setHeaderText("Close \"" + job.getPositionName() + "\"?");
+                    confirm.setContentText("Closing this position will remove it from the public listing.\nApplicants will no longer be able to apply.\nYou can reopen it at any time.");
+                    confirm.showAndWait().ifPresent(response -> {
+                        if (response == javafx.scene.control.ButtonType.OK) {
+                            job.setActive(true);
+                            try {
+                                jobManager.saveJob(job);
+                                root.setCenter(buildMyPositionsView(currentPage[0]));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
                         }
                     });
-                    actionBox.getChildren().add(reopenButton);
-                } else {
-                    // 开放中：显示 Close 按钮，点击弹确认框
-                    Button closeButton = new Button("Close Position");
-                    closeButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                    closeButton.setOnAction(e -> {
-                        javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
-                            javafx.scene.control.Alert.AlertType.CONFIRMATION);
-                        confirm.setTitle("Close Position");
-                        confirm.setHeaderText("Close \"" + job.getPositionName() + "\"?");
-                        confirm.setContentText("Closing this position will remove it from the public listing.\nApplicants will no longer be able to apply.\nYou can reopen it at any time.");
-                        confirm.showAndWait().ifPresent(response -> {
-                            if (response == javafx.scene.control.ButtonType.OK) {
-                                job.setActive(true);
-                                try {
-                                    jobManager.saveJob(job);
-                                    root.setCenter(buildMyPositionsView());
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
-                            }
-                        });
-                    });
-                    actionBox.getChildren().add(closeButton);
-                }
+                });
+                actionBox.getChildren().add(closeButton);
+            }
 
-                row.getChildren().addAll(textBox, actionBox);
-                HBox.setHgrow(textBox, Priority.ALWAYS);
-                list.getChildren().add(row);
+            row.getChildren().addAll(textBox, actionBox);
+            HBox.setHgrow(textBox, Priority.ALWAYS);
+            list.getChildren().add(row);
 
-                if (!canEditJob(job)) {
-                    Label editHint = new Label("Edit locked: " + getEditBlockedReason(job));
-                    editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
-                    textBox.getChildren().add(editHint);
-                }
+            if (!canEditJob(job)) {
+                Label editHint = new Label("Edit locked: " + getEditBlockedReason(job));
+                editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+                textBox.getChildren().add(editHint);
             }
         }
 
-        page.getChildren().addAll(title, list);
-        return page;
+        refreshPaginationBox(
+            paginationBox,
+            currentPage[0],
+            totalPages,
+            jobs.size(),
+            POSITION_PAGE_SIZE,
+            () -> {
+                currentPage[0]--;
+                refreshMyPositionsList(list, paginationBox, jobs, currentPage);
+            },
+            () -> {
+                currentPage[0]++;
+                refreshMyPositionsList(list, paginationBox, jobs, currentPage);
+            }
+        );
     }
 
     private Node buildPositionStatisticsView() {
@@ -696,6 +731,10 @@ public class MODashboard extends javafx.application.Application {
     }
 
     private Node buildJobDetailView(TAJob job) {
+        return buildJobDetailView(job, 1);
+    }
+
+    private Node buildJobDetailView(TAJob job, int initialPage) {
         VBox page = new VBox();
         page.setPadding(new Insets(24));
         page.setSpacing(18);
@@ -739,43 +778,83 @@ public class MODashboard extends javafx.application.Application {
         Label applicantTitle = new Label("Applicants for this Position (showing current MO's positions only)");
         applicantTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
-        if (records.isEmpty()) {
-            Label empty = new Label("No applications for this position yet. Check back later or view all applications in Application Review.");
-            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
-            recordBox.getChildren().addAll(applicantTitle, empty);
-        } else {
-            recordBox.getChildren().add(applicantTitle);
-            for (TAApplicationRecord record : records) {
-                HBox row = new HBox();
-                row.setSpacing(14);
-                row.setAlignment(Pos.CENTER_LEFT);
-                row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 12;");
+        VBox recordList = new VBox();
+        recordList.setSpacing(12);
 
-                VBox textBox = new VBox();
-                textBox.setSpacing(5);
-                Label name = new Label(record.getStudentName() + " (" + record.getTaStudentId() + ")");
-                name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-                Label applicantMeta = new Label("Major: " + record.getMajor() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
-                applicantMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
-                textBox.getChildren().addAll(name, applicantMeta);
+        HBox paginationBox = createPaginationBox();
+        int[] currentPage = { initialPage };
 
-                Label statusLabel = new Label(formatStatus(record.getStatus()));
-                statusLabel.setStyle(statusBadgeStyle(record.getStatus()));
-                statusLabel.setPrefWidth(100);
-
-                Button viewBtn = new Button("View Application");
-                viewBtn.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 7 14 7 14; -fx-cursor: hand;");
-                viewBtn.setOnAction(e -> root.setCenter(
-                    buildApplicationDetailView(record, () -> root.setCenter(buildJobDetailView(job)))));
-
-                HBox.setHgrow(textBox, Priority.ALWAYS);
-                row.getChildren().addAll(textBox, statusLabel, viewBtn);
-                recordBox.getChildren().add(row);
-            }
-        }
+        recordBox.getChildren().addAll(applicantTitle, recordList, paginationBox);
+        refreshJobDetailRecords(recordList, paginationBox, records, job, currentPage);
 
         page.getChildren().addAll(backButton, title, meta, desc, topActionBox, recordBox);
         return page;
+    }
+
+    private void refreshJobDetailRecords(
+        VBox recordList,
+        HBox paginationBox,
+        List<TAApplicationRecord> records,
+        TAJob job,
+        int[] currentPage
+    ) {
+        recordList.getChildren().clear();
+
+        if (records.isEmpty()) {
+            Label empty = new Label("No applications for this position yet. Check back later or view all applications in Application Review.");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            recordList.getChildren().add(empty);
+            refreshPaginationBox(paginationBox, 1, 1, 0, APPLICATION_RECORD_PAGE_SIZE, null, null);
+            return;
+        }
+
+        int totalPages = getTotalPages(records.size(), APPLICATION_RECORD_PAGE_SIZE);
+        currentPage[0] = clampPage(currentPage[0], totalPages);
+        List<TAApplicationRecord> pageRecords = getPageItems(records, currentPage[0], APPLICATION_RECORD_PAGE_SIZE);
+
+        for (TAApplicationRecord record : pageRecords) {
+            HBox row = new HBox();
+            row.setSpacing(14);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 12;");
+
+            VBox textBox = new VBox();
+            textBox.setSpacing(5);
+            Label name = new Label(record.getStudentName() + " (" + record.getTaStudentId() + ")");
+            name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+            Label applicantMeta = new Label("Major: " + record.getMajor() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
+            applicantMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+            textBox.getChildren().addAll(name, applicantMeta);
+
+            Label statusLabel = new Label(formatStatus(record.getStatus()));
+            statusLabel.setStyle(statusBadgeStyle(record.getStatus()));
+            statusLabel.setPrefWidth(100);
+
+            Button viewBtn = new Button("View Application");
+            viewBtn.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 7 14 7 14; -fx-cursor: hand;");
+            viewBtn.setOnAction(e -> root.setCenter(
+                buildApplicationDetailView(record, () -> root.setCenter(buildJobDetailView(job, currentPage[0])))));
+
+            HBox.setHgrow(textBox, Priority.ALWAYS);
+            row.getChildren().addAll(textBox, statusLabel, viewBtn);
+            recordList.getChildren().add(row);
+        }
+
+        refreshPaginationBox(
+            paginationBox,
+            currentPage[0],
+            totalPages,
+            records.size(),
+            APPLICATION_RECORD_PAGE_SIZE,
+            () -> {
+                currentPage[0]--;
+                refreshJobDetailRecords(recordList, paginationBox, records, job, currentPage);
+            },
+            () -> {
+                currentPage[0]++;
+                refreshJobDetailRecords(recordList, paginationBox, records, job, currentPage);
+            }
+        );
     }
 
     private Node buildApplicantReviewView() {
@@ -806,7 +885,7 @@ public class MODashboard extends javafx.application.Application {
         HBox batchActionBox = new HBox();
         batchActionBox.setSpacing(12);
 
-        Button selectAllButton = new Button("Select Pending");
+        Button selectAllButton = new Button("Select Pending On Page");
         selectAllButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
         Button clearSelectionButton = new Button("Clear Selection");
         clearSelectionButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
@@ -829,32 +908,50 @@ public class MODashboard extends javafx.application.Application {
         list.setSpacing(12);
         list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
 
+        HBox paginationBox = createPaginationBox();
         Set<String> selectedApplicationIds = new HashSet<>();
+        int[] currentPage = { 1 };
         Runnable refreshList = () -> refreshApplicantReviewList(
             list,
+            paginationBox,
             summary,
             selectionLabel,
             feedbackLabel,
             selectedApplicationIds,
+            currentPage,
             majorFilterField,
             availableTimeFilterField,
             skillsFilterField
         );
 
-        majorFilterField.textProperty().addListener((obs, oldValue, newValue) -> refreshList.run());
-        availableTimeFilterField.textProperty().addListener((obs, oldValue, newValue) -> refreshList.run());
-        skillsFilterField.textProperty().addListener((obs, oldValue, newValue) -> refreshList.run());
+        majorFilterField.textProperty().addListener((obs, oldValue, newValue) -> {
+            currentPage[0] = 1;
+            refreshList.run();
+        });
+        availableTimeFilterField.textProperty().addListener((obs, oldValue, newValue) -> {
+            currentPage[0] = 1;
+            refreshList.run();
+        });
+        skillsFilterField.textProperty().addListener((obs, oldValue, newValue) -> {
+            currentPage[0] = 1;
+            refreshList.run();
+        });
         clearButton.setOnAction(e -> {
             majorFilterField.clear();
             availableTimeFilterField.clear();
             skillsFilterField.clear();
+            currentPage[0] = 1;
             refreshList.run();
         });
         selectAllButton.setOnAction(e -> {
-            List<TAApplicationRecord> filteredPendingRecords = getFilteredApplicantRecords(
-                majorFilterField.getText(),
-                availableTimeFilterField.getText(),
-                skillsFilterField.getText()
+            List<TAApplicationRecord> filteredPendingRecords = getPageItems(
+                getFilteredApplicantRecords(
+                    majorFilterField.getText(),
+                    availableTimeFilterField.getText(),
+                    skillsFilterField.getText()
+                ),
+                currentPage[0],
+                APPLICANT_PAGE_SIZE
             ).stream()
                 .filter(this::isPendingApplication)
                 .collect(Collectors.toList());
@@ -881,8 +978,10 @@ public class MODashboard extends javafx.application.Application {
             selectedApplicationIds,
             feedbackLabel,
             list,
+            paginationBox,
             summary,
             selectionLabel,
+            currentPage,
             majorFilterField,
             availableTimeFilterField,
             skillsFilterField
@@ -892,8 +991,10 @@ public class MODashboard extends javafx.application.Application {
             selectedApplicationIds,
             feedbackLabel,
             list,
+            paginationBox,
             summary,
             selectionLabel,
+            currentPage,
             majorFilterField,
             availableTimeFilterField,
             skillsFilterField
@@ -901,16 +1002,18 @@ public class MODashboard extends javafx.application.Application {
 
         refreshList.run();
 
-        page.getChildren().addAll(title, subtitle, filterBox, batchActionBox, summary, selectionLabel, feedbackLabel, list);
+        page.getChildren().addAll(title, subtitle, filterBox, batchActionBox, summary, selectionLabel, feedbackLabel, list, paginationBox);
         return page;
     }
 
     private void refreshApplicantReviewList(
         VBox list,
+        HBox paginationBox,
         Label summary,
         Label selectionLabel,
         Label feedbackLabel,
         Set<String> selectedApplicationIds,
+        int[] currentPage,
         TextField majorFilterField,
         TextField availableTimeFilterField,
         TextField skillsFilterField
@@ -939,23 +1042,68 @@ public class MODashboard extends javafx.application.Application {
             Label empty = new Label("No applications match the current filters.");
             empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
             list.getChildren().add(empty);
+            refreshPaginationBox(paginationBox, 1, 1, 0, APPLICANT_PAGE_SIZE, null, null);
             return;
         }
 
+        int totalPages = getTotalPages(filteredRecords.size(), APPLICANT_PAGE_SIZE);
+        currentPage[0] = clampPage(currentPage[0], totalPages);
+        List<TAApplicationRecord> pageRecords = getPageItems(filteredRecords, currentPage[0], APPLICANT_PAGE_SIZE);
+
         Runnable refreshAction = () -> refreshApplicantReviewList(
             list,
+            paginationBox,
             summary,
             selectionLabel,
             feedbackLabel,
             selectedApplicationIds,
+            currentPage,
             majorFilterField,
             availableTimeFilterField,
             skillsFilterField
         );
 
-        for (TAApplicationRecord record : filteredRecords) {
+        for (TAApplicationRecord record : pageRecords) {
             list.getChildren().add(buildApplicantReviewItem(record, selectedApplicationIds, selectionLabel, refreshAction));
         }
+
+        refreshPaginationBox(
+            paginationBox,
+            currentPage[0],
+            totalPages,
+            filteredRecords.size(),
+            APPLICANT_PAGE_SIZE,
+            () -> {
+                currentPage[0]--;
+                refreshApplicantReviewList(
+                    list,
+                    paginationBox,
+                    summary,
+                    selectionLabel,
+                    feedbackLabel,
+                    selectedApplicationIds,
+                    currentPage,
+                    majorFilterField,
+                    availableTimeFilterField,
+                    skillsFilterField
+                );
+            },
+            () -> {
+                currentPage[0]++;
+                refreshApplicantReviewList(
+                    list,
+                    paginationBox,
+                    summary,
+                    selectionLabel,
+                    feedbackLabel,
+                    selectedApplicationIds,
+                    currentPage,
+                    majorFilterField,
+                    availableTimeFilterField,
+                    skillsFilterField
+                );
+            }
+        );
     }
 
     private VBox buildApplicantReviewItem(
@@ -1307,8 +1455,10 @@ public class MODashboard extends javafx.application.Application {
         Set<String> selectedApplicationIds,
         Label feedbackLabel,
         VBox list,
+        HBox paginationBox,
         Label summary,
         Label selectionLabel,
+        int[] currentPage,
         TextField majorFilterField,
         TextField availableTimeFilterField,
         TextField skillsFilterField
@@ -1345,14 +1495,81 @@ public class MODashboard extends javafx.application.Application {
 
         refreshApplicantReviewList(
             list,
+            paginationBox,
             summary,
             selectionLabel,
             feedbackLabel,
             selectedApplicationIds,
+            currentPage,
             majorFilterField,
             availableTimeFilterField,
             skillsFilterField
         );
+    }
+
+    private HBox createPaginationBox() {
+        HBox box = new HBox();
+        box.setSpacing(12);
+        box.setAlignment(Pos.CENTER_LEFT);
+        return box;
+    }
+
+    private void refreshPaginationBox(
+        HBox paginationBox,
+        int currentPage,
+        int totalPages,
+        int totalItems,
+        int pageSize,
+        Runnable previousAction,
+        Runnable nextAction
+    ) {
+        paginationBox.getChildren().clear();
+
+        Button previousButton = new Button("Previous");
+        previousButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        previousButton.setDisable(totalItems == 0 || currentPage <= 1);
+        if (previousAction != null) {
+            previousButton.setOnAction(e -> previousAction.run());
+        }
+
+        Button nextButton = new Button("Next");
+        nextButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        nextButton.setDisable(totalItems == 0 || currentPage >= totalPages);
+        if (nextAction != null) {
+            nextButton.setOnAction(e -> nextAction.run());
+        }
+
+        Label pageLabel = new Label("Page " + currentPage + " / " + totalPages);
+        pageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        int startIndex = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+        int endIndex = totalItems == 0 ? 0 : Math.min(currentPage * pageSize, totalItems);
+        Label countLabel = new Label("Showing " + startIndex + "-" + endIndex + " of " + totalItems);
+        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #777777;");
+
+        paginationBox.getChildren().addAll(previousButton, nextButton, pageLabel, countLabel);
+    }
+
+    private int getTotalPages(int totalItems, int pageSize) {
+        if (totalItems <= 0) {
+            return 1;
+        }
+        return (totalItems + pageSize - 1) / pageSize;
+    }
+
+    private int clampPage(int page, int totalPages) {
+        return Math.max(1, Math.min(page, totalPages));
+    }
+
+    private <T> List<T> getPageItems(List<T> items, int page, int pageSize) {
+        if (items.isEmpty()) {
+            return items;
+        }
+
+        int safePage = clampPage(page, getTotalPages(items.size(), pageSize));
+        int fromIndex = (safePage - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, items.size());
+        return items.subList(fromIndex, toIndex);
     }
 
     private boolean canEditJob(TAJob job) {
