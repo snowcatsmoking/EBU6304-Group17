@@ -1,0 +1,8 @@
+{
+  "logId" : "2026-04-07_12-46-28_Admin001",
+  "timestamp" : "2026-04-07 12:46:28",
+  "adminId" : "Admin001",
+  "action" : "登录",
+  "target" : "Admin001",
+  "detail" : "角色: ADMIN"
+}

@@ -161,4 +161,18 @@ public class TAApplicationRecordManager {
         }
         return false;
     }
+
+    /** Revert an APPROVED or REJECTED decision back to PENDING. */
+    public boolean resetToPending(String applicationId) {
+        TAApplicationRecord record = getApplicationById(applicationId);
+        if (record != null && (
+                TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()) ||
+                TAApplicationRecord.STATUS_REJECTED.equals(record.getStatus()))) {
+            record.setStatus(TAApplicationRecord.STATUS_PENDING);
+            record.setReviewComment(null);
+            saveApplication(record);
+            return true;
+        }
+        return false;
+    }
 }

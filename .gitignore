@@ -3,4 +3,5 @@
 CODEBASE.md
 .DS_Store
 **/.DS_Store
-.idea/copilot*
+.claude
+.idea
