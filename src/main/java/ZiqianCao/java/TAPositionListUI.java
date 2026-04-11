@@ -14,10 +14,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import data.JobDataManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +31,6 @@ public class TAPositionListUI extends Application {
     private List<TAJob> jobList;
     private TAApplicationRecordManager recordManager;
     private String currentStudentId = "2024999";
-    private int currentPage = 1;
-    private static final int PAGE_SIZE = 3;
-    private VBox positionListBox;
 
     public void setCurrentStudentId(String studentId) {
         this.currentStudentId = studentId;
@@ -44,7 +39,6 @@ public class TAPositionListUI extends Application {
     private Stage primaryStage;
     private VBox overlay;
 
-    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
     public void navigateTo() {
         this.primaryStage = core.AppNavigator.getInstance().getStage();
         buildUI();
@@ -180,11 +174,6 @@ public class TAPositionListUI extends Application {
         }
     }
 
-    private javafx.scene.control.TextField courseNameField;
-    private javafx.scene.control.TextField availableTimeField;
-    private javafx.scene.control.TextField recruitmentCountField;
-    private List<TAJob> filteredJobList;
-
     private VBox createPositionListView() {
         VBox content = new VBox();
         content.setPadding(new Insets(20, 20, 20, 20));
@@ -193,157 +182,23 @@ public class TAPositionListUI extends Application {
         HBox filterBox = new HBox();
         filterBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
         filterBox.setPadding(new Insets(16, 16, 16, 16));
-        filterBox.setSpacing(12);
-        filterBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label courseLabel = new Label("Course Name:");
-        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
-        courseNameField = new javafx.scene.control.TextField();
-        courseNameField.setPromptText("Enter course name");
-        courseNameField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
-        courseNameField.setPrefWidth(150);
+        Label filterLabel = new Label("All Positions");
+        filterLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        filterBox.getChildren().add(filterLabel);
 
-        Label timeLabel = new Label("Available Time:");
-        timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
-        availableTimeField = new javafx.scene.control.TextField();
-        availableTimeField.setPromptText("Enter available time");
-        availableTimeField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
-        availableTimeField.setPrefWidth(150);
-
-        Label countLabel = new Label("Openings:");
-        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
-        recruitmentCountField = new javafx.scene.control.TextField();
-        recruitmentCountField.setPromptText("Enter number");
-        recruitmentCountField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
-        recruitmentCountField.setPrefWidth(100);
-
-        Button filterButton = new Button("Filter");
-        filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
-        filterButton.setOnAction(e -> applyFilters());
-
-        Button resetButton = new Button("Reset");
-        resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
-        resetButton.setOnAction(e -> resetFilters());
-
-        filterBox.getChildren().addAll(courseLabel, courseNameField, timeLabel, availableTimeField, countLabel, recruitmentCountField, filterButton, resetButton);
-
-        positionListBox = new VBox();
-        positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        VBox positionListBox = new VBox();
+        positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 1 1;");
         positionListBox.setSpacing(0);
 
-        filteredJobList = new ArrayList<>(jobList);
-
-        HBox paginationBox = createPaginationBox();
-
-        refreshPositionList();
-
-        content.getChildren().addAll(filterBox, positionListBox, paginationBox);
-
-        return content;
-    }
-
-    private void applyFilters() {
-        String courseName = courseNameField.getText().trim();
-        String availableTime = availableTimeField.getText().trim();
-        String recruitmentCount = recruitmentCountField.getText().trim();
-
-        filteredJobList = new ArrayList<>();
         for (TAJob job : jobList) {
-            boolean match = true;
-
-            if (!courseName.isEmpty() && !job.getCourseName().toLowerCase().contains(courseName.toLowerCase())) {
-                match = false;
-            }
-
-            if (!availableTime.isEmpty() && !job.getDeadline().contains(availableTime)) {
-                match = false;
-            }
-
-            if (!recruitmentCount.isEmpty()) {
-                try {
-                    int count = Integer.parseInt(recruitmentCount);
-                    if (job.getRecruitmentCount() != count) {
-                        match = false;
-                    }
-                } catch (NumberFormatException e) {
-                    // 输入不是数字，不匹配
-                    match = false;
-                }
-            }
-
-            if (match) {
-                filteredJobList.add(job);
-            }
-        }
-
-        currentPage = 1;
-        refreshPositionList();
-    }
-
-    private void resetFilters() {
-        courseNameField.clear();
-        availableTimeField.clear();
-        recruitmentCountField.clear();
-        filteredJobList = new ArrayList<>(jobList);
-        currentPage = 1;
-        refreshPositionList();
-    }
-
-    private void refreshPositionList() {
-        positionListBox.getChildren().clear();
-        int start = (currentPage - 1) * PAGE_SIZE;
-        int end = Math.min(start + PAGE_SIZE, filteredJobList.size());
-
-        for (int i = start; i < end; i++) {
-            TAJob job = filteredJobList.get(i);
             VBox positionBox = createPositionBox(job);
             positionListBox.getChildren().add(positionBox);
         }
-    }
 
-    private HBox createPaginationBox() {
-        HBox paginationBox = new HBox();
-        paginationBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 1 1;");
-        paginationBox.setPadding(new Insets(16, 20, 16, 20));
-        paginationBox.setSpacing(16);
-        paginationBox.setAlignment(Pos.CENTER);
+        content.getChildren().addAll(filterBox, positionListBox);
 
-        int totalPages = (int) Math.ceil((double) filteredJobList.size() / PAGE_SIZE);
-
-        Button prevButton = new Button("Previous");
-        prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
-        prevButton.setDisable(currentPage == 1);
-        if (currentPage == 1) {
-            prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #cccccc; -fx-background-color: #f5f5f5; -fx-border-color: #eeeeee; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
-        }
-        prevButton.setOnAction(e -> {
-            if (currentPage > 1) {
-                currentPage--;
-                refreshPositionList();
-                switchToView("positions");
-            }
-        });
-
-        Label pageInfo = new Label("Page " + currentPage + " of " + totalPages + "  (" + filteredJobList.size() + " positions)");
-        pageInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-        Button nextButton = new Button("Next");
-        nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
-        nextButton.setDisable(currentPage == totalPages);
-        if (currentPage == totalPages) {
-            nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #cccccc; -fx-background-color: #f5f5f5; -fx-border-color: #eeeeee; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
-        }
-        nextButton.setOnAction(e -> {
-            if (currentPage < totalPages) {
-                currentPage++;
-                refreshPositionList();
-                switchToView("positions");
-            }
-        });
-
-        paginationBox.getChildren().addAll(prevButton, pageInfo, nextButton);
-
-        return paginationBox;
+        return content;
     }
 
     private VBox createPositionBox(TAJob job) {
@@ -414,25 +269,11 @@ public class TAPositionListUI extends Application {
             actionBox.getChildren().add(expiredButton);
         } else {
             boolean hasApplied = recordManager.hasDuplicateApplication(currentStudentId, job.getJobId());
-            boolean profileComplete = checkProfileComplete();
-
             if (hasApplied) {
                 Button appliedButton = new Button("Applied");
                 appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 6 20 6 20; -fx-cursor: default;");
                 appliedButton.setDisable(true);
                 actionBox.getChildren().add(appliedButton);
-            } else if (!profileComplete) {
-                Button incompleteButton = new Button("Complete Profile");
-                incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #856404; -fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
-                incompleteButton.setOnAction(e -> {
-                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                    alert.setTitle("Incomplete Profile");
-                    alert.setHeaderText("Please complete your profile before applying");
-                    alert.setContentText("Please go to the \"Profile\" page and fill in:\n• Name\n• Major\n• Phone\n• Available Time\n• Skills");
-                    alert.showAndWait();
-                    switchToView("profile");
-                });
-                actionBox.getChildren().add(incompleteButton);
             } else {
                 Button applyButton = new Button("Apply");
                 applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
@@ -448,34 +289,18 @@ public class TAPositionListUI extends Application {
         return positionBox;
     }
 
-    private boolean checkProfileComplete() {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            File file = new File(data.DataConfig.TA_DIR + currentStudentId + ".json");
-            if (file.exists()) {
-                TAApplication user = mapper.readValue(file, TAApplication.class);
-                return user.getName() != null && !user.getName().trim().isEmpty()
-                    && user.getMajor() != null && !user.getMajor().trim().isEmpty()
-                    && user.getPhone() != null && !user.getPhone().trim().isEmpty()
-                    && user.getAvailableTime() != null && !user.getAvailableTime().trim().isEmpty()
-                    && user.getSkill() != null && !user.getSkill().trim().isEmpty();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    private boolean isDeadlineExpired(TAJob job) {
+        if (job.isActive()) {
+            return true;
+        }
+        String deadline = job.getDeadline();
+        if (deadline == null || deadline.trim().isEmpty() || deadline.equals("已截止")) {
+            return true;
         }
         return false;
     }
 
     private void openApplicationForm(TAJob job) {
-        if (!checkProfileComplete()) {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
-            alert.setTitle("Application Rejected");
-            alert.setHeaderText("Incomplete Profile");
-            alert.setContentText("Please complete your profile before applying for a TA position.\n\nRequired fields: Name, Major, Phone, Available Time, Skills\n\nGo to the \"Profile\" page to complete your details.");
-            alert.showAndWait();
-            return;
-        }
-
         overlay.setVisible(true);
         TAApplicationFormView formView = new TAApplicationFormView(job, currentStudentId);
         formView.setApplicationListener(() -> {
@@ -486,19 +311,6 @@ public class TAPositionListUI extends Application {
             overlay.setVisible(false);
         });
         formView.showDialog(primaryStage);
-    }
-
-    private boolean isDeadlineExpired(TAJob job) {
-        if (job.getDeadline() == null || job.getDeadline().trim().isEmpty()) {
-            return false;
-        }
-        try {
-            java.time.LocalDate deadline = java.time.LocalDate.parse(job.getDeadline(),
-                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return !deadline.isAfter(java.time.LocalDate.now());
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public static void main(String[] args) {

@@ -2,7 +2,6 @@ package Admin;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +52,6 @@ public class MODashboard extends javafx.application.Application {
         this.moStaffId = moStaffId == null || moStaffId.trim().isEmpty() ? "MO0001" : moStaffId;
     }
 
-    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
     public void navigateTo() {
         this.stage = core.AppNavigator.getInstance().getStage();
         root = new BorderPane();
@@ -90,7 +88,7 @@ public class MODashboard extends javafx.application.Application {
 
         Label navDashboard = buildNavItem("Dashboard");
         Label navPublish = buildNavItem("Post Position");
-        HBox navMyPositions = buildNavItemWithBadge("My Positions");
+        Label navMyPositions = buildNavItem("My Positions");
 
         setActive(navDashboard);
         navDashboard.setOnMouseClicked(e -> { setActive(navDashboard); root.setCenter(buildDashboardView()); });
@@ -124,39 +122,7 @@ public class MODashboard extends javafx.application.Application {
         return item;
     }
 
-    /** My Positions with a live pending-count badge */
-    private HBox buildNavItemWithBadge(String text) {
-        Label item = new Label(text);
-        item.setStyle(NAV_DEFAULT);
-        item.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(item, Priority.ALWAYS);
-
-        long pending = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
-            .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
-
-        HBox box = new HBox();
-        box.setAlignment(Pos.CENTER_LEFT);
-        box.setMaxWidth(Double.MAX_VALUE);
-        box.setStyle(NAV_DEFAULT);
-        box.getChildren().add(item);
-
-        if (pending > 0) {
-            Label badge = new Label(String.valueOf(pending));
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #cc0000;" +
-                " -fx-padding: 1 6 1 6; -fx-background-radius: 8;");
-            badge.setPadding(new Insets(0, 16, 0, 0));
-            box.getChildren().add(badge);
-        }
-        return box;
-    }
-
     private void setActive(Label target) {
-        if (activeNavNode != null) activeNavNode.setStyle(NAV_DEFAULT);
-        target.setStyle(NAV_ACTIVE);
-        activeNavNode = target;
-    }
-
-    private void setActive(HBox target) {
         if (activeNavNode != null) activeNavNode.setStyle(NAV_DEFAULT);
         target.setStyle(NAV_ACTIVE);
         activeNavNode = target;
@@ -170,58 +136,19 @@ public class MODashboard extends javafx.application.Application {
         Label header = new Label("Welcome, " + moStaffId);
         header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
-        HBox statRow = new HBox();
-        statRow.setSpacing(16);
-
-        List<TAJob> myJobs = jobManager.getJobsByMo(moStaffId);
-        List<TAApplicationRecord> myApplications = recordManager.getApplicationsByMoStaffId(moStaffId);
-
-        statRow.getChildren().addAll(
-            buildStatCard(myJobs.size(), "My Positions"),
-            buildStatCard((int) myJobs.stream().filter(this::isJobOpen).count(), "Open Positions"),
-            buildStatCard((int) myApplications.stream().filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count(), "Pending Reviews"),
-            buildStatCard((int) myApplications.stream().filter(r -> TAApplicationRecord.STATUS_APPROVED.equals(r.getStatus())).count(), "Approved")
-        );
-
-        box.getChildren().addAll(header, statRow, buildSectionCard("Quick Access", buildDashboardTips()));
-        return box;
-    }
-
-    private Node buildSectionCard(String title, Node content) {
-        VBox section = new VBox();
-        section.setSpacing(12);
-        section.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 18;");
-
-        Label label = new Label(title);
-        label.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-
-        section.getChildren().addAll(label, content);
-        return section;
-    }
-
-    private Node buildDashboardTips() {
-        VBox box = new VBox();
-        box.setSpacing(12);
+        VBox tips = new VBox();
+        tips.setSpacing(12);
+        tips.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 18;");
+        Label tipsTitle = new Label("Quick Tips");
+        tipsTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #222222;");
         Label tip1 = new Label("• Click \"Post Position\" to fill in position details and set the application deadline.");
         Label tip2 = new Label("• Published positions appear automatically in the public listing and close after the deadline.");
         Label tip3 = new Label("• In \"My Positions\", view position details and applicant profiles for each posting.");
         Label tip4 = new Label("• In \"Application Review\", approve or reject individual applications; status syncs to applicants instantly.");
-        box.getChildren().addAll(tip1, tip2, tip3, tip4);
+        tips.getChildren().addAll(tipsTitle, tip1, tip2, tip3, tip4);
+
+        box.getChildren().addAll(header, tips);
         return box;
-    }
-
-    private VBox buildStatCard(int value, String title) {
-        VBox card = new VBox();
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 18; -fx-spacing: 8;");
-        card.setPrefWidth(240);
-
-        Label num = new Label(String.valueOf(value));
-        num.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111111;");
-
-        Label desc = new Label(title);
-        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-        card.getChildren().addAll(num, desc);
-        return card;
     }
 
     private Node buildPostPositionView() {
@@ -351,37 +278,23 @@ public class MODashboard extends javafx.application.Application {
                 VBox textBox = new VBox();
                 textBox.setSpacing(6);
 
-                // 标题行 + 状态 badge
                 HBox titleRow = new HBox();
                 titleRow.setSpacing(10);
                 titleRow.setAlignment(Pos.CENTER_LEFT);
                 Label rowTitle = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
                 rowTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-                Label statusBadge = buildStatusBadge(job);
-                titleRow.getChildren().addAll(rowTitle, statusBadge);
+                titleRow.getChildren().add(rowTitle);
 
                 Label rowMeta = new Label("Openings: " + job.getRecruitmentCount()
                     + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
                 rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-                List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId)
-                    .stream().filter(r -> r.getJobId().equals(job.getJobId())).collect(Collectors.toList());
-                long pendingCount = jobRecords.stream()
-                    .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
 
-                HBox applicantRow = new HBox();
-                applicantRow.setSpacing(8);
-                applicantRow.setAlignment(Pos.CENTER_LEFT);
+                List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+                    .filter(r -> r.getJobId().equals(job.getJobId())).collect(Collectors.toList());
                 Label applicants = new Label("Applicants: " + jobRecords.size());
                 applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-                applicantRow.getChildren().add(applicants);
-                if (pendingCount > 0) {
-                    Label pendingBadge = new Label(pendingCount + " pending review");
-                    pendingBadge.setStyle("-fx-font-size: 11px; -fx-text-fill: #cc0000;" +
-                        " -fx-background-color: #fff0f0; -fx-border-color: #ffaaaa;" +
-                        " -fx-border-width: 1; -fx-padding: 1 8 1 8;");
-                    applicantRow.getChildren().add(pendingBadge);
-                }
-                textBox.getChildren().addAll(titleRow, rowMeta, applicantRow);
+
+                textBox.getChildren().addAll(titleRow, rowMeta, applicants);
 
                 HBox actionBox = new HBox();
                 actionBox.setSpacing(8);
@@ -392,50 +305,10 @@ public class MODashboard extends javafx.application.Application {
                 detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job)));
                 actionBox.getChildren().add(detailButton);
 
-                boolean expired = isJobExpired(job);
-                if (expired) {
-                    // 已过期：显示不可操作提示
-                    Label expiredNote = new Label("Deadline has passed");
-                    expiredNote.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999; -fx-padding: 8 0 8 0;");
-                    actionBox.getChildren().add(expiredNote);
-                } else if (job.isActive()) {
-                    // 已手动关闭：显示 Reopen 按钮
-                    Button reopenButton = new Button("Reopen Position");
-                    reopenButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #008800; -fx-border-color: #008800; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                    reopenButton.setOnAction(e -> {
-                        job.setActive(false);
-                        try {
-                            jobManager.saveJob(job);
-                            root.setCenter(buildMyPositionsView());
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    });
-                    actionBox.getChildren().add(reopenButton);
-                } else {
-                    // 开放中：显示 Close 按钮，点击弹确认框
-                    Button closeButton = new Button("Close Position");
-                    closeButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                    closeButton.setOnAction(e -> {
-                        javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
-                            javafx.scene.control.Alert.AlertType.CONFIRMATION);
-                        confirm.setTitle("Close Position");
-                        confirm.setHeaderText("Close \"" + job.getPositionName() + "\"?");
-                        confirm.setContentText("Closing this position will remove it from the public listing.\nApplicants will no longer be able to apply.\nYou can reopen it at any time.");
-                        confirm.showAndWait().ifPresent(response -> {
-                            if (response == javafx.scene.control.ButtonType.OK) {
-                                job.setActive(true);
-                                try {
-                                    jobManager.saveJob(job);
-                                    root.setCenter(buildMyPositionsView());
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
-                            }
-                        });
-                    });
-                    actionBox.getChildren().add(closeButton);
-                }
+                Button editButton = new Button("Edit");
+                editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+                actionBox.getChildren().add(editButton);
 
                 row.getChildren().addAll(textBox, actionBox);
                 HBox.setHgrow(textBox, Priority.ALWAYS);
@@ -459,7 +332,7 @@ public class MODashboard extends javafx.application.Application {
         Label title = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
-        Label meta = new Label("Openings: " + job.getRecruitmentCount() + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()) + "  Status: " + getJobStatus(job));
+        Label meta = new Label("Openings: " + job.getRecruitmentCount() + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
         meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
         Label desc = new Label("Description: " + (isBlank(job.getRequirements()) ? "None" : job.getRequirements()));
@@ -474,11 +347,11 @@ public class MODashboard extends javafx.application.Application {
             .filter(r -> job.getJobId().equals(r.getJobId()))
             .collect(Collectors.toList());
 
-        Label applicantTitle = new Label("Applicants for this Position (showing current MO's positions only)");
+        Label applicantTitle = new Label("Applicants for this Position");
         applicantTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
         if (records.isEmpty()) {
-            Label empty = new Label("No applications for this position yet. Check back later or view all applications in Application Review.");
+            Label empty = new Label("No applications for this position yet.");
             empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
             recordBox.getChildren().addAll(applicantTitle, empty);
         } else {
@@ -525,7 +398,6 @@ public class MODashboard extends javafx.application.Application {
         backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 0; -fx-cursor: hand;");
         backButton.setOnAction(e -> onBack.run());
 
-        // 标题区
         HBox titleRow = new HBox();
         titleRow.setSpacing(14);
         titleRow.setAlignment(Pos.CENTER_LEFT);
@@ -538,30 +410,15 @@ public class MODashboard extends javafx.application.Application {
         Label courseInfo = new Label("Course: " + record.getCourseName() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
         courseInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        // 申请人信息卡片
-        VBox profileCard = buildDetailCard("Applicant Profile", buildProfileGrid(record));
+        VBox profileCard = new VBox();
+        profileCard.setSpacing(14);
+        profileCard.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+        Label profileTitle = new Label("Applicant Profile");
+        profileTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
-        // 审核操作区
-        VBox reviewCard = buildReviewCard(record, onBack);
-
-        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, reviewCard);
-        return page;
-    }
-
-    private VBox buildDetailCard(String cardTitle, Node content) {
-        VBox card = new VBox();
-        card.setSpacing(14);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
-        Label label = new Label(cardTitle);
-        label.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-        card.getChildren().addAll(label, content);
-        return card;
-    }
-
-    private Node buildProfileGrid(TAApplicationRecord record) {
-        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
-        grid.setHgap(24);
-        grid.setVgap(10);
+        javafx.scene.layout.GridPane profileGrid = new javafx.scene.layout.GridPane();
+        profileGrid.setHgap(24);
+        profileGrid.setVgap(10);
 
         String[][] fields = {
             {"Name",           record.getStudentName()},
@@ -582,30 +439,22 @@ public class MODashboard extends javafx.application.Application {
             val.setStyle("-fx-font-size: 13px; -fx-text-fill: #222222;");
             val.setWrapText(true);
 
-            grid.add(key, 0, i);
-            grid.add(val, 1, i);
+            profileGrid.add(key, 0, i);
+            profileGrid.add(val, 1, i);
         }
-        return grid;
-    }
+        profileCard.getChildren().addAll(profileTitle, profileGrid);
 
-    private VBox buildReviewCard(TAApplicationRecord record, Runnable onBack) {
-        VBox card = new VBox();
-        card.setSpacing(14);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+        VBox reviewCard = new VBox();
+        reviewCard.setSpacing(14);
+        reviewCard.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
 
-        Label cardTitle = new Label("Review Decision");
-        cardTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-        card.getChildren().add(cardTitle);
+        Label reviewTitle = new Label("Review Decision");
+        reviewTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        reviewCard.getChildren().add(reviewTitle);
 
         if (TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
             Label hint = new Label("This application is awaiting your decision.");
             hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-            javafx.scene.control.TextArea commentField = new javafx.scene.control.TextArea();
-            commentField.setPromptText("Optional: add a review comment for your records...");
-            commentField.setPrefRowCount(3);
-            commentField.setWrapText(true);
-            commentField.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1;");
 
             HBox buttons = new HBox();
             buttons.setSpacing(12);
@@ -613,7 +462,6 @@ public class MODashboard extends javafx.application.Application {
             Button approveBtn = new Button("✓  Approve");
             approveBtn.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
             approveBtn.setOnAction(e -> {
-                record.setReviewComment(commentField.getText().trim());
                 recordManager.approveApplication(record.getApplicationId());
                 onBack.run();
             });
@@ -621,52 +469,109 @@ public class MODashboard extends javafx.application.Application {
             Button rejectBtn = new Button("✗  Reject");
             rejectBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
             rejectBtn.setOnAction(e -> {
-                record.setReviewComment(commentField.getText().trim());
                 recordManager.rejectApplication(record.getApplicationId());
                 onBack.run();
             });
 
             buttons.getChildren().addAll(approveBtn, rejectBtn);
-            card.getChildren().addAll(hint, new Label("Review Comment (optional):"), commentField, buttons);
+            reviewCard.getChildren().addAll(hint, buttons);
         } else {
             Label decided = new Label("Decision: " + formatStatus(record.getStatus()));
             decided.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
-            card.getChildren().add(decided);
-
-            if (record.getReviewComment() != null && !record.getReviewComment().isEmpty()) {
-                Label comment = new Label("Comment: " + record.getReviewComment());
-                comment.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
-                comment.setWrapText(true);
-                card.getChildren().add(comment);
-            }
-
-            // Only allow undo for APPROVED / REJECTED (not WITHDRAWN — that's the TA's action)
-            if (TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()) ||
-                    TAApplicationRecord.STATUS_REJECTED.equals(record.getStatus())) {
-                Label undoHint = new Label("You can undo this decision to reopen the application for review.");
-                undoHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999;");
-
-                Button undoBtn = new Button("↩  Undo Decision");
-                undoBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #555555;" +
-                    " -fx-border-color: #aaaaaa; -fx-border-width: 1;" +
-                    " -fx-font-size: 13px; -fx-padding: 7 16 7 16; -fx-cursor: hand;");
-                undoBtn.setOnAction(e -> {
-                    javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
-                        javafx.scene.control.Alert.AlertType.CONFIRMATION);
-                    confirm.setTitle("Undo Decision");
-                    confirm.setHeaderText("Reset this application back to \"Under Review\"?");
-                    confirm.setContentText("The applicant's status will return to Pending and you can re-review it.");
-                    confirm.showAndWait().ifPresent(response -> {
-                        if (response == javafx.scene.control.ButtonType.OK) {
-                            recordManager.resetToPending(record.getApplicationId());
-                            onBack.run();
-                        }
-                    });
-                });
-                card.getChildren().addAll(undoHint, undoBtn);
-            }
+            reviewCard.getChildren().add(decided);
         }
-        return card;
+
+        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, reviewCard);
+        return page;
+    }
+
+    private Node buildEditPositionView(TAJob job) {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(18);
+
+        Button backButton = new Button("← Back to My Positions");
+        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
+        backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+
+        Label title = new Label("Edit Position");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        VBox form = new VBox();
+        form.setSpacing(14);
+
+        TextField positionNameField = createTextField("Position Name");
+        positionNameField.setText(job.getPositionName());
+
+        TextField courseNameField = createTextField("Course Name");
+        courseNameField.setText(job.getCourseName());
+
+        TextField courseCodeField = createTextField("Course Code");
+        courseCodeField.setText(job.getCourseCode());
+
+        TextField recruitmentCountField = createTextField("Number of Openings");
+        recruitmentCountField.setText(String.valueOf(job.getRecruitmentCount()));
+
+        TextArea requirementsArea = new TextArea();
+        requirementsArea.setText(job.getRequirements());
+        requirementsArea.setPromptText("Enter requirements, e.g. skills, experience, working hours.");
+        requirementsArea.setPrefRowCount(4);
+        requirementsArea.setWrapText(true);
+        requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
+
+        Label messageLabel = new Label();
+        messageLabel.setStyle("-fx-font-size: 13px;");
+
+        Button saveButton = new Button("Save Changes");
+        saveButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        saveButton.setOnAction(e -> {
+            String positionName = positionNameField.getText();
+            String courseName = courseNameField.getText();
+            String courseCode = courseCodeField.getText();
+            String recruitText = recruitmentCountField.getText();
+            String requirements = requirementsArea.getText();
+
+            if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText)) {
+                showMessage(messageLabel, "Please fill in all required fields.", false);
+                return;
+            }
+            int count;
+            try {
+                count = Integer.parseInt(recruitText.trim());
+                if (count <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException ex) {
+                showMessage(messageLabel, "Number of openings must be a positive integer.", false);
+                return;
+            }
+
+            job.setPositionName(positionName.trim());
+            job.setCourseName(courseName.trim());
+            job.setCourseCode(courseCode.trim());
+            job.setRecruitmentCount(count);
+            job.setRequirements(requirements == null ? "" : requirements.trim());
+
+            try {
+                jobManager.saveJob(job);
+                showMessage(messageLabel, "Position updated successfully.", true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                showMessage(messageLabel, "Update failed, please try again.", false);
+            }
+        });
+
+        form.getChildren().addAll(
+            positionNameField,
+            courseNameField,
+            courseCodeField,
+            recruitmentCountField,
+            new Label("Requirements"), requirementsArea,
+            saveButton,
+            messageLabel
+        );
+        page.getChildren().addAll(backButton, title, form);
+        return page;
     }
 
     private String statusBadgeStyle(String status) {
@@ -699,50 +604,6 @@ public class MODashboard extends javafx.application.Application {
                 return "Withdrawn";
             default:
                 return status;
-        }
-    }
-
-    private Label buildStatusBadge(TAJob job) {
-        String text;
-        String style;
-        if (job.isActive()) {
-            text = "Closed";
-            style = "-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #eeeeee; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
-        } else if (isJobExpired(job)) {
-            text = "Expired";
-            style = "-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
-        } else {
-            text = "Open";
-            style = "-fx-font-size: 11px; -fx-text-fill: #008800; -fx-background-color: #efffef; -fx-border-color: #aaccaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
-        }
-        Label badge = new Label(text);
-        badge.setStyle(style);
-        return badge;
-    }
-
-    private String getJobStatus(TAJob job) {
-        if (job.isActive()) {
-            return "Closed";
-        }
-        if (isJobExpired(job)) {
-            return "Expired";
-        }
-        return "Open";
-    }
-
-    private boolean isJobOpen(TAJob job) {
-        return !job.isActive() && !isJobExpired(job);
-    }
-
-    private boolean isJobExpired(TAJob job) {
-        if (isBlank(job.getDeadline())) {
-            return false;
-        }
-        try {
-            LocalDate deadline = LocalDate.parse(job.getDeadline(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return deadline.isBefore(LocalDate.now());
-        } catch (DateTimeParseException ex) {
-            return false;
         }
     }
 
