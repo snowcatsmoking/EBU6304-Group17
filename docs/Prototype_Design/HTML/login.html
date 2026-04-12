@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TA Recruitment Management System - Login / Register</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #fafafa;
+        }
+
+        .container {
+            width: 400px;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 40px 32px;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 28px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: #888;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #000;
+            border-bottom-color: #000;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #333;
+        }
+
+        .error-msg {
+            font-size: 12px;
+            color: #c00;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 11px 0;
+            background: #000;
+            color: #fff;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: #333;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 16px;
+            padding: 10px;
+            display: none;
+        }
+
+        .message.success {
+            color: #080;
+            background: #efffef;
+            border: 1px solid #cec;
+            display: block;
+        }
+
+        .message.error {
+            color: #c00;
+            background: #fff0f0;
+            border: 1px solid #ecc;
+            display: block;
+        }
+
+        /* Panel toggle */
+        .panel { display: none; }
+        .panel.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TA Recruitment Management System</h1>
+        <p class="subtitle">Teaching Assistant Recruitment System</p>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Login</div>
+            <div class="tab" onclick="switchTab('register')">Register</div>
+        </div>
+
+        <!-- Login Panel -->
+        <div id="login-panel" class="panel active">
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Account (Student ID / Staff ID)</label>
+                    <input type="text" id="login-account" placeholder="Enter account">
+                    <div class="error-msg" id="login-account-error"></div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password">
+                    <div class="error-msg" id="login-password-error"></div>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div class="message" id="login-msg"></div>
+            </form>
+        </div>
+
+        <!-- Register Panel -->
+        <div id="register-panel" class="panel">
+            <form id="register-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Account (Student ID / Staff ID)</label>
+                    <input type="text" id="reg-account" placeholder="Enter student ID or staff ID">
+                    <div class="error-msg" id="reg-account-error"></div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" placeholder="Enter password (at least 6 characters)">
+                    <div class="error-msg" id="reg-password-error"></div>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="reg-confirm" placeholder="Enter password again">
+                    <div class="error-msg" id="reg-confirm-error"></div>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="reg-role">
+                        <option value="">-- Select role --</option>
+                        <option value="applicant">Applicant (TA Applicant)</option>
+                        <option value="mo">Module Organiser</option>
+                        <option value="admin">System Administrator</option>
+                    </select>
+                    <div class="error-msg" id="reg-role-error"></div>
+                </div>
+                <button type="submit" class="btn">Register</button>
+                <div class="message" id="register-msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.message').forEach(m => { m.className = 'message'; });
+            document.querySelectorAll('.error-msg').forEach(e => { e.style.display = 'none'; });
+
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('login-panel').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('register-panel').classList.add('active');
+            }
+        }
+
+        // Show field error
+        function showError(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        // Clear all errors
+        function clearErrors(prefix) {
+            document.querySelectorAll(`[id^="${prefix}"]`).forEach(el => {
+                if (el.classList.contains('error-msg')) el.style.display = 'none';
+            });
+        }
+
+        // Show message
+        function showMsg(id, msg, type) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.className = 'message ' + type;
+        }
+
+        // Login handler (prototype only)
+        function handleLogin(e) {
+            e.preventDefault();
+            clearErrors('login-');
+            const account = document.getElementById('login-account').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            let valid = true;
+            if (!account) { showError('login-account-error', 'Please enter your account.'); valid = false; }
+            if (!password) { showError('login-password-error', 'Please enter your password.'); valid = false; }
+            if (!valid) return;
+
+            // Prototype: check localStorage
+            const users = JSON.parse(localStorage.getItem('ta_users') || '{}');
+            if (!users[account]) {
+                showMsg('login-msg', 'Account does not exist. Please register first.', 'error');
+                return;
+            }
+            if (users[account].password !== password) {
+                showMsg('login-msg', 'Incorrect password. Please try again.', 'error');
+                return;
+            }
+
+            const role = users[account].role;
+            const roleNames = { applicant: 'Applicant', mo: 'Module Organiser', admin: 'System Administrator' };
+            showMsg('login-msg', 'Login successful! Role: ' + roleNames[role] + '. Redirecting...', 'success');
+
+            // Prototype: would redirect based on role
+            // setTimeout(() => { window.location.href = role + '_dashboard.html'; }, 1500);
+        }
+
+        // Register handler (prototype only)
+        function handleRegister(e) {
+            e.preventDefault();
+            clearErrors('reg-');
+            const account = document.getElementById('reg-account').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const role = document.getElementById('reg-role').value;
+
+            let valid = true;
+            if (!account) { showError('reg-account-error', 'Please enter an account.'); valid = false; }
+            if (!password) { showError('reg-password-error', 'Please enter a password.'); valid = false; }
+            else if (password.length < 6) { showError('reg-password-error', 'Password must be at least 6 characters.'); valid = false; }
+            if (password !== confirm) { showError('reg-confirm-error', 'The two passwords do not match.'); valid = false; }
+            if (!role) { showError('reg-role-error', 'Please select a role.'); valid = false; }
+            if (!valid) return;
+
+            // Check duplicate
+            const users = JSON.parse(localStorage.getItem('ta_users') || '{}');
+            if (users[account]) {
+                showMsg('register-msg', 'This account is already registered. Please log in directly.', 'error');
+                return;
+            }
+
+            // Save
+            users[account] = { password, role };
+            localStorage.setItem('ta_users', JSON.stringify(users));
+
+            showMsg('register-msg', 'Registration successful! Please switch to the login tab.', 'success');
+            document.getElementById('register-form').reset();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TA Recruitment Management System - Position List</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: #fafafa; color: #333; }
+
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-title { font-size: 15px; font-weight: 600; }
+        .topbar-right { font-size: 13px; color: #666; }
+        .topbar-right a { color: #333; text-decoration: none; margin-left: 16px; }
+
+        .main { display: flex; max-width: 1080px; margin: 32px auto; gap: 24px; padding: 0 16px; }
+        .sidebar { width: 200px; flex-shrink: 0; }
+        .content { flex: 1; }
+
+        .nav-item {
+            display: block;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #555;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        .nav-item.active { color: #000; font-weight: 600; border-left-color: #000; background: #f0f0f0; }
+
+        /* Filter bar */
+        .filter-bar {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            padding: 7px 12px;
+            border: 1px solid #ccc;
+            font-size: 13px;
+            outline: none;
+        }
+        .filter-bar input { width: 200px; }
+        .filter-bar .btn-filter {
+            padding: 7px 16px;
+            font-size: 13px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Position cards */
+        .pos-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .pos-info { flex: 1; }
+        .pos-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+        .pos-title a { color: #333; text-decoration: none; }
+        .pos-meta { font-size: 13px; color: #888; line-height: 1.8; }
+        .pos-meta span { margin-right: 20px; }
+
+        .pos-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: 24px;
+        }
+        .btn-apply {
+            padding: 7px 20px;
+            font-size: 13px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-detail {
+            padding: 7px 20px;
+            font-size: 13px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border: 1px solid;
+        }
+        .badge-urgent { color: #c00; border-color: #eaa; background: #fff0f0; }
+        .badge-closed { color: #888; border-color: #ccc; background: #f5f5f5; }
+        .badge-applied { color: #b08800; border-color: #e0c860; background: #fffbe6; }
+
+        .pos-card.disabled { opacity: 0.6; }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 20px;
+        }
+        .pagination a {
+            padding: 6px 12px;
+            font-size: 13px;
+            border: 1px solid #ccc;
+            text-decoration: none;
+            color: #333;
+        }
+        .pagination a.active { background: #000; color: #fff; border-color: #000; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-title">TA Recruitment Management System</div>
+    <div class="topbar-right">
+        Alex Zhang (2024001) · Applicant
+        <a href="ta_dashboard.html">Back to Dashboard</a>
+        <a href="login.html">Log out</a>
+    </div>
+</div>
+
+<div class="main">
+    <div class="sidebar">
+        <a class="nav-item" href="ta_dashboard.html">Dashboard</a>
+        <a class="nav-item active" href="#">Positions</a>
+        <a class="nav-item" href="#">My Applications</a>
+        <a class="nav-item" href="ta_profile.html">Profile</a>
+    </div>
+
+    <div class="content">
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <input type="text" placeholder="Search module name...">
+            <select>
+                <option value="">Available term</option>
+                <option>Spring 2026</option>
+                <option>Autumn 2026</option>
+            </select>
+            <select>
+                <option value="">Openings</option>
+                <option>1-2</option>
+                <option>3-5</option>
+                <option>More than 5</option>
+            </select>
+            <button class="btn-filter">Filter</button>
+        </div>
+
+        <!-- Position list -->
+        <div class="pos-card">
+            <div class="pos-info">
+                <div class="pos-title"><a href="#">EBU6304 Software Engineering TA</a></div>
+                <div class="pos-meta">
+                    <span>Posted by: Prof. Li</span>
+                    <span>Openings: 3</span>
+                    <span>Deadline: 2026-04-15</span><br>
+                    <span>Requirements: Proficient in Java and Git; project development experience preferred</span>
+                </div>
+            </div>
+            <div class="pos-actions">
+                <button class="btn-apply">Apply</button>
+                <button class="btn-detail">View Details</button>
+            </div>
+        </div>
+
+        <div class="pos-card">
+            <div class="pos-info">
+                <div class="pos-title"><a href="#">EBU6305 Database Systems TA</a></div>
+                <div class="pos-meta">
+                    <span>Posted by: Prof. Li</span>
+                    <span>Openings: 2</span>
+                    <span>Deadline: 2026-04-10</span><br>
+                    <span>Requirements: Proficient in SQL and relational database fundamentals</span>
+                </div>
+            </div>
+            <div class="pos-actions">
+                <button class="btn-apply">Apply</button>
+                <button class="btn-detail">View Details</button>
+            </div>
+        </div>
+
+        <div class="pos-card">
+            <div class="pos-info">
+                <div class="pos-title">
+                    <a href="#">CSC1001 Introduction to CS TA</a>
+                    <span class="badge badge-applied">Applied</span>
+                </div>
+                <div class="pos-meta">
+                    <span>Posted by: Prof. Wang</span>
+                    <span>Openings: 4</span>
+                    <span>Deadline: 2026-04-20</span><br>
+                    <span>Requirements: Proficient in Python and patient in tutoring junior students</span>
+                </div>
+            </div>
+            <div class="pos-actions">
+                <button class="btn-detail">View Details</button>
+            </div>
+        </div>
+
+        <div class="pos-card">
+            <div class="pos-info">
+                <div class="pos-title">
+                    <a href="#">STA2001 Probability & Statistics TA</a>
+                    <span class="badge badge-urgent">Closing Soon</span>
+                </div>
+                <div class="pos-meta">
+                    <span>Posted by: Prof. Chen</span>
+                    <span>Openings: 2</span>
+                    <span>Deadline: 2026-03-17</span><br>
+                    <span>Requirements: Solid probability foundation; familiar with R or SPSS</span>
+                </div>
+            </div>
+            <div class="pos-actions">
+                <button class="btn-apply">Apply</button>
+                <button class="btn-detail">View Details</button>
+            </div>
+        </div>
+
+        <div class="pos-card disabled">
+            <div class="pos-info">
+                <div class="pos-title">
+                    <a href="#">CSC3001 Operating Systems TA</a>
+                    <span class="badge badge-closed">Closed</span>
+                </div>
+                <div class="pos-meta">
+                    <span>Posted by: Prof. Li</span>
+                    <span>Openings: 2</span>
+                    <span>Deadline: 2026-03-01</span><br>
+                    <span>Requirements: Proficient in C/C++ and Linux system programming</span>
+                </div>
+            </div>
+            <div class="pos-actions">
+                <button class="btn-detail">View Details</button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <a href="#" class="active">1</a>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <a href="#">&gt;</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

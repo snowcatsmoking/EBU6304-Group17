@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TA Recruitment Management System - Module Organiser Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: #fafafa; color: #333; }
+
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar-title { font-size: 15px; font-weight: 600; }
+        .topbar-right { font-size: 13px; color: #666; }
+        .topbar-right a { color: #333; text-decoration: none; margin-left: 16px; }
+
+        .main { display: flex; max-width: 1080px; margin: 32px auto; gap: 24px; padding: 0 16px; }
+        .sidebar { width: 200px; flex-shrink: 0; }
+        .content { flex: 1; }
+
+        .nav-item {
+            display: block;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #555;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        .nav-item.active { color: #000; font-weight: 600; border-left-color: #000; background: #f0f0f0; }
+
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 8px 12px; border-bottom: 1px solid #ddd; color: #888; font-weight: 500; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            font-size: 12px;
+            border: 1px solid;
+        }
+        .badge-active { color: #080; border-color: #aca; background: #efffef; }
+        .badge-closed { color: #888; border-color: #ccc; background: #f5f5f5; }
+        .badge-down { color: #c00; border-color: #eaa; background: #fff0f0; }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+        }
+        .btn-primary {
+            padding: 8px 20px;
+            font-size: 13px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .stats { display: flex; gap: 16px; margin-bottom: 20px; }
+        .stat-box {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-box .num { font-size: 24px; font-weight: 600; }
+        .stat-box .desc { font-size: 12px; color: #888; margin-top: 4px; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .card-header h2 { margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-title">TA Recruitment Management System</div>
+    <div class="topbar-right">
+        Prof. Li (MO2001) · Module Organiser
+        <a href="login.html">Log out</a>
+    </div>
+</div>
+
+<div class="main">
+
+    <div class="sidebar">
+        <a class="nav-item active" href="#">Dashboard</a>
+        <a class="nav-item" href="#">My Positions</a>
+        <a class="nav-item" href="#">Post Position</a>
+        <a class="nav-item" href="#">Applicant Management</a>
+        <a class="nav-item" href="#">Position Analytics</a>
+    </div>
+
+    <div class="content">
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="num">4</div>
+                <div class="desc">Published Positions</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">12</div>
+                <div class="desc">Applications Received</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">5</div>
+                <div class="desc">Pending Reviews</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">3</div>
+                <div class="desc">Accepted Applicants</div>
+            </div>
+        </div>
+
+        <!-- My positions -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Positions I Posted</h2>
+                <button class="btn-primary">+ Post New Position</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Openings</th>
+                        <th>Applications</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>EBU6304 Software Engineering TA</td>
+                        <td>3</td>
+                        <td>7</td>
+                        <td>2026-04-15</td>
+                        <td><span class="badge badge-active">Open</span></td>
+                        <td><button class="btn-sm">View Applicants</button> <button class="btn-sm">Unpublish</button></td>
+                    </tr>
+                    <tr>
+                        <td>EBU6305 Database Systems TA</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>2026-04-10</td>
+                        <td><span class="badge badge-active">Open</span></td>
+                        <td><button class="btn-sm">View Applicants</button> <button class="btn-sm">Unpublish</button></td>
+                    </tr>
+                    <tr>
+                        <td>CSC3001 Operating Systems TA</td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>2026-03-01</td>
+                        <td><span class="badge badge-closed">Closed</span></td>
+                        <td><button class="btn-sm">View Applicants</button></td>
+                    </tr>
+                    <tr>
+                        <td>MAT1001 Linear Algebra TA</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>—</td>
+                        <td><span class="badge badge-down">Unpublished</span></td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pending reviews -->
+        <div class="card">
+            <h2>Applications Pending Review</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Applicant</th>
+                        <th>Student ID</th>
+                        <th>Major</th>
+                        <th>Applied Position</th>
+                        <th>Applied On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Alex Zhang</td>
+                        <td>2024001</td>
+                        <td>Computer Science</td>
+                        <td>EBU6304 Software Engineering TA</td>
+                        <td>2026-03-10</td>
+                        <td><button class="btn-sm">Accept</button> <button class="btn-sm">Reject</button></td>
+                    </tr>
+                    <tr>
+                        <td>Wang Wu</td>
+                        <td>2024015</td>
+                        <td>Data Science</td>
+                        <td>EBU6304 Software Engineering TA</td>
+                        <td>2026-03-12</td>
+                        <td><button class="btn-sm">Accept</button> <button class="btn-sm">Reject</button></td>
+                    </tr>
+                    <tr>
+                        <td>Zhao Liu</td>
+                        <td>2024022</td>
+                        <td>Computer Science</td>
+                        <td>EBU6305 Database Systems TA</td>
+                        <td>2026-03-13</td>
+                        <td><button class="btn-sm">Accept</button> <button class="btn-sm">Reject</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
