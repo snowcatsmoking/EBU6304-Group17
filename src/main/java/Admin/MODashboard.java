@@ -1274,16 +1274,14 @@ public class MODashboard extends javafx.application.Application {
             Button approveBtn = new Button("✓  Approve");
             approveBtn.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
             approveBtn.setOnAction(e -> {
-                record.setReviewComment(commentField.getText().trim());
-                recordManager.approveApplication(record.getApplicationId());
+                recordManager.approveApplication(record.getApplicationId(), commentField.getText().trim());
                 onBack.run();
             });
 
             Button rejectBtn = new Button("✗  Reject");
             rejectBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
             rejectBtn.setOnAction(e -> {
-                record.setReviewComment(commentField.getText().trim());
-                recordManager.rejectApplication(record.getApplicationId());
+                recordManager.rejectApplication(record.getApplicationId(), commentField.getText().trim());
                 onBack.run();
             });
 

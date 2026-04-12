@@ -509,7 +509,7 @@ public class TAPositionListUI extends Application {
         try {
             java.time.LocalDate deadline = java.time.LocalDate.parse(job.getDeadline(),
                 java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return !deadline.isAfter(java.time.LocalDate.now());
+            return deadline.isBefore(java.time.LocalDate.now());
         } catch (Exception e) {
             return false;
         }
