@@ -1,6 +1,10 @@
 package LoginScreen;
 
+import TA.java.TAPositionListUI;
 import data.LocalStorageManager;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class LoginView extends Application {
 
@@ -23,6 +28,10 @@ public class LoginView extends Application {
     private VBox registerPanel;
     private Label loginTab;
     private Label registerTab;
+    private StackPane contentPane;
+    private javafx.scene.shape.Rectangle tabIndicator;
+    private TranslateTransition indicatorTransition;
+    private boolean isLoginActive = true;
 
     public interface LoginHandler {
         void onLogin(String account, String password);
@@ -57,38 +66,63 @@ public class LoginView extends Application {
 
     public Scene buildLoginScene() {
         StackPane rootWrapper = new StackPane();
-        rootWrapper.setStyle("-fx-background-color: #fafafa;");
+        rootWrapper.setStyle("-fx-background-color: #f8fafc;");
         rootWrapper.setAlignment(Pos.CENTER);
 
         VBox container = new VBox();
-        container.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
-        container.setPadding(new Insets(40, 40, 40, 40));
+        container.setStyle(
+            "-fx-background-color: #ffffff;" +
+            "-fx-background-radius: 16px;" +
+            "-fx-border-color: #e2e8f0;" +
+            "-fx-border-width: 1px;" +
+            "-fx-border-radius: 16px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0, 0, 8);"
+        );
+        container.setPadding(new Insets(48, 48, 48, 48));
         container.setSpacing(0);
-        container.setPrefWidth(500);
-        container.setMaxWidth(500);
+        container.setPrefWidth(440);
+        container.setMaxWidth(440);
 
         Label titleLabel = new Label("TA Recruitment System");
-        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: 600; -fx-text-fill: #000000;");
+        titleLabel.setStyle(
+            "-fx-font-size: 28px;" +
+            "-fx-font-weight: 700;" +
+            "-fx-text-fill: #1e293b;"
+        );
         titleLabel.setAlignment(Pos.CENTER);
         titleLabel.setMaxWidth(Double.MAX_VALUE);
 
         Label subtitleLabel = new Label("Teaching Assistant Recruitment System");
-        subtitleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
+        subtitleLabel.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-text-fill: #64748b;"
+        );
         subtitleLabel.setAlignment(Pos.CENTER);
         subtitleLabel.setMaxWidth(Double.MAX_VALUE);
 
         VBox titleBox = new VBox();
-        titleBox.setSpacing(8);
-        titleBox.setPadding(new Insets(0, 0, 28, 0));
+        titleBox.setSpacing(10);
+        titleBox.setPadding(new Insets(0, 0, 32, 0));
         titleBox.getChildren().addAll(titleLabel, subtitleLabel);
 
-        HBox tabsBox = createTabs();
+        StackPane tabsBox = createTabs();
 
-        StackPane contentPane = new StackPane();
+        contentPane = new StackPane();
+        contentPane.setMinWidth(440);
+        contentPane.setPrefWidth(440);
+        contentPane.setMaxWidth(440);
 
         loginPanel = createLoginPanel();
+        loginPanel.setPrefWidth(440);
+        loginPanel.setMinWidth(440);
+        loginPanel.setTranslateX(0);
+        loginPanel.setOpacity(1);
+
         registerPanel = createRegisterPanel();
-        registerPanel.setVisible(false);
+        registerPanel.setPrefWidth(440);
+        registerPanel.setMinWidth(440);
+        registerPanel.setOpacity(0);
+        registerPanel.setTranslateX(440);
 
         contentPane.getChildren().addAll(loginPanel, registerPanel);
 
@@ -106,29 +140,56 @@ public class LoginView extends Application {
         return new Scene(scrollPane);
     }
 
-    private HBox createTabs() {
+    private StackPane createTabs() {
+        StackPane tabsContainer = new StackPane();
+        tabsContainer.setStyle(
+            "-fx-background-color: #f1f5f9;" +
+            "-fx-background-radius: 10px;" +
+            "-fx-padding: 4px;"
+        );
+        tabsContainer.setAlignment(Pos.TOP_LEFT);
+
         HBox tabsBox = new HBox();
-        tabsBox.setStyle("-fx-border-color: #dddddd; -fx-border-width: 0 0 1 0;");
-        tabsBox.setPadding(new Insets(0, 0, 0, 0));
         tabsBox.setSpacing(0);
 
         loginTab = new Label("Log In");
-        loginTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-border-width: 0 0 2 0; -fx-border-color: #000000; -fx-cursor: hand;");
+        loginTab.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-text-fill: #1e293b;" +
+            "-fx-padding: 10px 0;" +
+            "-fx-cursor: hand;"
+        );
         loginTab.setAlignment(Pos.CENTER);
-        loginTab.setPrefWidth(250);
-        loginTab.setPadding(new Insets(10, 0, 10, 0));
+        loginTab.setPrefWidth(210);
         loginTab.setOnMouseClicked(e -> switchToLogin());
 
         registerTab = new Label("Register");
-        registerTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #888888; -fx-border-width: 0 0 2 0; -fx-border-color: transparent; -fx-cursor: hand;");
+        registerTab.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-text-fill: #64748b;" +
+            "-fx-padding: 10px 0;" +
+            "-fx-cursor: hand;"
+        );
         registerTab.setAlignment(Pos.CENTER);
-        registerTab.setPrefWidth(250);
-        registerTab.setPadding(new Insets(10, 0, 10, 0));
+        registerTab.setPrefWidth(210);
         registerTab.setOnMouseClicked(e -> switchToRegister());
 
         tabsBox.getChildren().addAll(loginTab, registerTab);
 
-        return tabsBox;
+        tabIndicator = new javafx.scene.shape.Rectangle(210, 36);
+        tabIndicator.setArcWidth(8);
+        tabIndicator.setArcHeight(8);
+        tabIndicator.setFill(javafx.scene.paint.Color.WHITE);
+        tabIndicator.setTranslateX(0);
+
+        indicatorTransition = new TranslateTransition(Duration.millis(300), tabIndicator);
+        indicatorTransition.setCycleCount(1);
+
+        tabsContainer.getChildren().addAll(tabIndicator, tabsBox);
+
+        return tabsContainer;
     }
 
     private VBox createLoginPanel() {
@@ -147,8 +208,38 @@ public class LoginView extends Application {
         messageLabel.setAlignment(Pos.CENTER);
 
         Button loginButton = new Button("Log In");
-        loginButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #000000; -fx-padding: 11 0 11 0; -fx-cursor: hand;");
+        loginButton.setStyle(
+            "-fx-font-size: 15px;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-color: #6366f1;" +
+            "-fx-background-radius: 8px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-padding: 12px 24px;" +
+            "-fx-cursor: hand;"
+        );
         loginButton.setPrefWidth(Double.MAX_VALUE);
+        loginButton.setOnMouseEntered(e ->
+            loginButton.setStyle(
+                "-fx-font-size: 15px;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-color: #4f46e5;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-padding: 12px 24px;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        loginButton.setOnMouseExited(e -> {
+            loginButton.setStyle(
+                "-fx-font-size: 15px;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-color: #6366f1;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-padding: 12px 24px;" +
+                "-fx-cursor: hand;"
+            );
+        });
         loginButton.setOnAction(e -> {
             TextField accountInput = (TextField) accountField.getChildren().get(1);
             PasswordField passInput = (PasswordField) passwordField.getChildren().get(1);
@@ -166,13 +257,13 @@ public class LoginView extends Application {
                 String studentId = accountInput.getText();
                 System.out.println("登录成功，用户角色: " + userRole + ", 学号: " + studentId);
 
-                if (userRole.equals("TA")) {
+                if (userRole.equals("TA/java")) {
                     new LocalStorageManager().saveLastLogin(accountInput.getText(), userRole);
                     new Thread(() -> {
                         try {
                             Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
-                                ZiqianCao.java.TAPositionListUI ui = new ZiqianCao.java.TAPositionListUI();
+                                TAPositionListUI ui = new TAPositionListUI();
                                 ui.setCurrentStudentId(studentId);
                                 ui.navigateTo();
                             });
@@ -278,8 +369,38 @@ public class LoginView extends Application {
         messageLabel.setAlignment(Pos.CENTER);
 
         Button registerButton = new Button("Register");
-        registerButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #000000; -fx-padding: 11 0 11 0; -fx-cursor: hand;");
+        registerButton.setStyle(
+            "-fx-font-size: 15px;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-color: #6366f1;" +
+            "-fx-background-radius: 8px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-padding: 12px 24px;" +
+            "-fx-cursor: hand;"
+        );
         registerButton.setPrefWidth(Double.MAX_VALUE);
+        registerButton.setOnMouseEntered(e ->
+            registerButton.setStyle(
+                "-fx-font-size: 15px;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-color: #4f46e5;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-padding: 12px 24px;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        registerButton.setOnMouseExited(e -> {
+            registerButton.setStyle(
+                "-fx-font-size: 15px;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-color: #6366f1;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-padding: 12px 24px;" +
+                "-fx-cursor: hand;"
+            );
+        });
         registerButton.setOnAction(e -> {
             TextField accountInput = (TextField) accountField.getChildren().get(1);
             PasswordField passInput = (PasswordField) passwordField.getChildren().get(1);
@@ -321,10 +442,14 @@ public class LoginView extends Application {
 
     private VBox createFormField(String label, String placeholder, boolean isPassword) {
         VBox fieldBox = new VBox();
-        fieldBox.setSpacing(6);
+        fieldBox.setSpacing(8);
 
         Label labelLabel = new Label(label);
-        labelLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        labelLabel.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-text-fill: #374151;"
+        );
 
         TextField inputField;
         if (isPassword) {
@@ -333,11 +458,50 @@ public class LoginView extends Application {
             inputField = new TextField();
         }
         inputField.setPromptText(placeholder);
-        inputField.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 10 12 10 12;");
+        inputField.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-background-radius: 8px;" +
+            "-fx-border-color: #e2e8f0;" +
+            "-fx-border-width: 1px;" +
+            "-fx-border-radius: 8px;" +
+            "-fx-padding: 12px 16px;" +
+            "-fx-font-size: 14px;" +
+            "-fx-text-fill: #1e293b;"
+        );
         inputField.setPrefWidth(Double.MAX_VALUE);
+        
+        inputField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                inputField.setStyle(
+                    "-fx-background-color: white;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-border-color: #6366f1;" +
+                    "-fx-border-width: 1px;" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-padding: 12px 16px;" +
+                    "-fx-font-size: 14px;" +
+                    "-fx-text-fill: #1e293b;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.2), 0, 0, 0, 3);"
+                );
+            } else {
+                inputField.setStyle(
+                    "-fx-background-color: white;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-border-color: #e2e8f0;" +
+                    "-fx-border-width: 1px;" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-padding: 12px 16px;" +
+                    "-fx-font-size: 14px;" +
+                    "-fx-text-fill: #1e293b;"
+                );
+            }
+        });
 
         Label errorLabel = new Label("");
-        errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc0000;");
+        errorLabel.setStyle(
+            "-fx-font-size: 13px;" +
+            "-fx-text-fill: #ef4444;"
+        );
 
         fieldBox.getChildren().addAll(labelLabel, inputField, errorLabel);
 
@@ -346,18 +510,61 @@ public class LoginView extends Application {
 
     private VBox createPasswordField(String label, String placeholder) {
         VBox fieldBox = new VBox();
-        fieldBox.setSpacing(6);
+        fieldBox.setSpacing(8);
 
         Label labelLabel = new Label(label);
-        labelLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        labelLabel.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-text-fill: #374151;"
+        );
 
         PasswordField inputField = new PasswordField();
         inputField.setPromptText(placeholder);
-        inputField.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 10 12 10 12;");
+        inputField.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-background-radius: 8px;" +
+            "-fx-border-color: #e2e8f0;" +
+            "-fx-border-width: 1px;" +
+            "-fx-border-radius: 8px;" +
+            "-fx-padding: 12px 16px;" +
+            "-fx-font-size: 14px;" +
+            "-fx-text-fill: #1e293b;"
+        );
         inputField.setPrefWidth(Double.MAX_VALUE);
+        
+        inputField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                inputField.setStyle(
+                    "-fx-background-color: white;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-border-color: #6366f1;" +
+                    "-fx-border-width: 1px;" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-padding: 12px 16px;" +
+                    "-fx-font-size: 14px;" +
+                    "-fx-text-fill: #1e293b;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.2), 0, 0, 0, 3);"
+                );
+            } else {
+                inputField.setStyle(
+                    "-fx-background-color: white;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-border-color: #e2e8f0;" +
+                    "-fx-border-width: 1px;" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-padding: 12px 16px;" +
+                    "-fx-font-size: 14px;" +
+                    "-fx-text-fill: #1e293b;"
+                );
+            }
+        });
 
         Label errorLabel = new Label("");
-        errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc0000;");
+        errorLabel.setStyle(
+            "-fx-font-size: 13px;" +
+            "-fx-text-fill: #ef4444;"
+        );
 
         fieldBox.getChildren().addAll(labelLabel, inputField, errorLabel);
 
@@ -365,17 +572,115 @@ public class LoginView extends Application {
     }
 
     private void switchToLogin() {
-        loginTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-border-width: 0 0 2 0; -fx-border-color: #000000; -fx-cursor: hand;");
-        registerTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #888888; -fx-border-width: 0 0 2 0; -fx-border-color: transparent; -fx-cursor: hand;");
-        loginPanel.setVisible(true);
-        registerPanel.setVisible(false);
+        if (isLoginActive) {
+            return;
+        }
+        
+        isLoginActive = true;
+        
+        loginTab.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-text-fill: #1e293b;" +
+            "-fx-padding: 10px 0;" +
+            "-fx-cursor: hand;"
+        );
+        registerTab.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-text-fill: #64748b;" +
+            "-fx-padding: 10px 0;" +
+            "-fx-cursor: hand;"
+        );
+
+        indicatorTransition.stop();
+        indicatorTransition.setFromX(tabIndicator.getTranslateX());
+        indicatorTransition.setToX(0);
+        indicatorTransition.play();
+
+        TranslateTransition loginSlideIn = new TranslateTransition(Duration.millis(300), loginPanel);
+        loginSlideIn.setFromX(-440);
+        loginSlideIn.setToX(0);
+
+        FadeTransition loginFadeIn = new FadeTransition(Duration.millis(300), loginPanel);
+        loginFadeIn.setFromValue(0);
+        loginFadeIn.setToValue(1);
+
+        ParallelTransition loginIn = new ParallelTransition(loginSlideIn, loginFadeIn);
+
+        TranslateTransition registerSlideOut = new TranslateTransition(Duration.millis(300), registerPanel);
+        registerSlideOut.setFromX(0);
+        registerSlideOut.setToX(440);
+
+        FadeTransition registerFadeOut = new FadeTransition(Duration.millis(300), registerPanel);
+        registerFadeOut.setFromValue(1);
+        registerFadeOut.setToValue(0);
+
+        ParallelTransition registerOut = new ParallelTransition(registerSlideOut, registerFadeOut);
+
+        registerOut.setOnFinished(e -> {
+            registerPanel.setTranslateX(440);
+            registerPanel.setOpacity(0);
+        });
+
+        registerOut.play();
+        loginIn.play();
     }
 
     private void switchToRegister() {
-        loginTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #888888; -fx-border-width: 0 0 2 0; -fx-border-color: transparent; -fx-cursor: hand;");
-        registerTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-border-width: 0 0 2 0; -fx-border-color: #000000; -fx-cursor: hand;");
-        loginPanel.setVisible(false);
-        registerPanel.setVisible(true);
+        if (!isLoginActive) {
+            return;
+        }
+        
+        isLoginActive = false;
+        
+        loginTab.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 500;" +
+            "-fx-text-fill: #64748b;" +
+            "-fx-padding: 10px 0;" +
+            "-fx-cursor: hand;"
+        );
+        registerTab.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-text-fill: #1e293b;" +
+            "-fx-padding: 10px 0;" +
+            "-fx-cursor: hand;"
+        );
+
+        indicatorTransition.stop();
+        indicatorTransition.setFromX(tabIndicator.getTranslateX());
+        indicatorTransition.setToX(210);
+        indicatorTransition.play();
+
+        TranslateTransition registerSlideIn = new TranslateTransition(Duration.millis(300), registerPanel);
+        registerSlideIn.setFromX(440);
+        registerSlideIn.setToX(0);
+
+        FadeTransition registerFadeIn = new FadeTransition(Duration.millis(300), registerPanel);
+        registerFadeIn.setFromValue(0);
+        registerFadeIn.setToValue(1);
+
+        ParallelTransition registerIn = new ParallelTransition(registerSlideIn, registerFadeIn);
+
+        TranslateTransition loginSlideOut = new TranslateTransition(Duration.millis(300), loginPanel);
+        loginSlideOut.setFromX(0);
+        loginSlideOut.setToX(-440);
+
+        FadeTransition loginFadeOut = new FadeTransition(Duration.millis(300), loginPanel);
+        loginFadeOut.setFromValue(1);
+        loginFadeOut.setToValue(0);
+
+        ParallelTransition loginOut = new ParallelTransition(loginSlideOut, loginFadeOut);
+
+        loginOut.setOnFinished(e -> {
+            loginPanel.setTranslateX(-440);
+            loginPanel.setOpacity(0);
+        });
+
+        loginOut.play();
+        registerIn.play();
     }
 
     public static void main(String[] args) {

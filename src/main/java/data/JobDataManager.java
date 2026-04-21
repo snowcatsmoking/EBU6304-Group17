@@ -11,7 +11,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import ZiqianCao.java.TAJob;
+import TA.java.TAJob;
 
 /**
  * 职位数据管理类。

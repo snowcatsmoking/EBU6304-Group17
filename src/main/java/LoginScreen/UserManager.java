@@ -1,6 +1,6 @@
 package LoginScreen;
 
-import ZiqianCao.java.TAApplication;
+import TA.java.TAApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import data.DataConfig;
@@ -41,13 +41,13 @@ public class UserManager {
 
     private String getRoleKey(String role) {
         if (role.contains("TA Applicant")) {
-            return "TA";
+            return "TA/java";
         } else if (role.contains("Module Organiser")) {
             return "MO";
         } else if (role.contains("Admin")) {
             return "ADMIN";
         }
-        return "TA";
+        return "TA/java";
     }
 
     public String register(String account, String password, String role, String authCode) {

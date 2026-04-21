@@ -1,6 +1,6 @@
 package Admin;
 
-import ZiqianCao.java.TAApplication;
+import TA.java.TAApplication;
 import LoginScreen.User;
 import data.LogManager;
 import data.UserDataManager;
@@ -88,7 +88,7 @@ public class UserManagementView {
             rows.add(new UserRow(
                 ta.getTAId(),
                 ta.getName() != null ? ta.getName() : "—",
-                "TA",
+                    "TA/java",
                 ta.getMajor() != null ? ta.getMajor() : "—"
             ));
         }
@@ -177,7 +177,7 @@ public class UserManagementView {
 
     private Label roleBadge(String role) {
         Label badge = new Label();
-        if ("TA".equals(role)) {
+        if ("TA/java".equals(role)) {
             badge.setText("Applicant");
             badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #003399; -fx-background-color: #eef4ff;" +
                 "-fx-border-color: #aabbcc; -fx-border-width: 1; -fx-padding: 2 8 2 8;");

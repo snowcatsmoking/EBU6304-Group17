@@ -1,7 +1,7 @@
 package data;
 
 import LoginScreen.User;
-import ZiqianCao.java.TAApplication;
+import TA.java.TAApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -107,7 +107,7 @@ public class UserDataManager {
      * @return true=成功，false=用户不存在
      */
     public boolean resetPassword(String account, String role, String newPassword) {
-        if ("TA".equals(role)) {
+        if ("TA/java".equals(role)) {
             TAApplication ta = getTAById(account);
             if (ta == null) return false;
             ta.setPassword(newPassword);
@@ -176,7 +176,7 @@ public class UserDataManager {
 
     private String dirByRole(String role) {
         switch (role) {
-            case "TA":    return DataConfig.TA_DIR;
+            case "TA/java":    return DataConfig.TA_DIR;
             case "MO":    return DataConfig.MO_DIR;
             case "ADMIN": return DataConfig.ADMIN_DIR;
             default:      return null;
