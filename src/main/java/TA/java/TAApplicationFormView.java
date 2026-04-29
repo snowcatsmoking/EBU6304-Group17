@@ -401,18 +401,77 @@ public class TAApplicationFormView {
 
     private void showAlert(String title, String message) {
         System.out.println("显示警告弹窗: " + title + " - " + message);
-        Alert alert = new Alert(AlertType.WARNING);
-        alert.setTitle("Notice");
-        alert.setHeaderText(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+        
+        Stage alertStage = new Stage();
+        alertStage.setTitle("Notice");
+        alertStage.initModality(Modality.WINDOW_MODAL);
+        if (dialogStage != null) {
+            alertStage.initOwner(dialogStage);
+        }
+
+        VBox alertBox = new VBox();
+        alertBox.setStyle("-fx-background-color: #ffffff;");
+        alertBox.setPadding(new Insets(30, 40, 30, 40));
+        alertBox.setSpacing(20);
+        alertBox.setAlignment(Pos.CENTER);
+
+        Label iconLabel = new Label("⚠");
+        iconLabel.setStyle("-fx-font-size: 40px; -fx-text-fill: #333333;");
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+
+        Label messageLabel = new Label(message);
+        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-wrap-text: true;");
+        messageLabel.setMaxWidth(350);
+        messageLabel.setAlignment(Pos.CENTER);
+
+        Button closeButton = new Button("OK");
+        closeButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 10 40; -fx-cursor: hand;");
+        closeButton.setOnAction(e -> alertStage.close());
+
+        alertBox.getChildren().addAll(iconLabel, titleLabel, messageLabel, closeButton);
+
+        Scene alertScene = new Scene(alertBox, 400, 300);
+        alertStage.setScene(alertScene);
+        alertStage.setResizable(false);
+        alertStage.showAndWait();
     }
 
     private void showSuccess(String title, String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Stage alertStage = new Stage();
+        alertStage.setTitle("Success");
+        alertStage.initModality(Modality.WINDOW_MODAL);
+        if (dialogStage != null) {
+            alertStage.initOwner(dialogStage);
+        }
+
+        VBox alertBox = new VBox();
+        alertBox.setStyle("-fx-background-color: #ffffff;");
+        alertBox.setPadding(new Insets(30, 40, 30, 40));
+        alertBox.setSpacing(20);
+        alertBox.setAlignment(Pos.CENTER);
+
+        Label iconLabel = new Label("✓");
+        iconLabel.setStyle("-fx-font-size: 40px; -fx-text-fill: #333333;");
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+
+        Label messageLabel = new Label(message);
+        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666; -fx-wrap-text: true;");
+        messageLabel.setMaxWidth(350);
+        messageLabel.setAlignment(Pos.CENTER);
+
+        Button closeButton = new Button("OK");
+        closeButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 10 40; -fx-cursor: hand;");
+        closeButton.setOnAction(e -> alertStage.close());
+
+        alertBox.getChildren().addAll(iconLabel, titleLabel, messageLabel, closeButton);
+
+        Scene alertScene = new Scene(alertBox, 400, 300);
+        alertStage.setScene(alertScene);
+        alertStage.setResizable(false);
+        alertStage.showAndWait();
     }
 }

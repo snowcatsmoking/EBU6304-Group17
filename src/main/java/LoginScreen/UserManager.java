@@ -110,8 +110,8 @@ public class UserManager {
             try {
                 TAApplication ta = objectMapper.readValue(taFile, TAApplication.class);
                 if (ta.getPassword() != null && ta.getPassword().equals(password)) {
-                    logManager.log(account, "Login", account, "Role: TA");
-                    return "SUCCESS:TA";
+                    logManager.log(account, "Login", account, "Role: TA/java");
+                    return "SUCCESS:TA/java";
                 } else {
                     return "Incorrect password, please try again";
                 }
