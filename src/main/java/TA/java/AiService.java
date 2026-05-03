@@ -1,53 +1,44 @@
 package TA.java;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import okhttp3.*;
+import com.volcengine.ark.runtime.model.files.FileMeta;
+import com.volcengine.ark.runtime.model.files.UploadFileRequest;
+import com.volcengine.ark.runtime.model.responses.content.InputContentItemFile;
+import com.volcengine.ark.runtime.service.ArkService;
+import com.volcengine.ark.runtime.model.responses.request.*;
+import com.volcengine.ark.runtime.model.responses.item.ItemEasyMessage;
+import com.volcengine.ark.runtime.model.responses.constant.ResponsesConstants;
+import com.volcengine.ark.runtime.model.responses.item.MessageContent;
+import com.volcengine.ark.runtime.model.responses.content.InputContentItemText;
+import com.volcengine.ark.runtime.model.responses.response.ResponseObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class AiService {
 
-    private static String API_URL = "https://ark.cn-beijing.volces.com/api/v3/responses";
-    private static String UPLOAD_URL = "https://ark.cn-beijing.volces.com/api/v3/files";
-    private static String MODEL = "doubao-seed-2-0-pro-260215";
-
-    private final OkHttpClient client;
-    private final Gson gson;
-    private final List<Message> conversationHistory;
-    private final String apiKey;
+    private static String MODEL = "doubao-seed-2-0-lite-260215";
+    
+    private final ArkService service;
+    private String apiKey;
 
     public AiService() {
-        this.apiKey = loadApiKey();
+        apiKey = loadApiKey();
         loadConfig();
         
-        this.client = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(120, TimeUnit.SECONDS)
-                .writeTimeout(120, TimeUnit.SECONDS)
+        service = ArkService.builder()
+                .apiKey(apiKey)
+                .baseUrl("https://ark.cn-beijing.volces.com/api/v3")
                 .build();
-        this.gson = new Gson();
-        this.conversationHistory = new ArrayList<>();
     }
 
     private void loadConfig() {
         Properties props = new Properties();
         try (InputStream input = new FileInputStream("config.properties")) {
             props.load(input);
-            if (props.containsKey("ark.api.url")) {
-                API_URL = props.getProperty("ark.api.url");
-            }
-            if (props.containsKey("ark.upload.url")) {
-                UPLOAD_URL = props.getProperty("ark.upload.url");
-            }
             if (props.containsKey("ark.model")) {
                 MODEL = props.getProperty("ark.model");
             }
@@ -74,221 +65,254 @@ public class AiService {
         return null;
     }
 
-    public String sendMessage(String userMessage) throws IOException {
-        return sendMessageWithFile(userMessage, null);
+    public AIResponse sendMessage(String userMessage) throws Exception {
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new Exception("请先配置 API Key");
+        }
+
+        CreateResponsesRequest request = CreateResponsesRequest.builder()
+                .model(MODEL)
+                .input(ResponsesInput.builder().addListItem(
+                        ItemEasyMessage.builder()
+                                .role(ResponsesConstants.MESSAGE_ROLE_USER)
+                                .content(MessageContent.builder()
+                                        .addListItem(InputContentItemText.builder()
+                                                .text(userMessage)
+                                                .build())
+                                        .build())
+                                .build()
+                ).build())
+                .build();
+        
+        ResponseObject resp = service.createResponse(request);
+        return extractAIResponse(resp);
     }
 
-    public String sendMessageWithFile(String userMessage, UploadedFile file) throws IOException {
+    public AIResponse sendMessageWithFile(String userMessage, UploadedFile uploadedFile) throws Exception {
         if (apiKey == null || apiKey.isEmpty()) {
-            throw new IOException("请设置环境变量 ARK_API_KEY 或在 config.properties 文件中配置 ark.api.key");
+            throw new Exception("请先配置 API Key");
         }
 
-        JsonObject requestBody = new JsonObject();
-        requestBody.addProperty("model", MODEL);
-
-        JsonArray inputArray = new JsonArray();
-
-        for (Message msg : conversationHistory) {
-            inputArray.add(msg.toJson());
-        }
-
-        JsonObject userMessageItem = new JsonObject();
-        userMessageItem.addProperty("type", "message");
-        userMessageItem.addProperty("role", "user");
-
-        JsonArray contentArray = new JsonArray();
-
-        if (file != null) {
-            JsonObject fileItem = new JsonObject();
-            fileItem.addProperty("type", "file");
-            fileItem.addProperty("file_id", file.id);
-            contentArray.add(fileItem);
-        }
-
-        if (userMessage != null && !userMessage.isEmpty()) {
-            JsonObject textItem = new JsonObject();
-            textItem.addProperty("type", "input_text");
-            textItem.addProperty("text", userMessage);
-            contentArray.add(textItem);
-        }
-
-        userMessageItem.add("content", contentArray);
-        inputArray.add(userMessageItem);
-
-        conversationHistory.add(new Message("user", userMessage, file));
-
-        requestBody.add("input", inputArray);
-
-        Request request = new Request.Builder()
-                .url(API_URL)
-                .addHeader("Authorization", "Bearer " + apiKey)
-                .addHeader("Content-Type", "application/json")
-                .post(RequestBody.create(requestBody.toString(), MediaType.parse("application/json")))
+        CreateResponsesRequest request = CreateResponsesRequest.builder()
+                .model(MODEL)
+                .input(ResponsesInput.builder().addListItem(
+                        ItemEasyMessage.builder()
+                                .role(ResponsesConstants.MESSAGE_ROLE_USER)
+                                .content(MessageContent.builder()
+                                        .addListItem(InputContentItemFile.InputContentItemFileBuilder.anInputContentItemFile()
+                                                .fileId(uploadedFile.id)
+                                                .build())
+                                        .addListItem(InputContentItemText.builder()
+                                                .text(userMessage)
+                                                .build())
+                                        .build())
+                                .build()
+                ).build())
                 .build();
+        
+        ResponseObject resp = service.createResponse(request);
+        return extractAIResponse(resp);
+    }
 
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                String errorBody = response.body() != null ? response.body().string() : "No response body";
-                throw new IOException("API请求失败: " + response.code() + " - " + response.message() + "\n" + errorBody);
+    public UploadedFile uploadFile(File file) throws Exception {
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new Exception("请先配置 API Key");
+        }
+
+        FileMeta fileMeta = service.uploadFile(
+                UploadFileRequest.builder()
+                        .file(file)
+                        .purpose("user_data")
+                        .build());
+
+        System.out.println("初始文件状态: " + fileMeta.getStatus());
+
+        int maxRetries = 15;
+        int retries = 0;
+        
+        while ("processing".equals(fileMeta.getStatus()) && retries < maxRetries) {
+            System.out.println("等待文件处理... 当前状态: " + fileMeta.getStatus());
+            TimeUnit.SECONDS.sleep(2);
+            fileMeta = service.retrieveFile(fileMeta.getId());
+            retries++;
+        }
+
+        // 只要不是错误状态，就可以继续使用
+        String status = fileMeta.getStatus();
+        if ("error".equals(status) || "failed".equals(status)) {
+            throw new Exception("文件处理失败: " + status);
+        }
+
+        System.out.println("最终文件状态: " + status);
+
+        return new UploadedFile(
+                fileMeta.getId(),
+                fileMeta.getFilename(),
+                fileMeta.getBytes(),
+                getFileMimeType(file.getName())
+        );
+    }
+
+    private String getFileMimeType(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".pdf")) return "application/pdf";
+        if (lower.endsWith(".doc")) return "application/msword";
+        if (lower.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        if (lower.endsWith(".png")) return "image/png";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+        if (lower.endsWith(".gif")) return "image/gif";
+        if (lower.endsWith(".txt")) return "text/plain";
+        if (lower.endsWith(".mp4")) return "video/mp4";
+        if (lower.endsWith(".avi")) return "video/x-msvideo";
+        if (lower.endsWith(".mov")) return "video/quicktime";
+        return "application/octet-stream";
+    }
+
+    private AIResponse extractAIResponse(ResponseObject response) {
+        try {
+            java.lang.reflect.Method getOutputMethod = ResponseObject.class.getMethod("getOutput");
+            java.util.List<?> outputList = (java.util.List<?>) getOutputMethod.invoke(response);
+
+            String reasoningText = null;
+            String answerText = null;
+
+            for (Object item : outputList) {
+                if (item == null) continue;
+                
+                String className = item.getClass().getSimpleName();
+                
+                // 解析思考内容 - ItemReasoning
+                if ("ItemReasoning".equals(className)) {
+                    reasoningText = extractReasoningText(item);
+                }
+                
+                // 解析回答内容 - ItemOutputMessage
+                if ("ItemOutputMessage".equals(className)) {
+                    answerText = extractAnswerText(item);
+                }
             }
 
-            String responseBody = response.body().string();
-            JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
-            
-            String aiResponse = parseResponse(jsonResponse);
-            conversationHistory.add(new Message("assistant", aiResponse, null));
-            
-            return aiResponse;
+            return new AIResponse(reasoningText, answerText);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new AIResponse(null, response.toString());
         }
     }
 
-    private String parseResponse(JsonObject jsonResponse) {
+    private String extractReasoningText(Object reasoningItem) {
         try {
-            if (jsonResponse.has("output")) {
-                JsonArray outputArray = jsonResponse.getAsJsonArray("output");
-                if (outputArray != null && outputArray.size() > 0) {
-                    // 遍历 output 数组，找到 type = "message" 的项
-                    for (int i = 0; i < outputArray.size(); i++) {
-                        JsonObject outputItem = outputArray.get(i).getAsJsonObject();
-                        
-                        String itemType = outputItem.get("type").getAsString();
-                        
-                        if ("message".equals(itemType)) {
-                            if (outputItem.has("content")) {
-                                JsonArray contentArray = outputItem.getAsJsonArray("content");
-                                if (contentArray != null && contentArray.size() > 0) {
-                                    for (int j = 0; j < contentArray.size(); j++) {
-                                        JsonObject contentItem = contentArray.get(j).getAsJsonObject();
-                                        String contentType = contentItem.get("type").getAsString();
-                                        
-                                        if ("output_text".equals(contentType)) {
-                                            return contentItem.get("text").getAsString();
-                                        }
-                                    }
-                                }
+            java.lang.reflect.Method getSummaryMethod = reasoningItem.getClass().getMethod("getSummary");
+            Object summaryResult = getSummaryMethod.invoke(reasoningItem);
+            java.util.List<?> summaryList = safeToList(summaryResult);
+
+            if (summaryList != null && !summaryList.isEmpty()) {
+                Object summaryPart = summaryList.get(0);
+                if (summaryPart != null) {
+                    java.lang.reflect.Method getTextMethod = summaryPart.getClass().getMethod("getText");
+                    String text = (String) getTextMethod.invoke(summaryPart);
+                    if (text != null && !text.trim().isEmpty()) {
+                        return text.trim();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String extractAnswerText(Object messageItem) {
+        try {
+            java.lang.reflect.Method getContentMethod = messageItem.getClass().getMethod("getContent");
+            Object contentObj = getContentMethod.invoke(messageItem);
+
+            if (contentObj != null) {
+                java.util.List<?> contentList = safeToList(contentObj);
+
+                if (contentList != null && !contentList.isEmpty()) {
+                    for (Object contentItem : contentList) {
+                        if (contentItem != null && 
+                            contentItem.getClass().getSimpleName().equals("OutputContentItemText")) {
+                            
+                            java.lang.reflect.Method getTextMethod = contentItem.getClass().getMethod("getText");
+                            String text = (String) getTextMethod.invoke(contentItem);
+                            
+                            if (text != null && !text.trim().isEmpty()) {
+                                return text.trim();
                             }
                         }
                     }
                 }
             }
-            
-            if (jsonResponse.has("choices")) {
-                JsonArray choicesArray = jsonResponse.getAsJsonArray("choices");
-                if (choicesArray != null && choicesArray.size() > 0) {
-                    JsonObject choiceItem = choicesArray.get(0).getAsJsonObject();
-                    if (choiceItem.has("message")) {
-                        JsonObject messageItem = choiceItem.getAsJsonObject("message");
-                        if (messageItem.has("content")) {
-                            return messageItem.get("content").getAsString();
-                        }
-                    }
-                }
-            }
-            
-            return "无法解析响应: " + jsonResponse.toString();
         } catch (Exception e) {
             e.printStackTrace();
-            return "解析响应失败: " + e.getMessage() + "\n原始响应: " + jsonResponse.toString();
         }
+        return null;
     }
 
-    public UploadedFile uploadFile(File file) throws IOException {
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IOException("请设置环境变量 ARK_API_KEY 或在 config.properties 文件中配置 ark.api.key");
+    private java.util.List<?> safeToList(Object obj) {
+        if (obj == null) return null;
+        
+        // 如果已经是List，直接返回
+        if (obj instanceof java.util.List) {
+            return (java.util.List<?>) obj;
         }
-
-        MultipartBody.Builder requestBodyBuilder = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("purpose", "user_data");
-
-        String fileName = file.getName();
-        String mimeType = getMimeType(fileName);
-        RequestBody fileBody = RequestBody.create(file, MediaType.parse(mimeType));
-        requestBodyBuilder.addFormDataPart("file", fileName, fileBody);
-
-        Request request = new Request.Builder()
-                .url(UPLOAD_URL)
-                .addHeader("Authorization", "Bearer " + apiKey)
-                .post(requestBodyBuilder.build())
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                String errorBody = response.body() != null ? response.body().string() : "No response body";
-                throw new IOException("文件上传失败: " + response.code() + " - " + response.message() + "\n" + errorBody);
+        
+        // 尝试调用常见的获取方法
+        try {
+            try {
+                java.lang.reflect.Method getListMethod = obj.getClass().getMethod("getList");
+                Object result = getListMethod.invoke(obj);
+                if (result instanceof java.util.List) {
+                    return (java.util.List<?>) result;
+                }
+            } catch (NoSuchMethodException e) {
+                // 忽略，尝试下一个
             }
-
-            String responseBody = response.body().string();
-            JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
             
-            return new UploadedFile(
-                    jsonResponse.get("id").getAsString(),
-                    jsonResponse.get("filename").getAsString(),
-                    jsonResponse.get("bytes").getAsInt(),
-                    jsonResponse.get("mime_type").getAsString()
-            );
+            try {
+                java.lang.reflect.Method getItemsMethod = obj.getClass().getMethod("getItems");
+                Object result = getItemsMethod.invoke(obj);
+                if (result instanceof java.util.List) {
+                    return (java.util.List<?>) result;
+                }
+            } catch (NoSuchMethodException e) {
+                // 忽略，尝试下一个
+            }
+            
+            try {
+                java.lang.reflect.Method getContentMethod = obj.getClass().getMethod("getContent");
+                Object result = getContentMethod.invoke(obj);
+                if (result instanceof java.util.List) {
+                    return (java.util.List<?>) result;
+                }
+            } catch (NoSuchMethodException e) {
+                // 忽略
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        
+        return null;
     }
 
-    private String getMimeType(String fileName) {
-        String lowerName = fileName.toLowerCase();
-        if (lowerName.endsWith(".pdf")) return "application/pdf";
-        if (lowerName.endsWith(".doc")) return "application/msword";
-        if (lowerName.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        if (lowerName.endsWith(".png")) return "image/png";
-        if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) return "image/jpeg";
-        if (lowerName.endsWith(".gif")) return "image/gif";
-        if (lowerName.endsWith(".txt")) return "text/plain";
-        if (lowerName.endsWith(".mp4")) return "video/mp4";
-        if (lowerName.endsWith(".avi")) return "video/x-msvideo";
-        if (lowerName.endsWith(".mov")) return "video/quicktime";
-        return "application/octet-stream";
-    }
+    public static class AIResponse {
+        public final String reasoning;
+        public final String answer;
 
-    private static class Message {
-        String role;
-        String content;
-        UploadedFile file;
-
-        Message(String role, String content, UploadedFile file) {
-            this.role = role;
-            this.content = content;
-            this.file = file;
-        }
-
-        JsonObject toJson() {
-            JsonObject json = new JsonObject();
-            json.addProperty("type", "message");
-            json.addProperty("role", role);
-
-            JsonArray contentArray = new JsonArray();
-
-            if (file != null) {
-                JsonObject fileItem = new JsonObject();
-                fileItem.addProperty("type", "file");
-                fileItem.addProperty("file_id", file.id);
-                contentArray.add(fileItem);
-            }
-
-            if (content != null && !content.isEmpty()) {
-                JsonObject textItem = new JsonObject();
-                textItem.addProperty("type", "input_text");
-                textItem.addProperty("text", content);
-                contentArray.add(textItem);
-            }
-
-            json.add("content", contentArray);
-            return json;
+        public AIResponse(String reasoning, String answer) {
+            this.reasoning = reasoning;
+            this.answer = answer;
         }
     }
 
     public static class UploadedFile {
         public final String id;
         public final String filename;
-        public final int size;
+        public final long size;
         public final String mimeType;
 
-        public UploadedFile(String id, String filename, int size, String mimeType) {
+        public UploadedFile(String id, String filename, long size, String mimeType) {
             this.id = id;
             this.filename = filename;
             this.size = size;

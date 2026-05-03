@@ -189,7 +189,7 @@ public class AIChatComponent {
 
         new Thread(() -> {
             try {
-                String response;
+                AiService.AIResponse response;
                 if (file != null) {
                     response = aiService.sendMessageWithFile(message, file);
                 } else {
@@ -277,20 +277,36 @@ public class AIChatComponent {
         messageBox.setAlignment(Pos.CENTER_RIGHT);
 
         VBox messageBubble = new VBox();
-        messageBubble.setStyle("-fx-background-color: #333333; -fx-padding: 12 16 12 16; -fx-background-radius: 8;");
+        messageBubble.setStyle("-fx-background-color: #4a90e2; -fx-padding: 12 16 12 16; -fx-background-radius: 8;");
         messageBubble.setMaxWidth(400);
 
-        Label messageLabel = new Label(message);
-        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-wrap-text: true;");
-
-        messageBubble.getChildren().add(messageLabel);
+        javafx.scene.control.TextArea messageArea = new javafx.scene.control.TextArea(message);
+        messageArea.setEditable(false);
+        messageArea.setWrapText(true);
+        messageArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #555555; -fx-control-inner-background: #4a90e2; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+        
+        messageArea.setPrefWidth(400);
+        messageArea.setPrefRowCount(1);
+        messageArea.setMinHeight(1);
+        messageArea.setMaxHeight(Double.MAX_VALUE);
+        
+        messageArea.textProperty().addListener((obs, oldText, newText) -> {
+            fitTextAreaHeight(messageArea);
+        });
+        
+        messageBubble.getChildren().add(messageArea);
         messageBox.getChildren().add(messageBubble);
 
         messageContainer.getChildren().addAll(nameLabel, messageBox);
+        
+        Platform.runLater(() -> {
+            fitTextAreaHeight(messageArea);
+        });
+        
         return messageContainer;
     }
 
-    private VBox createAIMessageBox(String message) {
+    private VBox createAIMessageBox(AiService.AIResponse response) {
         VBox messageContainer = new VBox();
         messageContainer.setSpacing(4);
         messageContainer.setAlignment(Pos.CENTER_LEFT);
@@ -298,20 +314,135 @@ public class AIChatComponent {
         Label nameLabel = new Label("AI Assistant");
         nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
 
-        HBox messageBox = new HBox();
-        messageBox.setAlignment(Pos.CENTER_LEFT);
+        VBox contentContainer = new VBox();
+        contentContainer.setSpacing(8);
 
-        VBox messageBubble = new VBox();
-        messageBubble.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 12 16 12 16; -fx-background-radius: 8;");
-        messageBubble.setMaxWidth(400);
+        // 如果有思考内容，显示思考部分（可折叠）
+        if (response.reasoning != null && !response.reasoning.isEmpty()) {
+            VBox reasoningContainer = new VBox();
+            reasoningContainer.setSpacing(4);
 
-        Label messageLabel = new Label(message);
-        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333; -fx-wrap-text: true;");
+            // 创建可点击的标题
+            HBox toggleBox = new HBox();
+            toggleBox.setSpacing(4);
+            toggleBox.setAlignment(Pos.CENTER_LEFT);
+            toggleBox.setStyle("-fx-cursor: hand;");
 
-        messageBubble.getChildren().add(messageLabel);
-        messageBox.getChildren().add(messageBubble);
+            Label toggleArrow = new Label("▶");
+            toggleArrow.setStyle("-fx-font-size: 10px; -fx-text-fill: #999999;");
 
-        messageContainer.getChildren().addAll(nameLabel, messageBox);
+            Label reasoningLabel = new Label("💭 思考过程");
+            reasoningLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #999999; -fx-font-weight: bold;");
+
+            toggleBox.getChildren().addAll(toggleArrow, reasoningLabel);
+
+            // 思考内容容器
+            VBox reasoningContent = new VBox();
+            reasoningContent.setSpacing(4);
+            reasoningContent.setVisible(false);
+            reasoningContent.setManaged(false);
+
+            VBox reasoningBubble = new VBox();
+            reasoningBubble.setStyle("-fx-background-color: #fff4d4; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
+            reasoningBubble.setMaxWidth(400);
+
+            javafx.scene.control.TextArea reasoningArea = new javafx.scene.control.TextArea(response.reasoning);
+            reasoningArea.setEditable(false);
+            reasoningArea.setWrapText(true);
+            reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+            reasoningArea.setPrefWidth(372);
+            reasoningArea.setPrefRowCount(1);
+            reasoningArea.setMinHeight(1);
+            reasoningArea.setMaxHeight(Double.MAX_VALUE);
+
+            reasoningArea.textProperty().addListener((obs, oldText, newText) -> {
+                fitTextAreaHeight(reasoningArea);
+            });
+
+            reasoningBubble.getChildren().add(reasoningArea);
+            reasoningContent.getChildren().add(reasoningBubble);
+
+            // 点击切换显示/隐藏
+            toggleBox.setOnMouseClicked(e -> {
+                boolean isVisible = reasoningContent.isVisible();
+                reasoningContent.setVisible(!isVisible);
+                reasoningContent.setManaged(!isVisible);
+                toggleArrow.setText(isVisible ? "▶" : "▼");
+            });
+
+            reasoningContainer.getChildren().addAll(toggleBox, reasoningContent);
+            contentContainer.getChildren().add(reasoningContainer);
+
+            Platform.runLater(() -> {
+                fitTextAreaHeight(reasoningArea);
+            });
+        }
+
+        // 显示回答部分
+        VBox answerContainer = new VBox();
+        answerContainer.setSpacing(4);
+
+        Label answerLabel = new Label("✨ 回答");
+        answerLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #333333; -fx-font-weight: bold;");
+
+        VBox answerBubble = new VBox();
+        answerBubble.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 12 16 12 16; -fx-background-radius: 8;");
+        answerBubble.setMaxWidth(400);
+
+        String answerText = response.answer != null ? response.answer : "无法获取回答";
+        javafx.scene.control.TextArea answerArea = new javafx.scene.control.TextArea(answerText);
+        answerArea.setEditable(false);
+        answerArea.setWrapText(true);
+        answerArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+        answerArea.setPrefWidth(400);
+        answerArea.setPrefRowCount(1);
+        answerArea.setMinHeight(1);
+        answerArea.setMaxHeight(Double.MAX_VALUE);
+
+        answerArea.textProperty().addListener((obs, oldText, newText) -> {
+            fitTextAreaHeight(answerArea);
+        });
+
+        answerBubble.getChildren().add(answerArea);
+        answerContainer.getChildren().addAll(answerLabel, answerBubble);
+        contentContainer.getChildren().add(answerContainer);
+
+        Platform.runLater(() -> {
+            fitTextAreaHeight(answerArea);
+        });
+
+        messageContainer.getChildren().addAll(nameLabel, contentContainer);
         return messageContainer;
+    }
+
+    // 保持向后兼容
+    private VBox createAIMessageBox(String message) {
+        AiService.AIResponse response = new AiService.AIResponse(null, message);
+        return createAIMessageBox(response);
+    }
+    
+    private void fitTextAreaHeight(javafx.scene.control.TextArea textArea) {
+        textArea.applyCss();
+        textArea.layout();
+        
+        String text = textArea.getText();
+        if (text == null || text.isEmpty()) {
+            textArea.setPrefHeight(30);
+            textArea.setMinHeight(30);
+            textArea.setMaxHeight(30);
+            return;
+        }
+        
+        javafx.scene.text.Text helper = new javafx.scene.text.Text(text);
+        helper.setFont(textArea.getFont());
+        helper.setWrappingWidth(368);
+        double textHeight = helper.getLayoutBounds().getHeight();
+        
+        double prefHeight = textHeight + 20;
+        prefHeight = Math.max(30, prefHeight);
+        
+        textArea.setPrefHeight(prefHeight);
+        textArea.setMinHeight(prefHeight);
+        textArea.setMaxHeight(prefHeight);
     }
 }
