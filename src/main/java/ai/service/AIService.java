@@ -27,11 +27,21 @@ import java.util.List;
 public class AIService {
     private final AIConfig config;
     private final ArkService service;
+    private String apiKey;
 
     public AIService() {
         this.config = new AIConfig();
         this.service = ArkService.builder()
                 .apiKey(config.getApiKey())
+                .baseUrl(config.getBaseUrl())
+                .build();
+    }
+
+    public AIService(String apiKey) {
+        this.config = new AIConfig();
+        this.apiKey = apiKey;
+        this.service = ArkService.builder()
+                .apiKey(apiKey)
                 .baseUrl(config.getBaseUrl())
                 .build();
     }
@@ -270,6 +280,9 @@ public class AIService {
     }
 
     private void validateConfig() throws Exception {
+        if (apiKey != null && !apiKey.isEmpty()) {
+            return;
+        }
         if (!config.isValid()) {
             throw new Exception("请先配置 API Key");
         }

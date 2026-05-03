@@ -32,6 +32,10 @@ public class AIChatView {
         this.aiService = new AIService();
     }
 
+    public AIChatView(String apiKey) {
+        this.aiService = new AIService(apiKey);
+    }
+
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
     }
@@ -230,7 +234,18 @@ public class AIChatView {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     if (answerArea != null) {
-                        answerArea.setText("抱歉，发生了错误：" + e.getMessage());
+                        String errorMessage = "抱歉，发生了错误：" + e.getMessage();
+                        
+                        // 检查是否是认证错误
+                        String exceptionString = e.toString();
+                        if (exceptionString.contains("401") || 
+                            exceptionString.contains("AuthenticationError") ||
+                            exceptionString.contains("Unauthorized") ||
+                            exceptionString.contains("API key")) {
+                            errorMessage = "API Key错误，请检查您输入的API Key是否正确！";
+                        }
+                        
+                        answerArea.setText(errorMessage);
                         fitTextAreaHeight(answerArea);
                     }
                 });

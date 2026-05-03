@@ -4,6 +4,7 @@ import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -135,9 +136,16 @@ public class TAPositionListUI extends Application {
                 root.setCenter(createFavoritesView());
                 break;
             case "ai":
-                ai.ui.AIChatView aiChatView = new ai.ui.AIChatView();
-                aiChatView.setPrimaryStage(primaryStage);
-                root.setCenter(aiChatView.createChatView());
+                ai.ui.APIInputView apiInputView = new ai.ui.APIInputView(
+                        (apiKey) -> {
+                            Platform.runLater(() -> {
+                                ai.ui.AIChatView aiChatView = new ai.ui.AIChatView(apiKey);
+                                aiChatView.setPrimaryStage(primaryStage);
+                                root.setCenter(aiChatView.createChatView());
+                            });
+                        }
+                );
+                root.setCenter(apiInputView.createView());
                 break;
             case "profile":
                 ProfileView profileView = new ProfileView();
