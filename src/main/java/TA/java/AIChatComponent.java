@@ -184,39 +184,151 @@ public class AIChatComponent {
             addMessageWithAnimation(userMessage);
         }
 
-        currentLoadingMessage = createLoadingMessageBox();
-        addMessageWithAnimation(currentLoadingMessage);
+        // 创建空的 AI 消息框用于流式更新
+        VBox aiMessage = createStreamingMessageBox();
+        addMessageWithAnimation(aiMessage);
+
+        // 找到 TextArea 引用
+        javafx.scene.control.TextArea reasoningArea = (javafx.scene.control.TextArea) aiMessage.lookup("#reasoningArea");
+        javafx.scene.control.TextArea answerArea = (javafx.scene.control.TextArea) aiMessage.lookup("#answerArea");
 
         new Thread(() -> {
             try {
-                AiService.AIResponse response;
                 if (file != null) {
-                    response = aiService.sendMessageWithFile(message, file);
+                    aiService.sendMessageWithFileStream(message, file,
+                        reasoningDelta -> Platform.runLater(() -> {
+                            if (reasoningArea != null) {
+                                reasoningArea.setText(reasoningDelta);
+                                fitTextAreaHeight(reasoningArea);
+                            }
+                        }),
+                        answerDelta -> Platform.runLater(() -> {
+                            if (answerArea != null) {
+                                answerArea.setText(answerDelta);
+                                fitTextAreaHeight(answerArea);
+                            }
+                        }),
+                        () -> Platform.runLater(() -> {
+                            // 完成后可以做些事情
+                        })
+                    );
                 } else {
-                    response = aiService.sendMessage(message);
+                    aiService.sendMessageStream(message,
+                        reasoningDelta -> Platform.runLater(() -> {
+                            if (reasoningArea != null) {
+                                reasoningArea.setText(reasoningDelta);
+                                fitTextAreaHeight(reasoningArea);
+                            }
+                        }),
+                        answerDelta -> Platform.runLater(() -> {
+                            if (answerArea != null) {
+                                answerArea.setText(answerDelta);
+                                fitTextAreaHeight(answerArea);
+                            }
+                        }),
+                        () -> Platform.runLater(() -> {
+                            // 完成后可以做些事情
+                        })
+                    );
                 }
-                
-                Platform.runLater(() -> {
-                    if (currentLoadingMessage != null) {
-                        chatContainer.getChildren().remove(currentLoadingMessage);
-                    }
-                    
-                    VBox aiMessage = createAIMessageBox(response);
-                    addMessageWithAnimation(aiMessage);
-                });
             } catch (Exception e) {
                 Platform.runLater(() -> {
-                    if (currentLoadingMessage != null) {
-                        chatContainer.getChildren().remove(currentLoadingMessage);
+                    if (answerArea != null) {
+                        answerArea.setText("抱歉，发生了错误：" + e.getMessage());
+                        fitTextAreaHeight(answerArea);
                     }
-                    
-                    VBox errorMessage = createAIMessageBox(
-                        "抱歉，发生了错误：" + e.getMessage()
-                    );
-                    addMessageWithAnimation(errorMessage);
                 });
             }
         }).start();
+    }
+
+    private VBox createStreamingMessageBox() {
+        VBox messageContainer = new VBox();
+        messageContainer.setSpacing(4);
+        messageContainer.setAlignment(Pos.CENTER_LEFT);
+
+        Label nameLabel = new Label("AI Assistant");
+        nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+
+        VBox contentContainer = new VBox();
+        contentContainer.setSpacing(8);
+
+        // 思考过程（可折叠）
+        VBox reasoningContainer = new VBox();
+        reasoningContainer.setSpacing(4);
+
+        HBox toggleBox = new HBox();
+        toggleBox.setSpacing(4);
+        toggleBox.setAlignment(Pos.CENTER_LEFT);
+        toggleBox.setStyle("-fx-cursor: hand;");
+
+        Label toggleArrow = new Label("▶");
+        toggleArrow.setStyle("-fx-font-size: 10px; -fx-text-fill: #999999;");
+
+        Label reasoningLabel = new Label("💭 思考过程");
+        reasoningLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #999999; -fx-font-weight: bold;");
+
+        toggleBox.getChildren().addAll(toggleArrow, reasoningLabel);
+
+        VBox reasoningContent = new VBox();
+        reasoningContent.setSpacing(4);
+        reasoningContent.setVisible(false);
+        reasoningContent.setManaged(false);
+
+        VBox reasoningBubble = new VBox();
+        reasoningBubble.setStyle("-fx-background-color: #fff4d4; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
+        reasoningBubble.setMaxWidth(400);
+
+        javafx.scene.control.TextArea reasoningArea = new javafx.scene.control.TextArea();
+        reasoningArea.setId("reasoningArea");
+        reasoningArea.setEditable(false);
+        reasoningArea.setWrapText(true);
+        reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+        reasoningArea.setPrefWidth(372);
+        reasoningArea.setPrefRowCount(1);
+        reasoningArea.setMinHeight(1);
+        reasoningArea.setMaxHeight(Double.MAX_VALUE);
+
+        reasoningBubble.getChildren().add(reasoningArea);
+        reasoningContent.getChildren().add(reasoningBubble);
+
+        toggleBox.setOnMouseClicked(e -> {
+            boolean isVisible = reasoningContent.isVisible();
+            reasoningContent.setVisible(!isVisible);
+            reasoningContent.setManaged(!isVisible);
+            toggleArrow.setText(isVisible ? "▶" : "▼");
+        });
+
+        reasoningContainer.getChildren().addAll(toggleBox, reasoningContent);
+        contentContainer.getChildren().add(reasoningContainer);
+
+        // 回答部分
+        VBox answerContainer = new VBox();
+        answerContainer.setSpacing(4);
+
+        Label answerLabel = new Label("✨ 回答");
+        answerLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #333333; -fx-font-weight: bold;");
+
+        VBox answerBubble = new VBox();
+        answerBubble.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 12 16 12 16; -fx-background-radius: 8;");
+        answerBubble.setMaxWidth(400);
+
+        javafx.scene.control.TextArea answerArea = new javafx.scene.control.TextArea();
+        answerArea.setId("answerArea");
+        answerArea.setEditable(false);
+        answerArea.setWrapText(true);
+        answerArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+        answerArea.setPrefWidth(400);
+        answerArea.setPrefRowCount(1);
+        answerArea.setMinHeight(1);
+        answerArea.setMaxHeight(Double.MAX_VALUE);
+
+        answerBubble.getChildren().add(answerArea);
+        answerContainer.getChildren().addAll(answerLabel, answerBubble);
+        contentContainer.getChildren().add(answerContainer);
+
+        messageContainer.getChildren().addAll(nameLabel, contentContainer);
+        return messageContainer;
     }
 
     private void addMessageWithAnimation(VBox messageBox) {

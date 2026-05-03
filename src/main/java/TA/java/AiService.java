@@ -11,12 +11,20 @@ import com.volcengine.ark.runtime.model.responses.item.MessageContent;
 import com.volcengine.ark.runtime.model.responses.content.InputContentItemText;
 import com.volcengine.ark.runtime.model.responses.response.ResponseObject;
 
+import com.volcengine.ark.runtime.model.responses.event.outputitem.OutputItemAddedEvent;
+import com.volcengine.ark.runtime.model.responses.event.outputitem.OutputItemDoneEvent;
+import com.volcengine.ark.runtime.model.responses.event.outputtext.OutputTextDeltaEvent;
+import com.volcengine.ark.runtime.model.responses.event.outputtext.OutputTextDoneEvent;
+import com.volcengine.ark.runtime.model.responses.event.reasoningsummary.ReasoningSummaryTextDeltaEvent;
+import com.volcengine.ark.runtime.model.responses.event.response.ResponseCompletedEvent;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class AiService {
 
@@ -112,6 +120,113 @@ public class AiService {
         
         ResponseObject resp = service.createResponse(request);
         return extractAIResponse(resp);
+    }
+
+    public void sendMessageStream(String userMessage, Consumer<String> onReasoningDelta, Consumer<String> onAnswerDelta, Runnable onComplete) throws Exception {
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new Exception("请先配置 API Key");
+        }
+
+        CreateResponsesRequest request = CreateResponsesRequest.builder()
+                .model(MODEL)
+                .stream(true)
+                .input(ResponsesInput.builder().addListItem(
+                        ItemEasyMessage.builder()
+                                .role(ResponsesConstants.MESSAGE_ROLE_USER)
+                                .content(MessageContent.builder()
+                                        .addListItem(InputContentItemText.builder()
+                                                .text(userMessage)
+                                                .build())
+                                        .build())
+                                .build()
+                ).build())
+                .build();
+
+        final StringBuilder reasoningBuilder = new StringBuilder();
+        final StringBuilder answerBuilder = new StringBuilder();
+
+        service.streamResponse(request)
+                .doOnError(Throwable::printStackTrace)
+                .blockingForEach(event -> {
+                    if (event instanceof ReasoningSummaryTextDeltaEvent) {
+                        String delta = ((ReasoningSummaryTextDeltaEvent) event).getDelta();
+                        if (delta != null) {
+                            reasoningBuilder.append(delta);
+                            if (onReasoningDelta != null) {
+                                onReasoningDelta.accept(reasoningBuilder.toString());
+                            }
+                        }
+                    }
+                    if (event instanceof OutputTextDeltaEvent) {
+                        String delta = ((OutputTextDeltaEvent) event).getDelta();
+                        if (delta != null) {
+                            answerBuilder.append(delta);
+                            if (onAnswerDelta != null) {
+                                onAnswerDelta.accept(answerBuilder.toString());
+                            }
+                        }
+                    }
+                    if (event instanceof ResponseCompletedEvent) {
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    }
+                });
+    }
+
+    public void sendMessageWithFileStream(String userMessage, UploadedFile uploadedFile, Consumer<String> onReasoningDelta, Consumer<String> onAnswerDelta, Runnable onComplete) throws Exception {
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new Exception("请先配置 API Key");
+        }
+
+        CreateResponsesRequest request = CreateResponsesRequest.builder()
+                .model(MODEL)
+                .stream(true)
+                .input(ResponsesInput.builder().addListItem(
+                        ItemEasyMessage.builder()
+                                .role(ResponsesConstants.MESSAGE_ROLE_USER)
+                                .content(MessageContent.builder()
+                                        .addListItem(InputContentItemFile.InputContentItemFileBuilder.anInputContentItemFile()
+                                                .fileId(uploadedFile.id)
+                                                .build())
+                                        .addListItem(InputContentItemText.builder()
+                                                .text(userMessage)
+                                                .build())
+                                        .build())
+                                .build()
+                ).build())
+                .build();
+
+        final StringBuilder reasoningBuilder = new StringBuilder();
+        final StringBuilder answerBuilder = new StringBuilder();
+
+        service.streamResponse(request)
+                .doOnError(Throwable::printStackTrace)
+                .blockingForEach(event -> {
+                    if (event instanceof ReasoningSummaryTextDeltaEvent) {
+                        String delta = ((ReasoningSummaryTextDeltaEvent) event).getDelta();
+                        if (delta != null) {
+                            reasoningBuilder.append(delta);
+                            if (onReasoningDelta != null) {
+                                onReasoningDelta.accept(reasoningBuilder.toString());
+                            }
+                        }
+                    }
+                    if (event instanceof OutputTextDeltaEvent) {
+                        String delta = ((OutputTextDeltaEvent) event).getDelta();
+                        if (delta != null) {
+                            answerBuilder.append(delta);
+                            if (onAnswerDelta != null) {
+                                onAnswerDelta.accept(answerBuilder.toString());
+                            }
+                        }
+                    }
+                    if (event instanceof ResponseCompletedEvent) {
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    }
+                });
     }
 
     public UploadedFile uploadFile(File file) throws Exception {
