@@ -26,6 +26,7 @@ public class SidebarComponent {
     private Label navItem3;
     private Label navItem4;
     private Label navItem5;
+    private Label navItem6;
 
     public SidebarComponent() {}
 
@@ -57,9 +58,10 @@ public class SidebarComponent {
         navItem2 = createNavItem("Positions", "positions");
         navItem3 = createNavItem("My Applications", "applications");
         navItem5 = createNavItem("My Favorites", "favorites");
+        navItem6 = createNavItem("AI Assistant", "ai");
         navItem4 = createNavItem("Profile", "profile");
 
-        navBox.getChildren().addAll(navItem1, navItem2, navItem3, navItem5, navItem4);
+        navBox.getChildren().addAll(navItem1, navItem2, navItem3, navItem5, navItem6, navItem4);
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
@@ -98,6 +100,9 @@ public class SidebarComponent {
             case "favorites":
                 setNavActiveStyle(navItem5);
                 break;
+            case "ai":
+                setNavActiveStyle(navItem6);
+                break;
             case "profile":
                 setNavActiveStyle(navItem4);
                 break;
@@ -126,6 +131,7 @@ public class SidebarComponent {
         setNavDefaultStyle(navItem3);
         setNavDefaultStyle(navItem4);
         setNavDefaultStyle(navItem5);
+        setNavDefaultStyle(navItem6);
     }
 
     private void setNavDefaultStyle(Label label) {
