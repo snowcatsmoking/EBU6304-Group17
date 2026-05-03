@@ -135,9 +135,9 @@ public class TAPositionListUI extends Application {
                 root.setCenter(createFavoritesView());
                 break;
             case "ai":
-                AIChatComponent aiChatComponent = new AIChatComponent();
-                aiChatComponent.setPrimaryStage(primaryStage);
-                root.setCenter(aiChatComponent.createChatView());
+                ai.ui.AIChatView aiChatView = new ai.ui.AIChatView();
+                aiChatView.setPrimaryStage(primaryStage);
+                root.setCenter(aiChatView.createChatView());
                 break;
             case "profile":
                 ProfileView profileView = new ProfileView();
