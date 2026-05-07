@@ -12,7 +12,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ProfileView {
@@ -138,7 +141,11 @@ public class ProfileView {
         cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         cancelButton.setOnAction(e -> loadUserData(currentStudentId));
 
-        buttonBox.getChildren().addAll(saveButton, cancelButton);
+        Button exportButton = new Button("Export Profile");
+        exportButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #007bff; -fx-border-color: #007bff; -fx-border-width: 1; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
+        exportButton.setOnAction(e -> exportProfileToJson());
+
+        buttonBox.getChildren().addAll(saveButton, cancelButton, exportButton);
 
         formBox.getChildren().addAll(titleBox, statusBox, field1, field2, field3, field4, field5, field6, field7, fileUploadBox, buttonBox);
 
@@ -237,6 +244,19 @@ public class ProfileView {
             String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
             objectMapper.writeValue(new File(fileName), currentUser);
             System.out.println("个人档案已保存！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exportProfileToJson() {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String fileName = "profile_export_" + currentUser.getTAId() + "_" + timestamp + ".json";
+            String filePath = data.DataConfig.TA_DIR + fileName;
+            
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(filePath), currentUser);
+            System.out.println("档案已导出为JSON文件: " + filePath);
         } catch (IOException e) {
             e.printStackTrace();
         }
