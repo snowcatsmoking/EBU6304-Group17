@@ -1,5 +1,6 @@
 package TA.java;
 
+import TA.java.utils.TAApplicationUtils;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.FadeTransition;
@@ -17,10 +18,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import data.JobDataManager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,7 +132,25 @@ public class TAPositionListUI extends Application {
                 root.setCenter(new MyApplicationsView(currentStudentId).getView());
                 break;
             case "favorites":
-                root.setCenter(createFavoritesView());
+                FavoritesView favoritesView = new FavoritesView(currentStudentId, favoriteManager, recordManager);
+                favoritesView.setNavigationListener(v -> switchToView(v));
+                favoritesView.setApplicationListener(new FavoritesView.ApplicationListener() {
+                    @Override
+                    public void onApplyForPosition(TAJob job) {
+                        openApplicationForm(job);
+                    }
+
+                    @Override
+                    public void onCompleteProfile() {
+                        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                        alert.setTitle("Incomplete Profile");
+                        alert.setHeaderText("Please complete your profile before applying");
+                        alert.setContentText("Please go to the \"Profile\" page and fill in:\n• Name\n• Major\n• Phone\n• Available Time\n• Skills");
+                        alert.showAndWait();
+                        switchToView("profile");
+                    }
+                });
+                root.setCenter(favoritesView.getView());
                 break;
             case "ai":
                 ai.ui.APIInputView apiInputView = new ai.ui.APIInputView(
@@ -288,21 +305,7 @@ public class TAPositionListUI extends Application {
     }
 
     private boolean checkProfileComplete() {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            File file = new File(data.DataConfig.TA_DIR + currentStudentId + ".json");
-            if (file.exists()) {
-                TAApplication user = mapper.readValue(file, TAApplication.class);
-                return user.getName() != null && !user.getName().trim().isEmpty()
-                    && user.getMajor() != null && !user.getMajor().trim().isEmpty()
-                    && user.getPhone() != null && !user.getPhone().trim().isEmpty()
-                    && user.getAvailableTime() != null && !user.getAvailableTime().trim().isEmpty()
-                    && user.getSkill() != null && !user.getSkill().trim().isEmpty();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        return TAApplicationUtils.checkProfileComplete(currentStudentId);
     }
 
     private void openApplicationForm(TAJob job) {
@@ -327,178 +330,6 @@ public class TAPositionListUI extends Application {
         formView.showDialog(primaryStage);
     }
 
-    private boolean isDeadlineExpired(TAJob job) {
-        if (job.getDeadline() == null || job.getDeadline().trim().isEmpty()) {
-            return false;
-        }
-        try {
-            java.time.LocalDate deadline = java.time.LocalDate.parse(job.getDeadline(),
-                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            return deadline.isBefore(java.time.LocalDate.now());
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private VBox createFavoritesView() {
-        VBox content = new VBox();
-        content.setPadding(new Insets(20, 20, 20, 20));
-        content.setSpacing(20);
-
-        Label titleLabel = new Label("My Favorite Positions");
-        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #333333;");
-
-        VBox favoritesList = new VBox();
-        favoritesList.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
-        favoritesList.setSpacing(0);
-
-        List<Favorite> favorites = favoriteManager.getFavoritesByTA(currentStudentId);
-        if (favorites.isEmpty()) {
-            Label emptyLabel = new Label("No favorites yet. Click the star icon on positions to add them here.");
-            emptyLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #999999;");
-            emptyLabel.setAlignment(Pos.CENTER);
-            emptyLabel.setPadding(new Insets(40, 20, 40, 20));
-            favoritesList.getChildren().add(emptyLabel);
-        } else {
-            data.JobDataManager jobDataManager = new data.JobDataManager();
-            for (Favorite fav : favorites) {
-                TAJob job = jobDataManager.getJobById(fav.getJobId());
-                if (job != null) {
-                    VBox favBox = createFavoritePositionBox(job);
-                    favoritesList.getChildren().add(favBox);
-                }
-            }
-        }
-
-        content.getChildren().addAll(titleLabel, favoritesList);
-        return content;
-    }
-
-    private VBox createFavoritePositionBox(TAJob job) {
-        VBox positionBox = new VBox();
-        positionBox.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
-        positionBox.setPadding(new Insets(16, 16, 16, 16));
-        positionBox.setSpacing(8);
-        positionBox.setAlignment(Pos.CENTER_LEFT);
-
-        HBox titleBox = new HBox();
-        titleBox.setSpacing(12);
-        titleBox.setAlignment(Pos.CENTER_LEFT);
-
-        Label titleLabel = new Label(job.getPositionName());
-        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
-        titleLabel.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(titleLabel, javafx.scene.layout.Priority.ALWAYS);
-
-        javafx.scene.control.Button unfavButton = new javafx.scene.control.Button("★");
-        unfavButton.setStyle("-fx-font-size: 18px; -fx-text-fill: #ffd700; -fx-background-color: transparent; -fx-cursor: hand; -fx-border: none;");
-        unfavButton.setOnAction(e -> {
-            // 缩放动画
-            ScaleTransition scaleUp = new ScaleTransition(Duration.millis(100), unfavButton);
-            scaleUp.setToX(1.5);
-            scaleUp.setToY(1.5);
-            
-            ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150), unfavButton);
-            scaleDown.setToX(1.0);
-            scaleDown.setToY(1.0);
-            
-            SequentialTransition anim = new SequentialTransition(scaleUp, scaleDown);
-            
-            scaleUp.setOnFinished(ev -> {
-                favoriteManager.removeFavorite(currentStudentId, job.getJobId());
-                switchToView("favorites");
-            });
-            
-            anim.play();
-        });
-
-        boolean manuallyClosed = job.isActive();
-        boolean expired = isDeadlineExpired(job);
-
-        if (manuallyClosed) {
-            Label badge = new Label("Closed");
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #eeeeee; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
-            titleBox.getChildren().addAll(titleLabel, badge, unfavButton);
-        } else if (expired) {
-            Label badge = new Label("Expired");
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
-            titleBox.getChildren().addAll(titleLabel, badge, unfavButton);
-        } else {
-            titleBox.getChildren().addAll(titleLabel, unfavButton);
-        }
-
-        HBox infoBox = new HBox();
-        infoBox.setSpacing(24);
-        infoBox.setAlignment(Pos.CENTER_LEFT);
-
-        Label courseLabel = new Label("Course/Activity: " + job.getCourseName());
-        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-        Label countLabel = new Label("Openings: " + job.getRecruitmentCount());
-        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-        Label requirementLabel = new Label("Requirements: " + job.getRequirements());
-        requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-        HBox deadlineBox = new HBox();
-        deadlineBox.setSpacing(24);
-        deadlineBox.setAlignment(Pos.CENTER_LEFT);
-
-        Label deadlineLabel = new Label("Deadline: " + job.getDeadline());
-        deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-        Label publisherLabel = new Label("Posted By: " + job.getPublisher());
-        publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-
-        HBox actionBox = new HBox();
-        actionBox.setAlignment(Pos.CENTER_LEFT);
-        actionBox.setPadding(new Insets(8, 0, 0, 0));
-
-        if (manuallyClosed) {
-            Button closedButton = new Button("Closed by Organiser");
-            closedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #999999; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
-            closedButton.setDisable(true);
-            actionBox.getChildren().add(closedButton);
-        } else if (expired) {
-            Button expiredButton = new Button("Deadline Passed");
-            expiredButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #999999; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
-            expiredButton.setDisable(true);
-            actionBox.getChildren().add(expiredButton);
-        } else {
-            boolean hasApplied = recordManager.hasDuplicateApplication(currentStudentId, job.getJobId());
-            boolean profileComplete = checkProfileComplete();
-
-            if (hasApplied) {
-                Button appliedButton = new Button("Applied");
-                appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 6 20 6 20; -fx-cursor: default;");
-                appliedButton.setDisable(true);
-                actionBox.getChildren().add(appliedButton);
-            } else if (!profileComplete) {
-                Button incompleteButton = new Button("Complete Profile");
-                incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #856404; -fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
-                incompleteButton.setOnAction(e -> {
-                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                    alert.setTitle("Incomplete Profile");
-                    alert.setHeaderText("Please complete your profile before applying");
-                    alert.setContentText("Please go to the \"Profile\" page and fill in:\n• Name\n• Major\n• Phone\n• Available Time\n• Skills");
-                    alert.showAndWait();
-                    switchToView("profile");
-                });
-                actionBox.getChildren().add(incompleteButton);
-            } else {
-                Button applyButton = new Button("Apply");
-                applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
-                applyButton.setOnAction(e -> openApplicationForm(job));
-                actionBox.getChildren().add(applyButton);
-            }
-        }
-
-        infoBox.getChildren().addAll(courseLabel, countLabel, requirementLabel);
-        deadlineBox.getChildren().addAll(deadlineLabel, publisherLabel);
-        positionBox.getChildren().addAll(titleBox, infoBox, deadlineBox, actionBox);
-
-        return positionBox;
-    }
 
     public static void main(String[] args) {
         launch(args);
