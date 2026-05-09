@@ -286,14 +286,14 @@ public class AIChatView {
         reasoningContent.setManaged(false);
 
         VBox reasoningBubble = new VBox();
-        reasoningBubble.setStyle("-fx-background-color: #fff4d4; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
+        reasoningBubble.setStyle("-fx-background-color: #f8fafc; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
         reasoningBubble.setMaxWidth(400);
 
         TextArea reasoningArea = new TextArea();
         reasoningArea.setId("reasoningArea");
         reasoningArea.setEditable(false);
         reasoningArea.setWrapText(true);
-        reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+        reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
         reasoningArea.setPrefWidth(372);
         reasoningArea.setPrefRowCount(1);
         reasoningArea.setMinHeight(1);
@@ -502,13 +502,13 @@ public class AIChatView {
             reasoningContent.setManaged(false);
 
             VBox reasoningBubble = new VBox();
-            reasoningBubble.setStyle("-fx-background-color: #fff4d4; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
+            reasoningBubble.setStyle("-fx-background-color: #f8fafc; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
             reasoningBubble.setMaxWidth(400);
 
             TextArea reasoningArea = new TextArea(response.reasoning);
             reasoningArea.setEditable(false);
             reasoningArea.setWrapText(true);
-            reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+            reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
             reasoningArea.setPrefWidth(372);
             reasoningArea.setPrefRowCount(1);
             reasoningArea.setMinHeight(1);

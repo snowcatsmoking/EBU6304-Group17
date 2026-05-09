@@ -162,16 +162,10 @@ public class TAPositionListUI extends Application {
                 root.setCenter(favoritesView.getView());
                 break;
             case "ai":
-                ai.ui.APIInputView apiInputView = new ai.ui.APIInputView(
-                        (apiKey) -> {
-                            Platform.runLater(() -> {
-                                ai.ui.AIChatView aiChatView = new ai.ui.AIChatView(apiKey);
-                                aiChatView.setPrimaryStage(primaryStage);
-                                root.setCenter(aiChatView.createChatView());
-                            });
-                        }
-                );
-                root.setCenter(apiInputView.createView());
+                ai.config.AIConfig aiConfig = new ai.config.AIConfig();
+                ai.ui.AIChatView aiChatView = new ai.ui.AIChatView(aiConfig.getApiKey());
+                aiChatView.setPrimaryStage(primaryStage);
+                root.setCenter(aiChatView.createChatView());
                 break;
             case "profile":
                 ProfileView profileView = new ProfileView();

@@ -49,11 +49,16 @@ public class AIConfig {
 
     private void save() {
         Properties props = new Properties();
+        try (InputStream input = new FileInputStream(CONFIG_FILE)) {
+            props.load(input);
+        } catch (IOException ignored) {
+        }
+
         props.setProperty("ark.api.key", this.apiKey);
         if (this.model != null && !this.model.isEmpty()) {
             props.setProperty("ark.model", this.model);
         }
-        
+
         try (OutputStream output = new FileOutputStream(CONFIG_FILE)) {
             props.store(output, "AI Configuration");
         } catch (IOException e) {
