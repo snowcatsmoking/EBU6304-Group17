@@ -39,7 +39,7 @@ public class PositionListComponent {
 
     public VBox createPositionList(List<TAJob> jobs, int currentPage, int pageSize) {
         VBox positionListBox = new VBox();
-        positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         positionListBox.setSpacing(0);
 
         int start = (currentPage - 1) * pageSize;
@@ -56,7 +56,7 @@ public class PositionListComponent {
 
     private VBox createPositionBox(TAJob job) {
         VBox positionBox = new VBox();
-        positionBox.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        positionBox.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         positionBox.setPadding(new Insets(16, 16, 16, 16));
         positionBox.setSpacing(8);
         positionBox.setAlignment(Pos.CENTER_LEFT);
@@ -66,7 +66,7 @@ public class PositionListComponent {
         titleBox.setAlignment(Pos.CENTER_LEFT);
 
         Label titleLabel = new Label(job.getPositionName());
-        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(titleLabel, javafx.scene.layout.Priority.ALWAYS);
 
@@ -80,11 +80,11 @@ public class PositionListComponent {
 
         if (manuallyClosed) {
             Label badge = new Label("Closed");
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #eeeeee; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, badge, favButton);
         } else if (expired) {
             Label badge = new Label("Expired");
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 3 8 3 8;");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #b45309; -fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, badge, favButton);
         } else {
             titleBox.getChildren().addAll(titleLabel, favButton);
@@ -95,23 +95,23 @@ public class PositionListComponent {
         infoBox.setAlignment(Pos.CENTER_LEFT);
 
         Label courseLabel = new Label("Course/Activity: " + job.getCourseName());
-        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label countLabel = new Label("Openings: " + job.getRecruitmentCount());
-        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label requirementLabel = new Label("Requirements: " + job.getRequirements());
-        requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         HBox deadlineBox = new HBox();
         deadlineBox.setSpacing(24);
         deadlineBox.setAlignment(Pos.CENTER_LEFT);
 
         Label deadlineLabel = new Label("Deadline: " + job.getDeadline());
-        deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label publisherLabel = new Label("Posted By: " + job.getPublisher());
-        publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         HBox actionBox = new HBox();
         actionBox.setAlignment(Pos.CENTER_LEFT);
@@ -119,12 +119,12 @@ public class PositionListComponent {
 
         if (manuallyClosed) {
             Button closedButton = new Button("Closed by Organiser");
-            closedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #999999; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
+            closedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
             closedButton.setDisable(true);
             actionBox.getChildren().add(closedButton);
         } else if (expired) {
             Button expiredButton = new Button("Deadline Passed");
-            expiredButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #999999; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
+            expiredButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
             expiredButton.setDisable(true);
             actionBox.getChildren().add(expiredButton);
         } else {
@@ -133,12 +133,12 @@ public class PositionListComponent {
 
             if (hasApplied) {
                 Button appliedButton = new Button("Applied");
-                appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 6 20 6 20; -fx-cursor: default;");
+                appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: default;");
                 appliedButton.setDisable(true);
                 actionBox.getChildren().add(appliedButton);
             } else if (!profileComplete) {
                 Button incompleteButton = new Button("Complete Profile");
-                incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #856404; -fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-border-width: 1; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #b45309; -fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
                 incompleteButton.setOnAction(e -> {
                     if (listener != null) {
                         listener.onCompleteProfile();
@@ -147,7 +147,13 @@ public class PositionListComponent {
                 actionBox.getChildren().add(incompleteButton);
             } else {
                 Button applyButton = new Button("Apply");
-                applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                applyButton.setOnMouseEntered(e ->
+                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                );
+                applyButton.setOnMouseExited(e ->
+                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                );
                 applyButton.setOnAction(e -> {
                     if (listener != null) {
                         listener.onApply(job);

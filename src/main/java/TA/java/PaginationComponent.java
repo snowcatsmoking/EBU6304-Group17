@@ -33,13 +33,13 @@ public class PaginationComponent {
 
     public HBox createComponent() {
         paginationBox = new HBox();
-        paginationBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 1 1;");
+        paginationBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 1 1; -fx-border-radius: 0 0 12 12; -fx-background-radius: 0 0 12 12;");
         paginationBox.setPadding(new Insets(16, 20, 16, 20));
         paginationBox.setSpacing(16);
         paginationBox.setAlignment(Pos.CENTER);
 
         prevButton = new Button("Previous");
-        prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         prevButton.setOnAction(e -> {
             if (currentPage > 1) {
                 currentPage--;
@@ -51,10 +51,10 @@ public class PaginationComponent {
         });
 
         pageInfoLabel = new Label();
-        pageInfoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        pageInfoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         nextButton = new Button("Next");
-        nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         nextButton.setOnAction(e -> {
             if (currentPage < totalPages) {
                 currentPage++;
@@ -96,15 +96,15 @@ public class PaginationComponent {
         nextButton.setDisable(currentPage == totalPages);
 
         if (currentPage == 1) {
-            prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #cccccc; -fx-background-color: #f5f5f5; -fx-border-color: #eeeeee; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
+            prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
         } else {
-            prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+            prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         }
 
         if (currentPage == totalPages) {
-            nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #cccccc; -fx-background-color: #f5f5f5; -fx-border-color: #eeeeee; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
+            nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: not-allowed;");
         } else {
-            nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+            nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         }
 
         pageInfoLabel.setText("Page " + currentPage + " of " + totalPages);

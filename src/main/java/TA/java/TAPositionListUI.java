@@ -11,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -64,11 +65,19 @@ public class TAPositionListUI extends Application {
 
     private void buildUI() {
         data.DataConfig.initAllDirs();
-        rootContainer = new StackPane();
-        rootContainer.setStyle("-fx-background-color: #f5f5f5;");
 
         root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setStyle("-fx-background-color: #f8fafc;");
+
+        // 让 BorderPane 始终填满 StackPane，防止内容短时侧边栏收缩
+        rootContainer = new StackPane();
+        rootContainer.setStyle("-fx-background-color: #f8fafc;");
+        root.minWidthProperty().bind(rootContainer.widthProperty());
+        root.minHeightProperty().bind(rootContainer.heightProperty());
+        root.prefWidthProperty().bind(rootContainer.widthProperty());
+        root.prefHeightProperty().bind(rootContainer.heightProperty());
+        root.maxWidthProperty().bind(rootContainer.widthProperty());
+        root.maxHeightProperty().bind(rootContainer.heightProperty());
 
         recordManager = new TAApplicationRecordManager();
         favoriteManager = new FavoriteManager();
@@ -174,7 +183,7 @@ public class TAPositionListUI extends Application {
 
     private List<TAJob> filteredJobList;
 
-    private VBox createPositionListView() {
+    private ScrollPane createPositionListView() {
         VBox content = new VBox();
         content.setPadding(new Insets(20, 20, 20, 20));
         content.setSpacing(20);
@@ -220,13 +229,21 @@ public class TAPositionListUI extends Application {
         });
 
         positionListUI = positionListComponent.createPositionList(filteredJobList, 1, PAGE_SIZE);
-        
+
         HBox paginationUI = paginationComponent.createComponent();
         paginationComponent.updateData(filteredJobList.size());
 
         content.getChildren().addAll(filterUI, positionListUI, paginationUI);
 
-        return content;
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        return scrollPane;
     }
 
     private void applyFilters(String courseName, String availableTime, String recruitmentCount) {
