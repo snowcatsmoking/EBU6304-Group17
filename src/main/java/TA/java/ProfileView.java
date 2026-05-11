@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Region;
 
 
 import javafx.scene.layout.HBox;
@@ -243,12 +244,43 @@ public class ProfileView {
     }
 
     private void saveProfile() {
+        String email = currentUser.getEmail();
+        if (email != null && !email.isEmpty()) {
+            String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+            if (!email.matches(emailRegex)) {
+                String errorMsg = "Invalid email format. Email must follow standard format:\n" +
+                        "- Contains '@' symbol in correct position\n" +
+                        "- Local part before '@' cannot start or end with '.'\n" +
+                        "- Domain part after '@' must have at least one '.' (like .com, .org)\n" +
+                        "- No consecutive '.' in local part\n" +
+                        "- No '.' immediately before or after '@'";
+                
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                alert.setTitle("Invalid Email Format");
+                alert.setHeaderText("Email format is incorrect");
+                alert.setContentText(errorMsg);
+                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                alert.showAndWait();
+                return;
+            }
+        }
+
         try {
             String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
             objectMapper.writeValue(new File(fileName), currentUser);
             System.out.println("个人档案已保存！");
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Save Successful");
+            alert.setHeaderText("Profile saved successfully");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Save Failed");
+            alert.setHeaderText("Failed to save profile");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.showAndWait();
         }
     }
 
