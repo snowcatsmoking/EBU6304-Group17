@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -30,6 +31,12 @@ public class ApplicationDetailView {
 
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setFitToWidth(true);
 
         VBox content = new VBox();
         content.setPadding(new Insets(30, 30, 30, 30));
@@ -181,7 +188,8 @@ public class ApplicationDetailView {
 
         content.getChildren().addAll(titleLabel, detailBox, buttonBox);
 
-        root.setCenter(content);
+        scrollPane.setContent(content);
+        root.setCenter(scrollPane);
 
         Scene scene = new Scene(root, 600, 700);
         dialogStage.setScene(scene);
