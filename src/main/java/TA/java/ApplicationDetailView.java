@@ -1,5 +1,6 @@
 package TA.java;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -193,6 +194,7 @@ public class ApplicationDetailView {
 
         Scene scene = new Scene(root, 600, 700);
         dialogStage.setScene(scene);
+        dialogStage.setOnShown(e -> Platform.runLater(() -> scrollPane.setVvalue(0)));
         dialogStage.showAndWait();
     }
 
