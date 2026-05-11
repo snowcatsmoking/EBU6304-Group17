@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -77,14 +78,19 @@ public class PositionListComponent {
 
         boolean manuallyClosed = job.isActive();
         boolean expired = isDeadlineExpired(job);
+        boolean expiringSoon = !manuallyClosed && !expired && isDeadlineExpiringSoon(job);
 
         if (manuallyClosed) {
             Label badge = new Label("Closed");
             badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, badge, favButton);
         } else if (expired) {
-            Label badge = new Label("Expired");
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #b45309; -fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
+            Label badge = new Label("Not Apply");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #dc2626; -fx-background-color: #fee2e2; -fx-border-color: #fecaca; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
+            titleBox.getChildren().addAll(titleLabel, badge, favButton);
+        } else if (expiringSoon) {
+            Label badge = new Label("Expiring Soon");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, badge, favButton);
         } else {
             titleBox.getChildren().addAll(titleLabel, favButton);
@@ -146,14 +152,26 @@ public class PositionListComponent {
                 });
                 actionBox.getChildren().add(incompleteButton);
             } else {
-                Button applyButton = new Button("Apply");
-                applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
-                applyButton.setOnMouseEntered(e ->
-                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
-                );
-                applyButton.setOnMouseExited(e ->
-                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
-                );
+                Button applyButton;
+                if (expiringSoon) {
+                    applyButton = new Button("Apply Now");
+                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                    applyButton.setOnMouseEntered(e ->
+                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #dc2626; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                    );
+                    applyButton.setOnMouseExited(e ->
+                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                    );
+                } else {
+                    applyButton = new Button("Apply");
+                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                    applyButton.setOnMouseEntered(e ->
+                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                    );
+                    applyButton.setOnMouseExited(e ->
+                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                    );
+                }
                 applyButton.setOnAction(e -> {
                     if (listener != null) {
                         listener.onApply(job);
@@ -206,6 +224,19 @@ public class PositionListComponent {
         try {
             LocalDate deadline = LocalDate.parse(job.getDeadline(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             return deadline.isBefore(LocalDate.now());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isDeadlineExpiringSoon(TAJob job) {
+        if (job.getDeadline() == null || job.getDeadline().trim().isEmpty()) {
+            return false;
+        }
+        try {
+            LocalDate deadline = LocalDate.parse(job.getDeadline(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate tomorrow = LocalDate.now().plusDays(1);
+            return !deadline.isBefore(LocalDate.now()) && !deadline.isAfter(tomorrow);
         } catch (Exception e) {
             return false;
         }
