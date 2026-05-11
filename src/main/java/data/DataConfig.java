@@ -37,6 +37,9 @@ public class DataConfig {
     /** 操作日志，文件名格式：log_{yyyy-MM-dd}.txt */
     public static final String LOG_DIR          = BASE_DIR + "Logs/";
 
+    /** AI匹配结果，文件名格式：{studentId}_{jobId}.json，内容为 MatchingResult 对象 */
+    public static final String MATCHING_DIR     = BASE_DIR + "MatchingData/";
+
     // ==================== 工具方法 ====================
 
     /**
@@ -61,5 +64,6 @@ public class DataConfig {
         ensureDir(APPLICATION_DIR);
         ensureDir(FAVORITE_DIR);
         ensureDir(LOG_DIR);
+        ensureDir(MATCHING_DIR);
     }
 }

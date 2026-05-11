@@ -32,6 +32,7 @@ public class TAPositionListUI extends Application {
     private List<TAJob> jobList;
     private TAApplicationRecordManager recordManager;
     private FavoriteManager favoriteManager;
+    private MatchingService matchingService;
     private NotificationService notificationService;
     private String currentStudentId = "2024999";
     private static final int PAGE_SIZE = 3;
@@ -81,6 +82,7 @@ public class TAPositionListUI extends Application {
 
         recordManager = new TAApplicationRecordManager();
         favoriteManager = new FavoriteManager();
+        matchingService = new MatchingService();
         initJobList();
 
         sidebarComponent = new SidebarComponent();
@@ -142,6 +144,7 @@ public class TAPositionListUI extends Application {
                 break;
             case "favorites":
                 FavoritesView favoritesView = new FavoritesView(currentStudentId, favoriteManager, recordManager);
+                favoritesView.setMatchingService(matchingService);
                 favoritesView.setNavigationListener(v -> switchToView(v));
                 favoritesView.setApplicationListener(new FavoritesView.ApplicationListener() {
                     @Override
@@ -200,6 +203,7 @@ public class TAPositionListUI extends Application {
         filteredJobList = new ArrayList<>(jobList);
 
         positionListComponent = new PositionListComponent(favoriteManager, recordManager, currentStudentId);
+        positionListComponent.setMatchingService(matchingService);
         positionListComponent.setPositionActionListener(new PositionListComponent.PositionActionListener() {
             @Override
             public void onApply(TAJob job) {
