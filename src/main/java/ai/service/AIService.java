@@ -25,13 +25,31 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class AIService {
+    private static final String SYSTEM_PROMPT =
+        "You are a Teaching Assistant (TA) recruitment assistant. " +
+        "Your sole purpose is to help students with TA-related matters: " +
+        "understanding TA positions, preparing application materials, answering questions about the TA application process, " +
+        "and providing guidance on qualifications and requirements. " +
+        "Do not answer questions unrelated to TA recruitment or the TA application system. " +
+        "If asked about unrelated topics, politely redirect the conversation back to TA-related matters.";
+
     private final AIConfig config;
     private final ArkService service;
+    private String apiKey;
 
     public AIService() {
         this.config = new AIConfig();
         this.service = ArkService.builder()
                 .apiKey(config.getApiKey())
+                .baseUrl(config.getBaseUrl())
+                .build();
+    }
+
+    public AIService(String apiKey) {
+        this.config = new AIConfig();
+        this.apiKey = apiKey;
+        this.service = ArkService.builder()
+                .apiKey(apiKey)
                 .baseUrl(config.getBaseUrl())
                 .build();
     }
@@ -58,6 +76,7 @@ public class AIService {
         
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
+                .instructions(SYSTEM_PROMPT)
                 .input(input)
                 .build();
 
@@ -93,6 +112,7 @@ public class AIService {
         
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
+                .instructions(SYSTEM_PROMPT)
                 .input(input)
                 .build();
 
@@ -122,6 +142,7 @@ public class AIService {
         
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
+                .instructions(SYSTEM_PROMPT)
                 .stream(true)
                 .input(input)
                 .build();
@@ -186,6 +207,7 @@ public class AIService {
         
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
+                .instructions(SYSTEM_PROMPT)
                 .stream(true)
                 .input(input)
                 .build();
@@ -270,6 +292,9 @@ public class AIService {
     }
 
     private void validateConfig() throws Exception {
+        if (apiKey != null && !apiKey.isEmpty()) {
+            return;
+        }
         if (!config.isValid()) {
             throw new Exception("请先配置 API Key");
         }

@@ -32,6 +32,10 @@ public class AIChatView {
         this.aiService = new AIService();
     }
 
+    public AIChatView(String apiKey) {
+        this.aiService = new AIService(apiKey);
+    }
+
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
     }
@@ -230,7 +234,18 @@ public class AIChatView {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     if (answerArea != null) {
-                        answerArea.setText("抱歉，发生了错误：" + e.getMessage());
+                        String errorMessage = "抱歉，发生了错误：" + e.getMessage();
+                        
+                        // 检查是否是认证错误
+                        String exceptionString = e.toString();
+                        if (exceptionString.contains("401") || 
+                            exceptionString.contains("AuthenticationError") ||
+                            exceptionString.contains("Unauthorized") ||
+                            exceptionString.contains("API key")) {
+                            errorMessage = "API Key错误，请检查您输入的API Key是否正确！";
+                        }
+                        
+                        answerArea.setText(errorMessage);
                         fitTextAreaHeight(answerArea);
                     }
                 });
@@ -271,14 +286,14 @@ public class AIChatView {
         reasoningContent.setManaged(false);
 
         VBox reasoningBubble = new VBox();
-        reasoningBubble.setStyle("-fx-background-color: #fff4d4; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
+        reasoningBubble.setStyle("-fx-background-color: #f8fafc; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
         reasoningBubble.setMaxWidth(400);
 
         TextArea reasoningArea = new TextArea();
         reasoningArea.setId("reasoningArea");
         reasoningArea.setEditable(false);
         reasoningArea.setWrapText(true);
-        reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+        reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
         reasoningArea.setPrefWidth(372);
         reasoningArea.setPrefRowCount(1);
         reasoningArea.setMinHeight(1);
@@ -487,13 +502,13 @@ public class AIChatView {
             reasoningContent.setManaged(false);
 
             VBox reasoningBubble = new VBox();
-            reasoningBubble.setStyle("-fx-background-color: #fff4d4; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
+            reasoningBubble.setStyle("-fx-background-color: #f8fafc; -fx-padding: 10 14 10 14; -fx-background-radius: 6;");
             reasoningBubble.setMaxWidth(400);
 
             TextArea reasoningArea = new TextArea(response.reasoning);
             reasoningArea.setEditable(false);
             reasoningArea.setWrapText(true);
-            reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
+            reasoningArea.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: transparent; -fx-border-width: 0; -fx-background-radius: 0; -fx-padding: 0; -fx-highlight-fill: #cccccc; -fx-control-inner-background: transparent; -fx-text-box-border: transparent; -fx-background-insets: 0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
             reasoningArea.setPrefWidth(372);
             reasoningArea.setPrefRowCount(1);
             reasoningArea.setMinHeight(1);

@@ -200,7 +200,7 @@ public class LoginView extends Application {
         UserManager userManager = new UserManager();
 
         VBox accountField = createFormField("Account (Student ID / Staff ID)", "Enter your account", false);
-        VBox passwordField = createPasswordField("Password", "Enter your password");
+        VBox passwordField = createFormField("Password", "Enter your password", true);
 
         Label messageLabel = new Label("");
         messageLabel.setMaxWidth(Double.MAX_VALUE);
@@ -208,38 +208,8 @@ public class LoginView extends Application {
         messageLabel.setAlignment(Pos.CENTER);
 
         Button loginButton = new Button("Log In");
-        loginButton.setStyle(
-            "-fx-font-size: 15px;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: #6366f1;" +
-            "-fx-background-radius: 8px;" +
-            "-fx-font-weight: 600;" +
-            "-fx-padding: 12px 24px;" +
-            "-fx-cursor: hand;"
-        );
         loginButton.setPrefWidth(Double.MAX_VALUE);
-        loginButton.setOnMouseEntered(e ->
-            loginButton.setStyle(
-                "-fx-font-size: 15px;" +
-                "-fx-text-fill: white;" +
-                "-fx-background-color: #4f46e5;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-font-weight: 600;" +
-                "-fx-padding: 12px 24px;" +
-                "-fx-cursor: hand;"
-            )
-        );
-        loginButton.setOnMouseExited(e -> {
-            loginButton.setStyle(
-                "-fx-font-size: 15px;" +
-                "-fx-text-fill: white;" +
-                "-fx-background-color: #6366f1;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-font-weight: 600;" +
-                "-fx-padding: 12px 24px;" +
-                "-fx-cursor: hand;"
-            );
-        });
+        applyPrimaryButtonStyle(loginButton);
         loginButton.setOnAction(e -> {
             TextField accountInput = (TextField) accountField.getChildren().get(1);
             PasswordField passInput = (PasswordField) passwordField.getChildren().get(1);
@@ -321,8 +291,8 @@ public class LoginView extends Application {
         UserManager userManager = new UserManager();
 
         VBox accountField = createFormField("Account (Student ID / Staff ID)", "Enter student or staff ID", false);
-        VBox passwordField = createPasswordField("Password", "Enter password (min. 6 characters)");
-        VBox confirmField = createPasswordField("Confirm Password", "Re-enter password");
+        VBox passwordField = createFormField("Password", "Enter password (min. 6 characters)", true);
+        VBox confirmField = createFormField("Confirm Password", "Re-enter password", true);
 
         VBox roleBox = new VBox();
         roleBox.setSpacing(6);
@@ -369,38 +339,8 @@ public class LoginView extends Application {
         messageLabel.setAlignment(Pos.CENTER);
 
         Button registerButton = new Button("Register");
-        registerButton.setStyle(
-            "-fx-font-size: 15px;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: #6366f1;" +
-            "-fx-background-radius: 8px;" +
-            "-fx-font-weight: 600;" +
-            "-fx-padding: 12px 24px;" +
-            "-fx-cursor: hand;"
-        );
         registerButton.setPrefWidth(Double.MAX_VALUE);
-        registerButton.setOnMouseEntered(e ->
-            registerButton.setStyle(
-                "-fx-font-size: 15px;" +
-                "-fx-text-fill: white;" +
-                "-fx-background-color: #4f46e5;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-font-weight: 600;" +
-                "-fx-padding: 12px 24px;" +
-                "-fx-cursor: hand;"
-            )
-        );
-        registerButton.setOnMouseExited(e -> {
-            registerButton.setStyle(
-                "-fx-font-size: 15px;" +
-                "-fx-text-fill: white;" +
-                "-fx-background-color: #6366f1;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-font-weight: 600;" +
-                "-fx-padding: 12px 24px;" +
-                "-fx-cursor: hand;"
-            );
-        });
+        applyPrimaryButtonStyle(registerButton);
         registerButton.setOnAction(e -> {
             TextField accountInput = (TextField) accountField.getChildren().get(1);
             PasswordField passInput = (PasswordField) passwordField.getChildren().get(1);
@@ -457,69 +397,6 @@ public class LoginView extends Application {
         } else {
             inputField = new TextField();
         }
-        inputField.setPromptText(placeholder);
-        inputField.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-background-radius: 8px;" +
-            "-fx-border-color: #e2e8f0;" +
-            "-fx-border-width: 1px;" +
-            "-fx-border-radius: 8px;" +
-            "-fx-padding: 12px 16px;" +
-            "-fx-font-size: 14px;" +
-            "-fx-text-fill: #1e293b;"
-        );
-        inputField.setPrefWidth(Double.MAX_VALUE);
-        
-        inputField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) {
-                inputField.setStyle(
-                    "-fx-background-color: white;" +
-                    "-fx-background-radius: 8px;" +
-                    "-fx-border-color: #6366f1;" +
-                    "-fx-border-width: 1px;" +
-                    "-fx-border-radius: 8px;" +
-                    "-fx-padding: 12px 16px;" +
-                    "-fx-font-size: 14px;" +
-                    "-fx-text-fill: #1e293b;" +
-                    "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.2), 0, 0, 0, 3);"
-                );
-            } else {
-                inputField.setStyle(
-                    "-fx-background-color: white;" +
-                    "-fx-background-radius: 8px;" +
-                    "-fx-border-color: #e2e8f0;" +
-                    "-fx-border-width: 1px;" +
-                    "-fx-border-radius: 8px;" +
-                    "-fx-padding: 12px 16px;" +
-                    "-fx-font-size: 14px;" +
-                    "-fx-text-fill: #1e293b;"
-                );
-            }
-        });
-
-        Label errorLabel = new Label("");
-        errorLabel.setStyle(
-            "-fx-font-size: 13px;" +
-            "-fx-text-fill: #ef4444;"
-        );
-
-        fieldBox.getChildren().addAll(labelLabel, inputField, errorLabel);
-
-        return fieldBox;
-    }
-
-    private VBox createPasswordField(String label, String placeholder) {
-        VBox fieldBox = new VBox();
-        fieldBox.setSpacing(8);
-
-        Label labelLabel = new Label(label);
-        labelLabel.setStyle(
-            "-fx-font-size: 14px;" +
-            "-fx-font-weight: 500;" +
-            "-fx-text-fill: #374151;"
-        );
-
-        PasswordField inputField = new PasswordField();
         inputField.setPromptText(placeholder);
         inputField.setStyle(
             "-fx-background-color: white;" +
@@ -631,9 +508,9 @@ public class LoginView extends Application {
         if (!isLoginActive) {
             return;
         }
-        
+
         isLoginActive = false;
-        
+
         loginTab.setStyle(
             "-fx-font-size: 14px;" +
             "-fx-font-weight: 500;" +
@@ -681,6 +558,40 @@ public class LoginView extends Application {
 
         loginOut.play();
         registerIn.play();
+    }
+
+    private void applyPrimaryButtonStyle(Button button) {
+        button.setStyle(
+            "-fx-font-size: 15px;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-color: #6366f1;" +
+            "-fx-background-radius: 8px;" +
+            "-fx-font-weight: 600;" +
+            "-fx-padding: 12px 24px;" +
+            "-fx-cursor: hand;"
+        );
+        button.setOnMouseEntered(e ->
+            button.setStyle(
+                "-fx-font-size: 15px;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-color: #4f46e5;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-padding: 12px 24px;" +
+                "-fx-cursor: hand;"
+            )
+        );
+        button.setOnMouseExited(e ->
+            button.setStyle(
+                "-fx-font-size: 15px;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-color: #6366f1;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-padding: 12px 24px;" +
+                "-fx-cursor: hand;"
+            )
+        );
     }
 
     public static void main(String[] args) {

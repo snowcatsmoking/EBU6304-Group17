@@ -40,7 +40,7 @@ public class NotificationService {
         dialogVBox.setPadding(new Insets(30));
         dialogVBox.setSpacing(20);
         dialogVBox.setAlignment(Pos.CENTER);
-        dialogVBox.setStyle("-fx-background-color: #ffffff;");
+        dialogVBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 16; -fx-background-radius: 16;");
 
         String status = application.getStatus();
         String iconText = "";
@@ -58,20 +58,20 @@ public class NotificationService {
         iconLabel.setStyle("-fx-font-size: 40px;");
 
         Label titleLabel = new Label(titleText);
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         VBox contentBox = new VBox();
         contentBox.setSpacing(12);
         contentBox.setAlignment(Pos.CENTER);
 
         Label statusLabel = new Label("Your application has been " + status + ".");
-        statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #333333;");
+        statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         Label positionLabel = new Label("Position: " + application.getPositionName());
-        positionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        positionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label courseLabel = new Label("Course: " + application.getCourseName());
-        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         contentBox.getChildren().addAll(statusLabel, positionLabel, courseLabel);
 
@@ -83,10 +83,10 @@ public class NotificationService {
             commentBox.setAlignment(Pos.CENTER_LEFT);
 
             Label commentTitle = new Label("Review Comment:");
-            commentTitle.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #333333;");
+            commentTitle.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
             Label commentText = new Label(application.getReviewComment());
-            commentText.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666; -fx-wrap-text: true;");
+            commentText.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-wrap-text: true;");
             commentText.setMaxWidth(350);
 
             commentBox.getChildren().addAll(commentTitle, commentText);

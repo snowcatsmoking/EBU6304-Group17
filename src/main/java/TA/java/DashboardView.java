@@ -5,7 +5,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.ScrollPane;
+
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -32,12 +34,9 @@ public class DashboardView {
         this.currentStudentId = studentId;
     }
 
-    public BorderPane getView() {
+    public ScrollPane getView() {
         loadUserData(currentStudentId);
         recordManager = new TAApplicationRecordManager();
-        
-        BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #fafafa;");
 
         VBox content = new VBox();
         content.setPadding(new Insets(20, 20, 20, 20));
@@ -49,9 +48,16 @@ public class DashboardView {
         VBox applicationsBox = createApplicationsBox();
 
         content.getChildren().addAll(headerBox, statsBox, profileBox, applicationsBox);
-        root.setCenter(content);
 
-        return root;
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        return scrollPane;
     }
 
     public void setNavigationListener(NavigationListener listener) {
@@ -82,16 +88,16 @@ public class DashboardView {
         headerBox.setPadding(new Insets(0, 0, 10, 0));
 
         Label welcomeLabel = new Label("Welcome back, ");
-        welcomeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        welcomeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label nameLabel = new Label(currentUser != null ? currentUser.getName() : "Unknown User");
-        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         Label roleLabel = new Label("(TA)");
-        roleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-background-color: #f0f0f0; -fx-padding: 2 8 2 8; -fx-border-radius: 2; -fx-background-radius: 2;");
+        roleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1; -fx-background-color: #f1f5f9; -fx-padding: 2 8 2 8; -fx-border-radius: 4; -fx-background-radius: 4;");
 
         Label idLabel = new Label(currentUser != null ? currentUser.getTAId() : "");
-        idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
+        idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         HBox userInfoBox = new HBox();
         userInfoBox.setSpacing(8);
@@ -130,17 +136,17 @@ public class DashboardView {
 
     private VBox createStatBox(String number, String description) {
         VBox statBox = new VBox();
-        statBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        statBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         statBox.setPadding(new Insets(16, 16, 16, 16));
         statBox.setSpacing(4);
         statBox.setAlignment(Pos.CENTER);
         statBox.setPrefWidth(180);
 
         Label numLabel = new Label(number);
-        numLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        numLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
 
         Label descLabel = new Label(description);
-        descLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+        descLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
 
         statBox.getChildren().addAll(numLabel, descLabel);
 
@@ -149,7 +155,7 @@ public class DashboardView {
 
     private VBox createProfileBox() {
         VBox profileBox = new VBox();
-        profileBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        profileBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         profileBox.setPadding(new Insets(24, 24, 24, 24));
         profileBox.setSpacing(16);
 
@@ -158,10 +164,10 @@ public class DashboardView {
         titleBox.setSpacing(16);
 
         Label titleLabel = new Label("Profile Summary");
-        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         Button editButton = new Button("Edit Profile");
-        editButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
+        editButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
         editButton.setOnAction(e -> {
             if (navigationListener != null) {
                 navigationListener.onNavigateToProfile();
@@ -192,11 +198,11 @@ public class DashboardView {
         itemBox.setAlignment(Pos.CENTER_LEFT);
 
         Label labelLabel = new Label(label);
-        labelLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
+        labelLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         labelLabel.setPrefWidth(100);
 
         Label valueLabel = new Label(value);
-        valueLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #111111;");
+        valueLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
 
         itemBox.getChildren().addAll(labelLabel, valueLabel);
         column.getChildren().add(itemBox);
@@ -204,12 +210,12 @@ public class DashboardView {
 
     private VBox createApplicationsBox() {
         VBox applicationsBox = new VBox();
-        applicationsBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        applicationsBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         applicationsBox.setPadding(new Insets(24, 24, 24, 24));
         applicationsBox.setSpacing(16);
 
         Label titleLabel = new Label("Recent Applications");
-        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         HBox tableHeader = createTableHeader();
         VBox tableContent = createTableContent();
@@ -221,21 +227,21 @@ public class DashboardView {
 
     private HBox createTableHeader() {
         HBox header = new HBox();
-        header.setStyle("-fx-border-color: #dddddd; -fx-border-width: 0 0 1 0;");
+        header.setStyle("-fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;");
         header.setPadding(new Insets(8, 12, 8, 12));
         header.setSpacing(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
         Label header1 = new Label("Position");
-        header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header1.setPrefWidth(300);
 
         Label header2 = new Label("Applied On");
-        header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header2.setPrefWidth(120);
 
         Label header3 = new Label("Status");
-        header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
         header.getChildren().addAll(header1, header2, header3);
@@ -280,7 +286,7 @@ public class DashboardView {
             emptyRow.setPadding(new Insets(20, 12, 20, 12));
             emptyRow.setAlignment(Pos.CENTER);
             Label emptyLabel = new Label("No application records");
-            emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
+            emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
             emptyRow.getChildren().add(emptyLabel);
             content.getChildren().add(emptyRow);
         }
@@ -320,17 +326,17 @@ public class DashboardView {
 
     private HBox createTableRow(String position, String date, String status, String statusType) {
         HBox row = new HBox();
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         row.setPadding(new Insets(10, 12, 10, 12));
         row.setSpacing(12);
         row.setAlignment(Pos.CENTER_LEFT);
 
         Label positionLabel = new Label(position);
-        positionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        positionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
         positionLabel.setPrefWidth(300);
 
         Label dateLabel = new Label(date);
-        dateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        dateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         dateLabel.setPrefWidth(120);
 
         Label statusLabel = new Label(status);
@@ -338,19 +344,19 @@ public class DashboardView {
 
         switch (statusType) {
             case "pending":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #b08800; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #fffbe6;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #b45309; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #fef3c7;");
                 break;
             case "pass":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #008800; -fx-border-color: #aaccaa; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #efffef;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #15803d; -fx-border-color: #86efac; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #dcfce7;");
                 break;
             case "fail":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc0000; -fx-border-color: #eeaaaa; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #fff0f0;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #dc2626; -fx-border-color: #fca5a5; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #fef2f2;");
                 break;
             case "withdrawn":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #f8fafc;");
                 break;
             default:
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #f8fafc;");
                 break;
         }
 

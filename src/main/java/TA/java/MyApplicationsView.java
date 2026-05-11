@@ -34,39 +34,36 @@ public class MyApplicationsView {
         this.currentStudentId = studentId;
     }
 
-    public BorderPane getView() {
+    public ScrollPane getView() {
         recordManager = new TAApplicationRecordManager();
-        
-        BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #fafafa;");
 
         VBox content = new VBox();
-        content.setPadding(new Insets(40, 40, 40, 40));
+        content.setPadding(new Insets(20, 20, 20, 20));
         content.setSpacing(20);
 
         Label titleLabel = new Label("My Applications");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
 
         // 添加时间筛选功能
         HBox filterBox = new HBox();
-        filterBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        filterBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         filterBox.setPadding(new Insets(16, 16, 16, 16));
         filterBox.setSpacing(12);
         filterBox.setAlignment(Pos.CENTER_LEFT);
 
         Label availableTimeLabel = new Label("Available Time:");
-        availableTimeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        availableTimeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
         availableTimeField = new javafx.scene.control.TextField();
         availableTimeField.setPromptText("YYYY-MM-DD");
-        availableTimeField.setStyle("-fx-font-size: 13px; -fx-padding: 6 12 6 12; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        availableTimeField.setStyle("-fx-font-size: 14px; -fx-padding: 8 12 8 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8;");
         availableTimeField.setPrefWidth(150);
 
         Button filterButton = new Button("Filter");
-        filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
         filterButton.setOnAction(e -> applyDateFilter());
 
         Button resetButton = new Button("Reset");
-        resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
+        resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
         resetButton.setOnAction(e -> resetDateFilter());
 
         filterBox.getChildren().addAll(availableTimeLabel, availableTimeField, filterButton, resetButton);
@@ -93,7 +90,7 @@ public class MyApplicationsView {
         
         // 创建空标签
         emptyLabel = new Label("No application records");
-        emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #888888;");
+        emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #94a3b8;");
         emptyLabel.setPadding(new Insets(40, 0, 40, 0));
         
         // 创建滚动面板
@@ -109,9 +106,15 @@ public class MyApplicationsView {
         
         content.getChildren().addAll(titleLabel, filterBox, tableHeader, scrollPane);
 
-        root.setCenter(content);
+        ScrollPane outerScrollPane = new ScrollPane();
+        outerScrollPane.setContent(content);
+        outerScrollPane.setFitToWidth(true);
+        outerScrollPane.setFitToHeight(true);
+        outerScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        outerScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        outerScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        return root;
+        return outerScrollPane;
     }
     
     private void refreshTableContent() {
@@ -194,25 +197,25 @@ public class MyApplicationsView {
 
     private HBox createTableHeader() {
         HBox header = new HBox();
-        header.setStyle("-fx-border-color: #dddddd; -fx-border-width: 0 0 1 0;");
+        header.setStyle("-fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;");
         header.setPadding(new Insets(8, 12, 8, 12));
         header.setSpacing(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
         Label header1 = new Label("Position");
-        header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header1.setPrefWidth(300);
 
         Label header2 = new Label("Applied On");
-        header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header2.setPrefWidth(120);
 
         Label header3 = new Label("Status");
-        header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
         Label header4 = new Label("Actions");
-        header4.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        header4.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header4.setPrefWidth(100);
 
         header.getChildren().addAll(header1, header2, header3, header4);
@@ -222,17 +225,17 @@ public class MyApplicationsView {
 
     private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw, String applicationId, TAApplicationRecord record) {
         HBox row = new HBox();
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-cursor: hand;");
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0; -fx-cursor: hand;");
         row.setPadding(new Insets(10, 12, 10, 12));
         row.setSpacing(12);
         row.setAlignment(Pos.CENTER_LEFT);
 
         Label positionLabel = new Label(position);
-        positionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        positionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
         positionLabel.setPrefWidth(300);
 
         Label dateLabel = new Label(date);
-        dateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        dateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         dateLabel.setPrefWidth(120);
 
         Label statusLabel = new Label(status);
@@ -240,19 +243,19 @@ public class MyApplicationsView {
 
         switch (statusType) {
             case "pending":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #b08800; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #fffbe6;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #b45309; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #fef3c7;");
                 break;
             case "pass":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #008800; -fx-border-color: #aaccaa; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #efffef;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #15803d; -fx-border-color: #86efac; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #dcfce7;");
                 break;
             case "fail":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc0000; -fx-border-color: #eeaaaa; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #fff0f0;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #dc2626; -fx-border-color: #fca5a5; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #fef2f2;");
                 break;
             case "withdrawn":
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #f8fafc;");
                 break;
             default:
-                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 10 2 10; -fx-background-color: #f8fafc;");
                 break;
         }
 
@@ -262,26 +265,25 @@ public class MyApplicationsView {
 
         if (canWithdraw) {
             Button withdrawButton = new Button("Withdraw");
-            withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
+            withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
             withdrawButton.setOnAction(e -> {
                 boolean success = recordManager.withdrawApplication(applicationId);
                 if (success) {
                     System.out.println("成功撤回申请: " + applicationId);
-                    // 刷新界面 - 更安全的方式
+                    // 查找主 BorderPane 并刷新当前视图
                     if (row.getScene() != null && row.getScene().getRoot() != null) {
-                        BorderPane newView = getView();
-                        // 查找 BorderPane 容器
+                        javafx.scene.Node newView = getView();
                         Parent root = row.getScene().getRoot();
                         if (root instanceof StackPane) {
                             StackPane stackPane = (StackPane) root;
                             for (Node node : stackPane.getChildren()) {
                                 if (node instanceof BorderPane) {
-                                    ((BorderPane) node).setCenter(newView.getCenter());
+                                    ((BorderPane) node).setCenter(newView);
                                     break;
                                 }
                             }
                         } else if (root instanceof BorderPane) {
-                            ((BorderPane) root).setCenter(newView.getCenter());
+                            ((BorderPane) root).setCenter(newView);
                         }
                     }
                 } else {
@@ -291,7 +293,7 @@ public class MyApplicationsView {
             actionBox.getChildren().add(withdrawButton);
         } else {
             Label noActionLabel = new Label("—");
-            noActionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
+            noActionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8;");
             actionBox.getChildren().add(noActionLabel);
         }
 
