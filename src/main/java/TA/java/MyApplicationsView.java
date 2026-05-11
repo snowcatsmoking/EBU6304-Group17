@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
@@ -13,6 +14,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class MyApplicationsView {
@@ -20,7 +23,7 @@ public class MyApplicationsView {
     private String currentStudentId = "2024999";
     private TAApplicationRecordManager recordManager;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private javafx.scene.control.TextField availableTimeField;
+    private DatePicker availableTimeField;
     private List<TAApplicationRecord> allApplications;
     private List<TAApplicationRecord> currentApplications;
     private VBox tableContentBox;
@@ -53,8 +56,8 @@ public class MyApplicationsView {
 
         Label availableTimeLabel = new Label("Available Time:");
         availableTimeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
-        availableTimeField = new javafx.scene.control.TextField();
-        availableTimeField.setPromptText("YYYY-MM-DD");
+        availableTimeField = new DatePicker();
+        availableTimeField.setPromptText("Select date");
         availableTimeField.setStyle("-fx-font-size: 14px; -fx-padding: 8 12 8 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8;");
         availableTimeField.setPrefWidth(150);
 
@@ -144,54 +147,39 @@ public class MyApplicationsView {
     }
 
     private void applyDateFilter() {
-        String availableTime = availableTimeField.getText().trim();
+        LocalDate inputDate = availableTimeField.getValue();
 
         List<TAApplicationRecord> filteredApplications = new java.util.ArrayList<>();
-        
+
         for (TAApplicationRecord record : allApplications) {
             boolean match = true;
-            
-            if (!availableTime.isEmpty()) {
-                try {
-                    // 解析用户输入的日期
-                    java.time.LocalDate inputDate = java.time.LocalDate.parse(availableTime, 
-                        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    // 解析申请日期
-                    java.time.LocalDate applicationDate = record.getApplicationDate().toInstant()
-                        .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-                    // 只保留申请日期在输入日期及之前的记录
-                    if (applicationDate.isAfter(inputDate)) {
-                        match = false;
-                    }
-                } catch (Exception e) {
-                    // 输入格式不正确，不匹配
+
+            if (inputDate != null) {
+                java.time.LocalDate applicationDate = record.getApplicationDate().toInstant()
+                    .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+                if (applicationDate.isAfter(inputDate)) {
                     match = false;
                 }
             }
-            
+
             if (match) {
                 filteredApplications.add(record);
             }
         }
-        
-        // 更新当前显示的记录列表
+
         currentApplications = filteredApplications;
-        
-        // 更新空标签文本
+
         if (currentApplications.isEmpty()) {
             emptyLabel.setText("No matching applications");
         }
-        
-        // 刷新表格显示
+
         refreshTableContent();
     }
 
     private void resetDateFilter() {
-        availableTimeField.clear();
-        // 重置为显示所有记录
+        availableTimeField.setValue(null);
         currentApplications = new java.util.ArrayList<>(allApplications);
         emptyLabel.setText("No application records");
-        // 刷新表格显示
         refreshTableContent();
     }
 

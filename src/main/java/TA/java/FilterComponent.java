@@ -3,9 +3,13 @@ package TA.java;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class FilterComponent {
 
@@ -17,7 +21,7 @@ public class FilterComponent {
     private FilterListener listener;
 
     private TextField courseNameField;
-    private TextField availableTimeField;
+    private DatePicker availableTimeField;
     private TextField recruitmentCountField;
 
     public FilterComponent() {
@@ -43,8 +47,8 @@ public class FilterComponent {
 
         Label timeLabel = new Label("Available Time:");
         timeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
-        availableTimeField = new TextField();
-        availableTimeField.setPromptText("YYYY-MM-DD");
+        availableTimeField = new DatePicker();
+        availableTimeField.setPromptText("Select date");
         availableTimeField.setStyle("-fx-font-size: 14px; -fx-padding: 8 12 8 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8;");
         availableTimeField.setPrefWidth(150);
 
@@ -75,9 +79,13 @@ public class FilterComponent {
 
     private void applyFilter() {
         if (listener != null) {
+            String availableTimeStr = "";
+            if (availableTimeField.getValue() != null) {
+                availableTimeStr = availableTimeField.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            }
             listener.onFilter(
                 courseNameField.getText().trim(),
-                availableTimeField.getText().trim(),
+                availableTimeStr,
                 recruitmentCountField.getText().trim()
             );
         }
@@ -85,7 +93,7 @@ public class FilterComponent {
 
     private void resetFilter() {
         courseNameField.clear();
-        availableTimeField.clear();
+        availableTimeField.setValue(null);
         recruitmentCountField.clear();
         if (listener != null) {
             listener.onReset();
