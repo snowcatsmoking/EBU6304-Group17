@@ -5,8 +5,11 @@ import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -31,11 +34,16 @@ public class FavoritesView {
     private TAApplicationRecordManager recordManager;
     private NavigationListener navigationListener;
     private ApplicationListener applicationListener;
+    private MatchingService matchingService;
 
     public FavoritesView(String studentId, FavoriteManager favoriteManager, TAApplicationRecordManager recordManager) {
         this.currentStudentId = studentId;
         this.favoriteManager = favoriteManager;
         this.recordManager = recordManager;
+    }
+
+    public void setMatchingService(MatchingService matchingService) {
+        this.matchingService = matchingService;
     }
 
     public void setNavigationListener(NavigationListener listener) {
@@ -209,9 +217,102 @@ public class FavoritesView {
 
         infoBox.getChildren().addAll(courseLabel, countLabel, requirementLabel);
         deadlineBox.getChildren().addAll(deadlineLabel, publisherLabel);
-        positionBox.getChildren().addAll(titleBox, infoBox, deadlineBox, actionBox);
+
+        HBox matchingBox = createMatchingBox(job);
+        positionBox.getChildren().addAll(titleBox, infoBox, deadlineBox, actionBox, matchingBox);
 
         return positionBox;
+    }
+
+    private HBox createMatchingBox(TAJob job) {
+        HBox matchingBox = new HBox();
+        matchingBox.setAlignment(Pos.CENTER_LEFT);
+        matchingBox.setPadding(new Insets(4, 0, 0, 0));
+        matchingBox.setSpacing(10);
+
+        boolean profileComplete = TA.java.utils.TAApplicationUtils.checkProfileComplete(currentStudentId);
+        if (!profileComplete || matchingService == null) {
+            return matchingBox;
+        }
+
+        MatchingResult cached = matchingService.getCachedResult(currentStudentId, job.getJobId());
+        if (cached != null) {
+            showMatchingBar(matchingBox, cached, job);
+        } else {
+            showMatchButton(matchingBox, job);
+        }
+
+        return matchingBox;
+    }
+
+    private void showMatchButton(HBox matchingBox, TAJob job) {
+        Button matchButton = new Button("AI Match");
+        matchButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1; -fx-background-color: #eef2ff; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 4 14 4 14; -fx-cursor: hand;");
+        matchButton.setOnMouseEntered(e ->
+            matchButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-border-color: #6366f1; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 4 14 4 14; -fx-cursor: hand;")
+        );
+        matchButton.setOnMouseExited(e ->
+            matchButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1; -fx-background-color: #eef2ff; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 4 14 4 14; -fx-cursor: hand;")
+        );
+        matchButton.setOnAction(e -> {
+            matchingBox.getChildren().clear();
+            Label loadingLabel = new Label("Matching...");
+            loadingLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1;");
+            ProgressBar loadingBar = new ProgressBar();
+            loadingBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+            loadingBar.setPrefWidth(80);
+            loadingBar.setStyle("-fx-accent: #6366f1;");
+            matchingBox.getChildren().addAll(loadingLabel, loadingBar);
+
+            new Thread(() -> {
+                try {
+                    MatchingResult result = matchingService.computeMatch(currentStudentId, job.getJobId());
+                    Platform.runLater(() -> {
+                        matchingBox.getChildren().clear();
+                        showMatchingBar(matchingBox, result, job);
+                    });
+                } catch (Exception ex) {
+                    Platform.runLater(() -> {
+                        matchingBox.getChildren().clear();
+                        Label errorLabel = new Label("Match failed");
+                        errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #ef4444;");
+                        matchingBox.getChildren().add(errorLabel);
+                    });
+                }
+            }).start();
+        });
+        matchingBox.getChildren().add(matchButton);
+    }
+
+    private void showMatchingBar(HBox matchingBox, MatchingResult result, TAJob job) {
+        Label matchLabel = new Label("Match:");
+        matchLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
+
+        int percentage = result.getPercentage();
+        ProgressBar progressBar = new ProgressBar(percentage / 100.0);
+        progressBar.setPrefWidth(100);
+        String barColor = percentage >= 70 ? "#22c55e" : percentage >= 40 ? "#f59e0b" : "#ef4444";
+        progressBar.setStyle("-fx-accent: " + barColor + ";");
+
+        Label percentLabel = new Label(percentage + "%");
+        percentLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: 600; -fx-text-fill: " + barColor + ";");
+
+        Button detailButton = new Button("Details");
+        detailButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-background-color: transparent; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
+        detailButton.setOnMouseEntered(e ->
+            detailButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-border-color: #6366f1; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
+        );
+        detailButton.setOnMouseExited(e ->
+            detailButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-background-color: transparent; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
+        );
+        detailButton.setOnAction(e -> MatchDetailDialog.show(result, job.getPositionName(), job.getCourseName()));
+
+        matchingBox.getChildren().addAll(matchLabel, progressBar, percentLabel, detailButton);
+
+        if (result.getReason() != null && !result.getReason().isEmpty()) {
+            Tooltip tooltip = new Tooltip(result.getReason());
+            Tooltip.install(matchingBox, tooltip);
+        }
     }
 
     private boolean isDeadlineExpired(TAJob job) {
