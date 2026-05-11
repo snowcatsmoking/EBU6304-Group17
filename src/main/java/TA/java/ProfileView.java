@@ -257,11 +257,21 @@ public class ProfileView {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
             String fileName = "profile_export_" + currentUser.getTAId() + "_" + timestamp + ".json";
             String filePath = data.DataConfig.TA_DIR + fileName;
-            
+
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(filePath), currentUser);
-            System.out.println("档案已导出为JSON文件: " + filePath);
+
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Export Successful");
+            alert.setHeaderText("Profile exported successfully!");
+            alert.setContentText("File saved to:\n" + filePath);
+            alert.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
+            javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            errorAlert.setTitle("Export Failed");
+            errorAlert.setHeaderText("Failed to export profile");
+            errorAlert.setContentText("An error occurred while exporting. Please try again.");
+            errorAlert.showAndWait();
         }
     }
 }
