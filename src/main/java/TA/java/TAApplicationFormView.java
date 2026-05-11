@@ -390,8 +390,6 @@ public class TAApplicationFormView {
         
         recordManager.saveApplication(record);
         System.out.println("申请记录已保存！");
-        
-        showSuccess("Application Submitted", "Your application has been submitted successfully. Status: Under Review.");
 
         if (dialogStage != null) {
             dialogStage.close();
@@ -399,6 +397,8 @@ public class TAApplicationFormView {
                 dialogCloseListener.onDialogClosed();
             }
         }
+
+        SkillGapAnalysisView.showSkillGapAnalysis(currentJob, currentUser);
 
         if (applicationListener != null) {
             applicationListener.onApplicationSubmitted();
