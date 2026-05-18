@@ -865,9 +865,13 @@ public class LoginView extends Application {
                     switchToLogin();
                 });
             } else {
-                messageLabel.getStyleClass().removeAll("message-success");
-                messageLabel.getStyleClass().add("message-error");
-                messageLabel.setText(result);
+                if (result.contains("already registered")) {
+                    showAlert("Registration Failed", "This account is already registered. Please choose a different ID.");
+                } else {
+                    messageLabel.getStyleClass().removeAll("message-success");
+                    messageLabel.getStyleClass().add("message-error");
+                    messageLabel.setText(result);
+                }
             }
         });
 
