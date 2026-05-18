@@ -15,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -720,12 +721,23 @@ public class LoginView extends Application {
 
         UserManager userManager = new UserManager();
 
+        // Role combo (placed first)
+        VBox roleBox = new VBox(6);
+        Label roleLabel = new Label("Role");
+        roleLabel.getStyleClass().add("form-label");
+        ComboBox<String> roleCombo = new ComboBox<>();
+        roleCombo.getItems().addAll("-- Select Role --", "TA Applicant", "Module Organiser", "System Administrator (Admin)");
+        roleCombo.getSelectionModel().select(0);
+        roleCombo.getStyleClass().add("form-combo");
+        roleCombo.setPrefWidth(Double.MAX_VALUE);
+        roleBox.getChildren().addAll(roleLabel, roleCombo);
+
         // Account field
         VBox accountBox = new VBox(8);
-        Label accountLabel = new Label("Account (Student ID / Staff ID)");
+        Label accountLabel = new Label("Account ID (auto-prefixed by role)");
         accountLabel.getStyleClass().add("form-label");
         regAccountField = new TextField();
-        regAccountField.setPromptText("Enter student or staff ID");
+        regAccountField.setPromptText("Select role first, then enter numbers");
         regAccountField.getStyleClass().add("form-input");
         regAccountField.setPrefWidth(Double.MAX_VALUE);
         accountBox.getChildren().addAll(accountLabel, regAccountField);
@@ -750,17 +762,6 @@ public class LoginView extends Application {
         confirmField.setPrefWidth(Double.MAX_VALUE);
         confirmBox.getChildren().addAll(confirmLabel, confirmField);
 
-        // Role combo
-        VBox roleBox = new VBox(6);
-        Label roleLabel = new Label("Role");
-        roleLabel.getStyleClass().add("form-label");
-        ComboBox<String> roleCombo = new ComboBox<>();
-        roleCombo.getItems().addAll("-- Select Role --", "TA Applicant", "Module Organiser", "System Administrator (Admin)");
-        roleCombo.getSelectionModel().select(0);
-        roleCombo.getStyleClass().add("form-combo");
-        roleCombo.setPrefWidth(Double.MAX_VALUE);
-        roleBox.getChildren().addAll(roleLabel, roleCombo);
-
         // Admin auth code box
         VBox authCodeBox = new VBox(6);
         authCodeBox.setVisible(false);
@@ -777,6 +778,38 @@ public class LoginView extends Application {
             boolean isAdmin = newVal != null && newVal.contains("Admin");
             authCodeBox.setVisible(isAdmin);
             authCodeBox.setManaged(isAdmin);
+            regAccountField.clear();
+            if (newVal != null && !newVal.equals("-- Select Role --")) {
+                String prefix = newVal.contains("TA") ? "ta" : (newVal.contains("Module") ? "mo" : "ad");
+                regAccountField.setText(prefix);
+            }
+        });
+
+        regAccountField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null || newValue.isEmpty()) return;
+
+            String role = roleCombo.getSelectionModel().getSelectedItem();
+            if (role == null || role.equals("-- Select Role --")) {
+                regAccountField.setText("");
+                return;
+            }
+
+            String expectedPrefix = role.contains("TA") ? "ta" : (role.contains("Module") ? "mo" : "ad");
+
+            if (!newValue.equals(expectedPrefix) && !newValue.startsWith(expectedPrefix)) {
+                regAccountField.setText(expectedPrefix);
+                showAlert("Invalid ID Format", "Please select a role first to determine the ID prefix (ta/mo/ad).");
+                return;
+            }
+
+            String suffix = newValue.substring(expectedPrefix.length());
+            String filteredSuffix = suffix.replaceAll("[^0-9]", "");
+            if (!filteredSuffix.equals(suffix)) {
+                showAlert("Invalid Characters", "ID can only contain numbers after the prefix.");
+            }
+            if (!newValue.equals(expectedPrefix + filteredSuffix)) {
+                regAccountField.setText(expectedPrefix + filteredSuffix);
+            }
         });
 
         // Message label
@@ -805,9 +838,7 @@ public class LoginView extends Application {
                 role, authCodeInput.getText());
 
             if (result.equals("SUCCESS")) {
-                messageLabel.getStyleClass().removeAll("message-error");
-                messageLabel.getStyleClass().add("message-success");
-                messageLabel.setText("Registration successful! Please switch to Log In");
+                showAlert("Registration Successful", "Your account has been created successfully!\n\nAccount ID: " + regAccountField.getText() + "\nRole: " + role + "\n\nPlease switch to the Login page to sign in.");
                 regAccountField.clear();
                 regPasswordField.clear();
                 confirmField.clear();
@@ -820,7 +851,7 @@ public class LoginView extends Application {
             }
         });
 
-        panel.getChildren().addAll(accountBox, passwordBox, confirmBox, roleBox, authCodeBox, registerButton, messageLabel);
+        panel.getChildren().addAll(roleBox, accountBox, passwordBox, confirmBox, authCodeBox, registerButton, messageLabel);
 
         // Wire focus -> eye state
         addFocusListeners(regAccountField, regPasswordField);
@@ -926,6 +957,15 @@ public class LoginView extends Application {
 
         loginOut.play();
         registerIn.play();
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {
