@@ -22,6 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -608,6 +609,11 @@ public class LoginView extends Application {
         loginAccountField.setPromptText("Enter your account");
         loginAccountField.getStyleClass().add("form-input");
         loginAccountField.setPrefWidth(Double.MAX_VALUE);
+        loginAccountField.setOnKeyPressed(e -> {
+            if (e.getCode().toString().equals("ENTER")) {
+                loginPasswordField.requestFocus();
+            }
+        });
         accountBox.getChildren().addAll(accountLabel, loginAccountField);
 
         // Password field with visibility toggle
@@ -704,6 +710,18 @@ public class LoginView extends Application {
                 messageLabel.getStyleClass().removeAll("message-success");
                 messageLabel.getStyleClass().add("message-error");
                 messageLabel.setText(result);
+            }
+        });
+
+        loginPasswordField.setOnKeyPressed(e -> {
+            if (e.getCode().toString().equals("ENTER")) {
+                loginButton.fire();
+            }
+        });
+
+        loginPasswordVisibleField.setOnKeyPressed(e -> {
+            if (e.getCode().toString().equals("ENTER")) {
+                loginButton.fire();
             }
         });
 

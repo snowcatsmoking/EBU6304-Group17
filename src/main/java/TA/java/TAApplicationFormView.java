@@ -398,7 +398,7 @@ public class TAApplicationFormView {
             }
         }
 
-        // SkillGapAnalysisView.showSkillGapAnalysis(currentJob, currentUser); // TODO: not yet implemented
+         SkillGapAnalysisView.showSkillGapAnalysis(currentJob, currentUser); 
 
         if (applicationListener != null) {
             applicationListener.onApplicationSubmitted();
