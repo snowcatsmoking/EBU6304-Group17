@@ -4,12 +4,16 @@ import TA.java.TAPositionListUI;
 import data.LocalStorageManager;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,6 +29,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -47,9 +52,20 @@ public class LoginView extends Application {
     private static class CreatureData {
         final Pane pane;
         final HBox face;
+        final Circle[] eyeWhites;
         final Circle[] pupils;
-        CreatureData(Pane pane, HBox face, Circle[] pupils) {
-            this.pane = pane; this.face = face; this.pupils = pupils;
+        final Circle[] pupilDots;
+        final Label[] squeezeEyes;
+        boolean rising = true;
+
+        CreatureData(Pane pane, HBox face, Circle[] eyeWhites, Circle[] pupils,
+                     Circle[] pupilDots, Label[] squeezeEyes) {
+            this.pane = pane;
+            this.face = face;
+            this.eyeWhites = eyeWhites;
+            this.pupils = pupils;
+            this.pupilDots = pupilDots;
+            this.squeezeEyes = squeezeEyes;
         }
     }
 
@@ -113,7 +129,10 @@ public class LoginView extends Application {
         face.setLayoutY(24);
         face.layoutXProperty().bind(pane.widthProperty().subtract(face.widthProperty()).divide(2));
 
+        Circle[] eyeWhites = new Circle[2];
         Circle[] pupils = new Circle[2];
+        Circle[] pupilDots = new Circle[2];
+        Label[] squeezeEyes = new Label[2];
         for (int i = 0; i < 2; i++) {
             Circle eyeWhite = new Circle(eyeR, Color.WHITE);
             eyeWhite.setStroke(Color.rgb(0, 0, 0, 0.08));
@@ -124,13 +143,87 @@ public class LoginView extends Application {
             pupilDot.setTranslateX(pupilR * 0.25);
             pupilDot.setTranslateY(-pupilR * 0.25);
 
-            StackPane eyeStack = new StackPane(eyeWhite, pupil, pupilDot);
+            Label squeezeEye = new Label(i == 0 ? ">" : "<");
+            squeezeEye.setTextFill(Color.WHITE);
+            squeezeEye.setStyle("-fx-font-size: 28px; -fx-font-weight: 900;" +
+                "-fx-effect: dropshadow(gaussian, rgba(30,41,59,0.16), 4, 0, 0, 2);");
+
+            StackPane eyeStack = new StackPane(eyeWhite, pupil, pupilDot, squeezeEye);
+            eyeWhites[i] = eyeWhite;
             pupils[i] = pupil;
+            pupilDots[i] = pupilDot;
+            squeezeEyes[i] = squeezeEye;
             face.getChildren().add(eyeStack);
         }
 
         pane.getChildren().addAll(body, highlight, face);
-        return new CreatureData(pane, face, pupils);
+        CreatureData creature = new CreatureData(pane, face, eyeWhites, pupils, pupilDots, squeezeEyes);
+        setCreatureRising(creature, true);
+        return creature;
+    }
+
+    private void setCreatureRising(CreatureData creature, boolean rising) {
+        creature.rising = rising;
+        for (int i = 0; i < creature.pupils.length; i++) {
+            creature.eyeWhites[i].setVisible(!rising);
+            creature.pupils[i].setVisible(!rising);
+            creature.pupilDots[i].setVisible(!rising);
+            creature.squeezeEyes[i].setVisible(rising);
+        }
+    }
+
+    private void playCreatureEntrance(List<CreatureData> creatures, Region groundShadow) {
+        double baseDelay = 1500;
+        groundShadow.setOpacity(0);
+        groundShadow.setScaleX(0.45);
+
+        for (int i = 0; i < creatures.size(); i++) {
+            CreatureData creature = creatures.get(i);
+            creature.pane.setOpacity(0);
+            creature.pane.setTranslateY(creature.pane.getPrefHeight() + 24);
+            creature.pane.setScaleY(0.96);
+
+            TranslateTransition rise = new TranslateTransition(Duration.millis(1050), creature.pane);
+            rise.setDelay(Duration.millis(baseDelay + i * 180));
+            rise.setFromY(creature.pane.getPrefHeight() + 24);
+            rise.setToY(0);
+            rise.setInterpolator(javafx.animation.Interpolator.SPLINE(0.18, 0.88, 0.28, 1.0));
+
+            FadeTransition fade = new FadeTransition(Duration.millis(360), creature.pane);
+            fade.setDelay(Duration.millis(baseDelay + i * 180));
+            fade.setFromValue(0);
+            fade.setToValue(1);
+
+            Timeline squash = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                    new KeyValue(creature.pane.scaleYProperty(), 0.96)),
+                new KeyFrame(Duration.millis(650),
+                    new KeyValue(creature.pane.scaleYProperty(), 1.04)),
+                new KeyFrame(Duration.millis(900),
+                    new KeyValue(creature.pane.scaleYProperty(), 0.985)),
+                new KeyFrame(Duration.millis(1050),
+                    new KeyValue(creature.pane.scaleYProperty(), 1.0))
+            );
+            squash.setDelay(Duration.millis(baseDelay + i * 180));
+
+            ParallelTransition entrance = new ParallelTransition(rise, fade, squash);
+            entrance.setOnFinished(e -> setCreatureRising(creature, false));
+            entrance.play();
+        }
+
+        TranslateTransition shadowSpread = new TranslateTransition(Duration.millis(1), groundShadow);
+        shadowSpread.setDelay(Duration.millis(baseDelay + 70));
+        shadowSpread.setOnFinished(e -> {
+            FadeTransition shadowFade = new FadeTransition(Duration.millis(850), groundShadow);
+            shadowFade.setFromValue(0);
+            shadowFade.setToValue(1);
+            javafx.animation.ScaleTransition shadowScale =
+                new javafx.animation.ScaleTransition(Duration.millis(850), groundShadow);
+            shadowScale.setFromX(0.45);
+            shadowScale.setToX(1);
+            new ParallelTransition(shadowFade, shadowScale).play();
+        });
+        shadowSpread.play();
     }
 
     // ========== Eye Animation & Focus ==========
@@ -156,11 +249,17 @@ public class LoginView extends Application {
 
     private void setupEyeAnimation(Scene scene, HBox root) {
         root.setPickOnBounds(true);
+        root.setFocusTraversable(true);
 
         // Scene-level event filter: fires in capturing phase for ALL nodes
         scene.addEventFilter(javafx.scene.input.MouseEvent.ANY, e -> {
             mouseX = e.getSceneX();
             mouseY = e.getSceneY();
+        });
+        scene.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
+            if (!isInputTarget(e.getTarget())) {
+                root.requestFocus();
+            }
         });
 
         // Root-level handlers as backup
@@ -204,6 +303,9 @@ public class LoginView extends Application {
                 }
 
                 for (CreatureData c : allCreatures) {
+                    if (c.rising) {
+                        continue;
+                    }
                     for (Circle pupil : c.pupils) {
                         StackPane eyeStack = (StackPane) pupil.getParent();
                         Bounds bounds = eyeStack.localToScene(eyeStack.getBoundsInLocal());
@@ -241,6 +343,21 @@ public class LoginView extends Application {
             }
         });
         if (scene.getWindow() != null) eyeTimer.start();
+    }
+
+    private boolean isInputTarget(Object target) {
+        if (!(target instanceof Node node)) {
+            return false;
+        }
+
+        while (node != null) {
+            if (node instanceof TextField || node instanceof PasswordField ||
+                node instanceof ComboBox || node instanceof Button) {
+                return true;
+            }
+            node = node.getParent();
+        }
+        return false;
     }
 
     private void addFocusListeners(TextField accountField, PasswordField passwordField) {
@@ -303,7 +420,7 @@ public class LoginView extends Application {
         // ===== Left Side: creatures + text =====
         StackPane leftSide = new StackPane();
         leftSide.getStyleClass().add("left-side");
-        leftSide.setMouseTransparent(true);
+        leftSide.setPickOnBounds(true);
         HBox.setHgrow(leftSide, Priority.ALWAYS);
 
         // Text header (top-left overlay)
@@ -316,6 +433,7 @@ public class LoginView extends Application {
 
         VBox textHeader = new VBox(12, mainTitle, subTitle);
         textHeader.setMaxWidth(550);
+        textHeader.setMouseTransparent(true);
         StackPane.setAlignment(textHeader, Pos.TOP_LEFT);
         StackPane.setMargin(textHeader, new Insets(40, 0, 0, 50));
 
@@ -341,16 +459,25 @@ public class LoginView extends Application {
         CreatureData c3 = createCreature(270,
             "linear-gradient(to bottom, #a5b4fc 0%, #818cf8 20%, " +
             "#6366f1 50%, #4f46e5 100%)", 11, 6);
+        allCreatures.clear();
         allCreatures.addAll(List.of(c1, c2, c3));
 
         HBox ground = new HBox(0, c1.pane, c2.pane, c3.pane);
         ground.setAlignment(Pos.BOTTOM_CENTER);
 
+        StackPane groundViewport = new StackPane(ground);
+        groundViewport.setPrefSize(390, 484);
+        groundViewport.setMaxSize(390, 484);
+        groundViewport.setAlignment(Pos.BOTTOM_CENTER);
+        groundViewport.setClip(new Rectangle(390, 484));
+
         Region groundShadow = new Region();
         groundShadow.getStyleClass().add("ground-shadow");
+        playCreatureEntrance(List.of(c1, c2, c3), groundShadow);
 
-        VBox creaturesArea = new VBox(0, ground, groundShadow);
+        VBox creaturesArea = new VBox(0, groundViewport, groundShadow);
         creaturesArea.setAlignment(Pos.CENTER);
+        creaturesArea.setMouseTransparent(true);
 
         leftSide.getChildren().addAll(creaturesArea, textHeader);
 
