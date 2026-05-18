@@ -65,6 +65,7 @@ public class AdminDashboard extends Application {
         Label navPositions  = buildNavItem("Global Positions");
         Label navLogs       = buildNavItem("Operation Logs");
         Label navStats      = buildNavItem("Recruitment Stats");
+        Label navWorkload   = buildNavItem("Workload Alert");
         Label navExport     = buildNavItem("Data Export");
         Label navBackup     = buildNavItem("Backup / Restore");
 
@@ -76,6 +77,7 @@ public class AdminDashboard extends Application {
         navPositions.setOnMouseClicked(e ->  { setActive(navPositions);  showGlobalPositions(); });
         navLogs.setOnMouseClicked(e ->       { setActive(navLogs);       showOperationLog(); });
         navStats.setOnMouseClicked(e ->      { setActive(navStats);      showRecruitmentStats(); });
+        navWorkload.setOnMouseClicked(e ->   { setActive(navWorkload);   showWorkload(); });
         navExport.setOnMouseClicked(e ->     { setActive(navExport);     showDataExport(); });
         navBackup.setOnMouseClicked(e ->     { setActive(navBackup);     showBackupRestore(); });
 
@@ -101,7 +103,7 @@ public class AdminDashboard extends Application {
 
         sidebar.getChildren().addAll(
             topSpacer,
-            navDashboard, navUsers, navPositions, navLogs, navStats, navExport, navBackup,
+            navDashboard, navUsers, navPositions, navLogs, navStats, navWorkload, navExport, navBackup,
             spacer, logoutBox
         );
         return sidebar;
@@ -134,6 +136,10 @@ public class AdminDashboard extends Application {
 
     private void showRecruitmentStats() {
         root.setCenter(new RecruitmentStatsView().build());
+    }
+
+    private void showWorkload() {
+        root.setCenter(new WorkloadView().build());
     }
 
     private void showDataExport() {
