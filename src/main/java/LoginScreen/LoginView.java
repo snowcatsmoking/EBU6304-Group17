@@ -875,6 +875,13 @@ public class LoginView extends Application {
             }
         });
 
+        // Add Enter key support for registration
+        confirmField.setOnKeyPressed(e -> {
+            if (e.getCode().toString().equals("ENTER")) {
+                registerButton.fire();
+            }
+        });
+
         panel.getChildren().addAll(roleBox, accountBox, passwordBox, confirmBox, authCodeBox, registerButton, messageLabel);
 
         // Wire focus -> eye state
