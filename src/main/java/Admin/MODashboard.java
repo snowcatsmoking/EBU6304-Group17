@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import ZiqianCao.java.TAApplicationRecord;
-import ZiqianCao.java.TAApplicationRecordManager;
-import ZiqianCao.java.TAJob;
+import TA.java.TAApplicationRecord;
+import TA.java.TAApplicationRecordManager;
+import TA.java.TAJob;
 import data.JobDataManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -133,6 +134,19 @@ public class MODashboard extends javafx.application.Application {
         item.setStyle(NAV_DEFAULT);
         item.setAlignment(Pos.CENTER_LEFT);
         return item;
+    }
+
+    private ScrollPane wrapScrollablePage(VBox page) {
+        page.setFillWidth(true);
+        page.setMaxWidth(Double.MAX_VALUE);
+
+        ScrollPane scrollPane = new ScrollPane(page);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setPannable(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+        return scrollPane;
     }
 
     /** My Positions with a live pending-count badge */
@@ -493,7 +507,7 @@ public class MODashboard extends javafx.application.Application {
         refreshMyPositionsList(list, paginationBox, jobs, currentPage);
 
         page.getChildren().addAll(title, list, paginationBox);
-        return page;
+        return wrapScrollablePage(page);
     }
 
     private void refreshMyPositionsList(VBox list, HBox paginationBox, List<TAJob> jobs, int[] currentPage) {
@@ -699,7 +713,7 @@ public class MODashboard extends javafx.application.Application {
         }
 
         page.getChildren().addAll(headerRow, topStatRow, bottomStatRow, list);
-        return page;
+        return wrapScrollablePage(page);
     }
 
     private VBox buildPositionStatisticsItem(TAJob job) {
@@ -1003,7 +1017,7 @@ public class MODashboard extends javafx.application.Application {
         refreshList.run();
 
         page.getChildren().addAll(title, subtitle, filterBox, batchActionBox, summary, selectionLabel, feedbackLabel, list, paginationBox);
-        return page;
+        return wrapScrollablePage(page);
     }
 
     private void refreshApplicantReviewList(

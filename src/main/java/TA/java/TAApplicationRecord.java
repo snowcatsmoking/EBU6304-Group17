@@ -1,4 +1,4 @@
-package ZiqianCao.java;
+package TA.java;
 
 import java.util.Date;
 import java.util.UUID;
@@ -27,11 +27,14 @@ public class TAApplicationRecord {
     private String skills;
     private String reviewer;
     private String reviewComment;
+    private Date statusChangeDate;
+    private boolean notified;
 
     public TAApplicationRecord() {
         this.applicationId = UUID.randomUUID().toString();
         this.applicationDate = new Date();
         this.status = "PENDING";
+        this.notified = false;
     }
 
     public TAApplicationRecord(String taStudentId, String moStaffId, String moduleCode, String jobId,
@@ -187,5 +190,21 @@ public class TAApplicationRecord {
 
     public void setReviewComment(String reviewComment) {
         this.reviewComment = reviewComment;
+    }
+
+    public Date getStatusChangeDate() {
+        return statusChangeDate;
+    }
+
+    public void setStatusChangeDate(Date statusChangeDate) {
+        this.statusChangeDate = statusChangeDate;
+    }
+
+    public boolean isNotified() {
+        return notified;
+    }
+
+    public void setNotified(boolean notified) {
+        this.notified = notified;
     }
 }

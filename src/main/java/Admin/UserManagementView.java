@@ -1,6 +1,6 @@
 package Admin;
 
-import ZiqianCao.java.TAApplication;
+import TA.java.TAApplication;
 import LoginScreen.User;
 import data.LogManager;
 import data.UserDataManager;
@@ -88,7 +88,7 @@ public class UserManagementView {
             rows.add(new UserRow(
                 ta.getTAId(),
                 ta.getName() != null ? ta.getName() : "—",
-                "TA",
+                    "TA",
                 ta.getMajor() != null ? ta.getMajor() : "—"
             ));
         }

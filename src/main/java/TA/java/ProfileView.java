@@ -1,18 +1,27 @@
-package ZiqianCao.java;
+package TA.java;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ProfileView {
@@ -27,11 +36,8 @@ public class ProfileView {
         this.currentStudentId = studentId;
     }
 
-    public BorderPane getView() {
+    public ScrollPane getView() {
         loadUserData(currentStudentId);
-        
-        BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #fafafa;");
 
         VBox content = new VBox();
         content.setPadding(new Insets(20, 20, 20, 20));
@@ -43,13 +49,12 @@ public class ProfileView {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(content);
         scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        root.setCenter(scrollPane);
-
-        return root;
+        return scrollPane;
     }
 
     private void loadUserData(String studentId) {
@@ -82,7 +87,7 @@ public class ProfileView {
 
     private VBox createProfileForm() {
         VBox formBox = new VBox();
-        formBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        formBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         formBox.setPadding(new Insets(24, 24, 24, 24));
         formBox.setSpacing(20);
 
@@ -91,7 +96,7 @@ public class ProfileView {
         titleBox.setSpacing(16);
 
         Label titleLabel = new Label("My Profile");
-        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         titleBox.getChildren().add(titleLabel);
 
@@ -101,16 +106,16 @@ public class ProfileView {
         statusBox.setAlignment(Pos.CENTER_LEFT);
 
         if (hasActiveApplication) {
-            statusBox.setStyle("-fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;");
+            statusBox.setStyle("-fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;");
             Label statusIcon = new Label("⚠️");
             Label statusText = new Label("You have an active TA application under review. Personal information is locked. Only email can still be updated.");
-            statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #856404;");
+            statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #b45309;");
             statusBox.getChildren().addAll(statusIcon, statusText);
         } else {
-            statusBox.setStyle("-fx-background-color: #d4edda; -fx-border-color: #c3e6cb; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;");
+            statusBox.setStyle("-fx-background-color: #dcfce7; -fx-border-color: #86efac; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;");
             Label statusIcon = new Label("✓");
             Label statusText = new Label("No active applications. You can freely edit all profile information.");
-            statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #155724;");
+            statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #15803d;");
             statusBox.getChildren().addAll(statusIcon, statusText);
         }
 
@@ -131,14 +136,24 @@ public class ProfileView {
         buttonBox.setPadding(new Insets(8, 0, 0, 0));
 
         Button saveButton = new Button("Save");
-        saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
+        saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
+        saveButton.setOnMouseEntered(e ->
+            saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
+        );
+        saveButton.setOnMouseExited(e ->
+            saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
+        );
         saveButton.setOnAction(e -> saveProfile());
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
+        cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         cancelButton.setOnAction(e -> loadUserData(currentStudentId));
 
-        buttonBox.getChildren().addAll(saveButton, cancelButton);
+        Button exportButton = new Button("Export Profile");
+        exportButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #007bff; -fx-border-color: #007bff; -fx-border-width: 1; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
+        exportButton.setOnAction(e -> exportProfileToJson());
+
+        buttonBox.getChildren().addAll(saveButton, cancelButton, exportButton);
 
         formBox.getChildren().addAll(titleBox, statusBox, field1, field2, field3, field4, field5, field6, field7, fileUploadBox, buttonBox);
 
@@ -154,7 +169,7 @@ public class ProfileView {
         labelBox.setSpacing(8);
 
         Label labelLabel = new Label(label);
-        labelLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-font-weight: 500;");
+        labelLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151; -fx-font-weight: 500;");
 
         boolean isLocked = false;
         String lockHint = "";
@@ -176,24 +191,25 @@ public class ProfileView {
 
         if (!lockHint.isEmpty()) {
             Label lockedLabel = new Label(lockHint);
-            lockedLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #999999;");
+            lockedLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94a3b8;");
             labelBox.getChildren().addAll(labelLabel, lockedLabel);
         } else {
             labelBox.getChildren().add(labelLabel);
         }
 
         TextField valueField = new TextField(value);
-        valueField.setStyle("-fx-font-size: 13px; -fx-text-fill: #111111; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 8 12 8 12;");
+        valueField.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 10px 16px;");
         valueField.setPrefWidth(400);
-
-        // Add date format hint for available time field
-        if (fieldName.equals("availableTime")) {
-            valueField.setPromptText("YYYY-MM-DD");
-        }
 
         if (fieldName.equals("studentId") || isLocked) {
             valueField.setDisable(true);
-            valueField.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-background-color: #f5f5f5; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 8 12 8 12;");
+            valueField.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 10px 16px;");
+        }
+
+        if (fieldName.equals("availableTime")) {
+            fieldBox.getChildren().clear();
+            fieldBox.getChildren().addAll(labelBox, createAvailableTimePicker(value, isLocked));
+            return fieldBox;
         }
 
         valueField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -202,6 +218,36 @@ public class ProfileView {
 
         fieldBox.getChildren().addAll(labelBox, valueField);
         return fieldBox;
+    }
+
+    private VBox createAvailableTimePicker(String value, boolean isLocked) {
+        VBox container = new VBox();
+        container.setSpacing(4);
+
+        DatePicker datePicker = new DatePicker();
+        datePicker.setPrefWidth(400);
+        datePicker.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 16px;");
+
+        if (!value.isEmpty()) {
+            try {
+                datePicker.setValue(LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            } catch (Exception e) {
+            }
+        }
+
+        if (isLocked) {
+            datePicker.setDisable(true);
+            datePicker.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 16px;");
+        }
+
+        datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                updateUserField("availableTime", newValue.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            }
+        });
+
+        container.getChildren().add(datePicker);
+        return container;
     }
 
     private void updateUserField(String fieldName, String value) {
@@ -233,12 +279,66 @@ public class ProfileView {
     }
 
     private void saveProfile() {
+        String email = currentUser.getEmail();
+        if (email != null && !email.isEmpty()) {
+            String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+            if (!email.matches(emailRegex)) {
+                String errorMsg = "Invalid email format. Email must follow standard format:\n" +
+                        "- Contains '@' symbol in correct position\n" +
+                        "- Local part before '@' cannot start or end with '.'\n" +
+                        "- Domain part after '@' must have at least one '.' (like .com, .org)\n" +
+                        "- No consecutive '.' in local part\n" +
+                        "- No '.' immediately before or after '@'";
+                
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                alert.setTitle("Invalid Email Format");
+                alert.setHeaderText("Email format is incorrect");
+                alert.setContentText(errorMsg);
+                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                alert.showAndWait();
+                return;
+            }
+        }
+
         try {
             String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
             objectMapper.writeValue(new File(fileName), currentUser);
             System.out.println("个人档案已保存！");
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Save Successful");
+            alert.setHeaderText("Profile saved successfully");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Save Failed");
+            alert.setHeaderText("Failed to save profile");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.showAndWait();
+        }
+    }
+
+    private void exportProfileToJson() {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String fileName = "profile_export_" + currentUser.getTAId() + "_" + timestamp + ".json";
+            String filePath = data.DataConfig.TA_DIR + fileName;
+
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(filePath), currentUser);
+
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Export Successful");
+            alert.setHeaderText("Profile exported successfully!");
+            alert.setContentText("File saved to:\n" + filePath);
+            alert.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            errorAlert.setTitle("Export Failed");
+            errorAlert.setHeaderText("Failed to export profile");
+            errorAlert.setContentText("An error occurred while exporting. Please try again.");
+            errorAlert.showAndWait();
         }
     }
 }

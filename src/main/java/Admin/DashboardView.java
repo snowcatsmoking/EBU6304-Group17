@@ -1,8 +1,8 @@
 package Admin;
 
-import ZiqianCao.java.TAApplication;
-import ZiqianCao.java.TAApplicationRecord;
-import ZiqianCao.java.TAApplicationRecordManager;
+import TA.java.TAApplication;
+import TA.java.TAApplicationRecord;
+import TA.java.TAApplicationRecordManager;
 import LoginScreen.User;
 import data.JobDataManager;
 import data.LogManager;

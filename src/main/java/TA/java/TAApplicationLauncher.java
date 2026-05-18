@@ -1,4 +1,4 @@
-package ZiqianCao.java;
+package TA.java;
 
 public class TAApplicationLauncher {
     public static void main(String[] args) {

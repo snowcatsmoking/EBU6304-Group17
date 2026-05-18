@@ -1,4 +1,4 @@
-package ZiqianCao.java;
+package TA.java;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -57,14 +57,20 @@ public class FileUploader {
         container.setPadding(new Insets(0, 0, 0, 0));
 
         Label titleLabel = new Label("Attachments");
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         Button uploadButton = new Button("Choose File");
-        uploadButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
+        uploadButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
+        uploadButton.setOnMouseEntered(e ->
+            uploadButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;")
+        );
+        uploadButton.setOnMouseExited(e ->
+            uploadButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;")
+        );
         uploadButton.setOnAction(e -> openFileChooser());
 
         Label hintLabel = new Label("Supports Word (.doc, .docx) and PDF (.pdf) files, max 10MB");
-        hintLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+        hintLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
 
         HBox uploadBox = new HBox();
         uploadBox.setSpacing(12);
@@ -142,7 +148,7 @@ public class FileUploader {
 
         if (uploadedFiles.isEmpty()) {
             Label emptyLabel = new Label("No files uploaded");
-            emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #aaaaaa; -fx-padding: 8 0 8 0;");
+            emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-padding: 8 0 8 0;");
             fileListContainer.getChildren().add(emptyLabel);
         } else {
             for (String fileName : uploadedFiles) {
@@ -154,7 +160,7 @@ public class FileUploader {
 
     private HBox createFileItem(String fileName) {
         HBox item = new HBox();
-        item.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-width: 1;");
+        item.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;");
         item.setPadding(new Insets(8, 12, 8, 12));
         item.setSpacing(12);
         item.setAlignment(Pos.CENTER_LEFT);
@@ -163,7 +169,7 @@ public class FileUploader {
         iconLabel.setStyle("-fx-font-size: 18px;");
 
         Label nameLabel = new Label(fileName);
-        nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
 
         Button deleteButton = new Button("Delete");
         deleteButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ff4d4f; -fx-background-color: transparent; -fx-cursor: hand; -fx-border-width: 0;");

@@ -1,4 +1,4 @@
-package ZiqianCao.java;
+package TA.java;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -150,6 +150,8 @@ public class TAApplicationRecordManager {
         TAApplicationRecord record = getApplicationById(applicationId);
         if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
             record.setStatus(TAApplicationRecord.STATUS_APPROVED);
+            record.setStatusChangeDate(new java.util.Date());
+            record.setNotified(false);
             if (reviewComment != null && !reviewComment.trim().isEmpty()) {
                 record.setReviewComment(reviewComment.trim());
             }
@@ -167,6 +169,8 @@ public class TAApplicationRecordManager {
         TAApplicationRecord record = getApplicationById(applicationId);
         if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
             record.setStatus(TAApplicationRecord.STATUS_REJECTED);
+            record.setStatusChangeDate(new java.util.Date());
+            record.setNotified(false);
             if (reviewComment != null && !reviewComment.trim().isEmpty()) {
                 record.setReviewComment(reviewComment.trim());
             }
@@ -184,9 +188,32 @@ public class TAApplicationRecordManager {
                 TAApplicationRecord.STATUS_REJECTED.equals(record.getStatus()))) {
             record.setStatus(TAApplicationRecord.STATUS_PENDING);
             record.setReviewComment(null);
+            record.setStatusChangeDate(null);
+            record.setNotified(false);
             saveApplication(record);
             return true;
         }
         return false;
+    }
+
+    /** Get applications that have status changed and not yet notified */
+    public List<TAApplicationRecord> getUnnotifiedApplications(String taStudentId) {
+        List<TAApplicationRecord> result = new ArrayList<>();
+        List<TAApplicationRecord> allApps = getApplicationsByTA(taStudentId);
+        for (TAApplicationRecord app : allApps) {
+            if (!TAApplicationRecord.STATUS_PENDING.equals(app.getStatus()) && !app.isNotified()) {
+                result.add(app);
+            }
+        }
+        return result;
+    }
+
+    /** Mark an application as notified */
+    public void markAsNotified(String applicationId) {
+        TAApplicationRecord record = getApplicationById(applicationId);
+        if (record != null) {
+            record.setNotified(true);
+            saveApplication(record);
+        }
     }
 }

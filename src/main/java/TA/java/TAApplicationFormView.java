@@ -1,4 +1,4 @@
-package ZiqianCao.java;
+package TA.java;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
@@ -76,7 +76,7 @@ public class TAApplicationFormView {
         dialogStage.initOwner(ownerStage);
 
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #fafafa;");
+        root.setStyle("-fx-background-color: #f8fafc;");
 
         VBox content = new VBox();
         content.setPadding(new Insets(20, 20, 20, 20));
@@ -107,7 +107,7 @@ public class TAApplicationFormView {
         headerBox.setSpacing(12);
 
         Button backButton = new Button("←");
-        backButton.setStyle("-fx-font-size: 16px; -fx-text-fill: #333333; -fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 4 8 4 8;");
+        backButton.setStyle("-fx-font-size: 16px; -fx-text-fill: #6366f1; -fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 4 8 4 8;");
         backButton.setOnAction(e -> {
             if (dialogStage != null) {
                 dialogStage.close();
@@ -118,7 +118,7 @@ public class TAApplicationFormView {
         });
 
         Label titleLabel = new Label("Apply for Position");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         headerBox.getChildren().addAll(backButton, titleLabel);
 
@@ -127,12 +127,12 @@ public class TAApplicationFormView {
 
     private VBox createJobInfoBox() {
         VBox jobBox = new VBox();
-        jobBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        jobBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         jobBox.setPadding(new Insets(16, 16, 16, 16));
         jobBox.setSpacing(16);
 
         Label sectionTitle = new Label("Position Details");
-        sectionTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        sectionTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         VBox detailsBox = new VBox();
         detailsBox.setSpacing(12);
@@ -142,10 +142,10 @@ public class TAApplicationFormView {
         titleRow.setAlignment(Pos.CENTER_LEFT);
 
         Label titleLabel = new Label("Position:");
-        titleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        titleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label titleValue = new Label(currentJob.getPositionName());
-        titleValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        titleValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         titleRow.getChildren().addAll(titleLabel, titleValue);
 
@@ -154,10 +154,10 @@ public class TAApplicationFormView {
         courseRow.setAlignment(Pos.CENTER_LEFT);
 
         Label courseLabel = new Label("Course/Activity:");
-        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label courseValue = new Label(currentJob.getCourseName());
-        courseValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        courseValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         courseRow.getChildren().addAll(courseLabel, courseValue);
 
@@ -166,10 +166,10 @@ public class TAApplicationFormView {
         countRow.setAlignment(Pos.CENTER_LEFT);
 
         Label countLabel = new Label("Openings:");
-        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label countValue = new Label(String.valueOf(currentJob.getRecruitmentCount()));
-        countValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        countValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         countRow.getChildren().addAll(countLabel, countValue);
 
@@ -178,10 +178,10 @@ public class TAApplicationFormView {
         requirementRow.setAlignment(Pos.CENTER_LEFT);
 
         Label requirementLabel = new Label("Requirements:");
-        requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label requirementValue = new Label(currentJob.getRequirements());
-        requirementValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        requirementValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         requirementRow.getChildren().addAll(requirementLabel, requirementValue);
 
@@ -190,10 +190,10 @@ public class TAApplicationFormView {
         deadlineRow.setAlignment(Pos.CENTER_LEFT);
 
         Label deadlineLabel = new Label("Deadline:");
-        deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label deadlineValue = new Label(currentJob.getDeadline());
-        deadlineValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        deadlineValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         deadlineRow.getChildren().addAll(deadlineLabel, deadlineValue);
 
@@ -202,10 +202,10 @@ public class TAApplicationFormView {
         publisherRow.setAlignment(Pos.CENTER_LEFT);
 
         Label publisherLabel = new Label("Posted By:");
-        publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label publisherValue = new Label(currentJob.getPublisher());
-        publisherValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        publisherValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         publisherRow.getChildren().addAll(publisherLabel, publisherValue);
 
@@ -217,12 +217,12 @@ public class TAApplicationFormView {
 
     private VBox createPersonalInfoBox() {
         VBox personalBox = new VBox();
-        personalBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        personalBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         personalBox.setPadding(new Insets(16, 16, 16, 16));
         personalBox.setSpacing(16);
 
         Label sectionTitle = new Label("Personal Details");
-        sectionTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;");
+        sectionTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         VBox detailsBox = new VBox();
         detailsBox.setSpacing(12);
@@ -232,10 +232,10 @@ public class TAApplicationFormView {
         nameRow.setAlignment(Pos.CENTER_LEFT);
 
         Label nameLabel = new Label("Name:");
-        nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label nameValue = new Label(currentUser.getName());
-        nameValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        nameValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         nameRow.getChildren().addAll(nameLabel, nameValue);
 
@@ -244,10 +244,10 @@ public class TAApplicationFormView {
         idRow.setAlignment(Pos.CENTER_LEFT);
 
         Label idLabel = new Label("Student ID:");
-        idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label idValue = new Label(currentUser.getTAId());
-        idValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        idValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         idRow.getChildren().addAll(idLabel, idValue);
 
@@ -256,10 +256,10 @@ public class TAApplicationFormView {
         majorRow.setAlignment(Pos.CENTER_LEFT);
 
         Label majorLabel = new Label("Major:");
-        majorLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        majorLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label majorValue = new Label(currentUser.getMajor());
-        majorValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        majorValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         majorRow.getChildren().addAll(majorLabel, majorValue);
 
@@ -268,10 +268,10 @@ public class TAApplicationFormView {
         emailRow.setAlignment(Pos.CENTER_LEFT);
 
         Label emailLabel = new Label("Email:");
-        emailLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        emailLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label emailValue = new Label(currentUser.getEmail());
-        emailValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        emailValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         emailRow.getChildren().addAll(emailLabel, emailValue);
 
@@ -280,10 +280,10 @@ public class TAApplicationFormView {
         phoneRow.setAlignment(Pos.CENTER_LEFT);
 
         Label phoneLabel = new Label("Phone:");
-        phoneLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        phoneLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label phoneValue = new Label(currentUser.getPhone());
-        phoneValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        phoneValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         phoneRow.getChildren().addAll(phoneLabel, phoneValue);
 
@@ -292,10 +292,10 @@ public class TAApplicationFormView {
         skillsRow.setAlignment(Pos.CENTER_LEFT);
 
         Label skillsLabel = new Label("Skills:");
-        skillsLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        skillsLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label skillsValue = new Label(currentUser.getSkill());
-        skillsValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        skillsValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         skillsRow.getChildren().addAll(skillsLabel, skillsValue);
 
@@ -304,10 +304,10 @@ public class TAApplicationFormView {
         timeRow.setAlignment(Pos.CENTER_LEFT);
 
         Label timeLabel = new Label("Availability:");
-        timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        timeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
 
         Label timeValue = new Label(currentUser.getAvailableTime());
-        timeValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        timeValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         timeRow.getChildren().addAll(timeLabel, timeValue);
 
@@ -324,7 +324,7 @@ public class TAApplicationFormView {
         actionBox.setPadding(new Insets(8, 0, 0, 0));
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
+        cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
         cancelButton.setOnAction(e -> {
             if (dialogStage != null) {
                 dialogStage.close();
@@ -335,7 +335,13 @@ public class TAApplicationFormView {
         });
 
         Button submitButton = new Button("Submit Application");
-        submitButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
+        submitButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
+        submitButton.setOnMouseEntered(e ->
+            submitButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;")
+        );
+        submitButton.setOnMouseExited(e ->
+            submitButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;")
+        );
         submitButton.setOnAction(e -> submitApplication());
 
         actionBox.getChildren().addAll(cancelButton, submitButton);
@@ -384,8 +390,6 @@ public class TAApplicationFormView {
         
         recordManager.saveApplication(record);
         System.out.println("申请记录已保存！");
-        
-        showSuccess("Application Submitted", "Your application has been submitted successfully. Status: Under Review.");
 
         if (dialogStage != null) {
             dialogStage.close();
@@ -394,6 +398,8 @@ public class TAApplicationFormView {
             }
         }
 
+        // SkillGapAnalysisView.showSkillGapAnalysis(currentJob, currentUser); // TODO: not yet implemented
+
         if (applicationListener != null) {
             applicationListener.onApplicationSubmitted();
         }
@@ -401,18 +407,77 @@ public class TAApplicationFormView {
 
     private void showAlert(String title, String message) {
         System.out.println("显示警告弹窗: " + title + " - " + message);
-        Alert alert = new Alert(AlertType.WARNING);
-        alert.setTitle("Notice");
-        alert.setHeaderText(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+
+        Stage alertStage = new Stage();
+        alertStage.setTitle("Notice");
+        alertStage.initModality(Modality.WINDOW_MODAL);
+        if (dialogStage != null) {
+            alertStage.initOwner(dialogStage);
+        }
+
+        VBox alertBox = new VBox();
+        alertBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 16; -fx-background-radius: 16;");
+        alertBox.setPadding(new Insets(30, 40, 30, 40));
+        alertBox.setSpacing(20);
+        alertBox.setAlignment(Pos.CENTER);
+
+        Label iconLabel = new Label("⚠");
+        iconLabel.setStyle("-fx-font-size: 40px; -fx-text-fill: #b45309;");
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
+
+        Label messageLabel = new Label(message);
+        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-wrap-text: true;");
+        messageLabel.setMaxWidth(350);
+        messageLabel.setAlignment(Pos.CENTER);
+
+        Button closeButton = new Button("OK");
+        closeButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 10 40; -fx-cursor: hand;");
+        closeButton.setOnAction(e -> alertStage.close());
+
+        alertBox.getChildren().addAll(iconLabel, titleLabel, messageLabel, closeButton);
+
+        Scene alertScene = new Scene(alertBox, 400, 300);
+        alertStage.setScene(alertScene);
+        alertStage.setResizable(false);
+        alertStage.showAndWait();
     }
 
     private void showSuccess(String title, String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Stage alertStage = new Stage();
+        alertStage.setTitle("Success");
+        alertStage.initModality(Modality.WINDOW_MODAL);
+        if (dialogStage != null) {
+            alertStage.initOwner(dialogStage);
+        }
+
+        VBox alertBox = new VBox();
+        alertBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 16; -fx-background-radius: 16;");
+        alertBox.setPadding(new Insets(30, 40, 30, 40));
+        alertBox.setSpacing(20);
+        alertBox.setAlignment(Pos.CENTER);
+
+        Label iconLabel = new Label("✓");
+        iconLabel.setStyle("-fx-font-size: 40px; -fx-text-fill: #15803d;");
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
+
+        Label messageLabel = new Label(message);
+        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-wrap-text: true;");
+        messageLabel.setMaxWidth(350);
+        messageLabel.setAlignment(Pos.CENTER);
+
+        Button closeButton = new Button("OK");
+        closeButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 10 40; -fx-cursor: hand;");
+        closeButton.setOnAction(e -> alertStage.close());
+
+        alertBox.getChildren().addAll(iconLabel, titleLabel, messageLabel, closeButton);
+
+        Scene alertScene = new Scene(alertBox, 400, 300);
+        alertStage.setScene(alertScene);
+        alertStage.setResizable(false);
+        alertStage.showAndWait();
     }
 }
