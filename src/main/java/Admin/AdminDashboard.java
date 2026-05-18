@@ -64,6 +64,9 @@ public class AdminDashboard extends Application {
         Label navUsers      = buildNavItem("User Management");
         Label navPositions  = buildNavItem("Global Positions");
         Label navLogs       = buildNavItem("Operation Logs");
+        Label navStats      = buildNavItem("Recruitment Stats");
+        Label navExport     = buildNavItem("Data Export");
+        Label navBackup     = buildNavItem("Backup / Restore");
 
         navDashboard.setStyle(NAV_ACTIVE);
         activeNavLabel = navDashboard;
@@ -72,6 +75,9 @@ public class AdminDashboard extends Application {
         navUsers.setOnMouseClicked(e ->      { setActive(navUsers);      showUserManagement(); });
         navPositions.setOnMouseClicked(e ->  { setActive(navPositions);  showGlobalPositions(); });
         navLogs.setOnMouseClicked(e ->       { setActive(navLogs);       showOperationLog(); });
+        navStats.setOnMouseClicked(e ->      { setActive(navStats);      showRecruitmentStats(); });
+        navExport.setOnMouseClicked(e ->     { setActive(navExport);     showDataExport(); });
+        navBackup.setOnMouseClicked(e ->     { setActive(navBackup);     showBackupRestore(); });
 
         VBox spacer = new VBox();
         VBox.setVgrow(spacer, Priority.ALWAYS);
@@ -95,7 +101,7 @@ public class AdminDashboard extends Application {
 
         sidebar.getChildren().addAll(
             topSpacer,
-            navDashboard, navUsers, navPositions, navLogs,
+            navDashboard, navUsers, navPositions, navLogs, navStats, navExport, navBackup,
             spacer, logoutBox
         );
         return sidebar;
@@ -124,6 +130,18 @@ public class AdminDashboard extends Application {
 
     private void showGlobalPositions() {
         root.setCenter(new GlobalPositionsView().build());
+    }
+
+    private void showRecruitmentStats() {
+        root.setCenter(new RecruitmentStatsView().build());
+    }
+
+    private void showDataExport() {
+        root.setCenter(new DataExportView().build());
+    }
+
+    private void showBackupRestore() {
+        root.setCenter(new BackupRestoreView().build());
     }
 
     private void showOperationLog() {
