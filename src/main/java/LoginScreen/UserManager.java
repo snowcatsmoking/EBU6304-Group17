@@ -41,13 +41,13 @@ public class UserManager {
 
     private String getRoleKey(String role) {
         if (role.contains("TA Applicant")) {
-            return "TA/java";
+            return "TA";
         } else if (role.contains("Module Organiser")) {
             return "MO";
         } else if (role.contains("Admin")) {
             return "ADMIN";
         }
-        return "TA/java";
+        return "TA";
     }
 
     public String register(String account, String password, String role, String authCode) {
@@ -110,8 +110,8 @@ public class UserManager {
             try {
                 TAApplication ta = objectMapper.readValue(taFile, TAApplication.class);
                 if (ta.getPassword() != null && ta.getPassword().equals(password)) {
-                    logManager.log(account, "Login", account, "Role: TA/java");
-                    return "SUCCESS:TA/java";
+                    logManager.log(account, "Login", account, "Role: TA");
+                    return "SUCCESS:TA";
                 } else {
                     return "Incorrect password, please try again";
                 }
