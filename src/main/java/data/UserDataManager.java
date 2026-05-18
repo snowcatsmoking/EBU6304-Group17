@@ -107,7 +107,7 @@ public class UserDataManager {
      * @return true=成功，false=用户不存在
      */
     public boolean resetPassword(String account, String role, String newPassword) {
-        if ("TA/java".equals(role)) {
+        if ("TA".equals(role)) {
             TAApplication ta = getTAById(account);
             if (ta == null) return false;
             ta.setPassword(newPassword);
@@ -176,7 +176,7 @@ public class UserDataManager {
 
     private String dirByRole(String role) {
         switch (role) {
-            case "TA/java":    return DataConfig.TA_DIR;
+            case "TA":    return DataConfig.TA_DIR;
             case "MO":    return DataConfig.MO_DIR;
             case "ADMIN": return DataConfig.ADMIN_DIR;
             default:      return null;
