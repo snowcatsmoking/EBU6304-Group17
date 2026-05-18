@@ -136,6 +136,7 @@ public class TAApplicationRecordManager {
         TAApplicationRecord record = getApplicationById(applicationId);
         if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
             record.setStatus(TAApplicationRecord.STATUS_WITHDRAWN);
+            record.setNotified(true);
             saveApplication(record);
             return true;
         }

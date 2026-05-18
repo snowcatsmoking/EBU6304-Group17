@@ -282,7 +282,50 @@ public class PositionListComponent {
         );
         detailButton.setOnAction(e -> MatchDetailDialog.show(result, job.getPositionName(), job.getCourseName()));
 
-        matchingBox.getChildren().addAll(matchLabel, progressBar, percentLabel, detailButton);
+        Button reMatchButton = new Button("Re-match");
+        reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #f59e0b; -fx-background-color: transparent; -fx-border-color: #fcd34d; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
+        reMatchButton.setOnMouseEntered(e ->
+            reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #f59e0b; -fx-border-color: #f59e0b; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
+        );
+        reMatchButton.setOnMouseExited(e ->
+            reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #f59e0b; -fx-background-color: transparent; -fx-border-color: #fcd34d; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
+        );
+        reMatchButton.setOnAction(e -> {
+            matchingBox.getChildren().clear();
+            Label loadingLabel = new Label("Re-matching...");
+            loadingLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1;");
+            ProgressBar loadingBar = new ProgressBar();
+            loadingBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+            loadingBar.setPrefWidth(80);
+            loadingBar.setStyle("-fx-accent: #6366f1;");
+            matchingBox.getChildren().addAll(loadingLabel, loadingBar);
+
+            new Thread(() -> {
+                try {
+                    MatchingResult newResult = matchingService.computeMatch(currentStudentId, job.getJobId(), true);
+                    Platform.runLater(() -> {
+                        matchingBox.getChildren().clear();
+                        showMatchingBar(matchingBox, newResult, job);
+                    });
+                } catch (Exception ex) {
+                    Platform.runLater(() -> {
+                        matchingBox.getChildren().clear();
+                        Label errorLabel = new Label("Re-match failed");
+                        errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #ef4444;");
+                        matchingBox.getChildren().add(errorLabel);
+                        Button retryButton = new Button("Retry");
+                        retryButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-background-color: transparent; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
+                        retryButton.setOnAction(evt -> {
+                            matchingBox.getChildren().clear();
+                            showMatchButton(matchingBox, job);
+                        });
+                        matchingBox.getChildren().add(retryButton);
+                    });
+                }
+            }).start();
+        });
+
+        matchingBox.getChildren().addAll(matchLabel, progressBar, percentLabel, detailButton, reMatchButton);
 
         if (result.getReason() != null && !result.getReason().isEmpty()) {
             Tooltip tooltip = new Tooltip(result.getReason());

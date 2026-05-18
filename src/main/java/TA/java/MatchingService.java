@@ -38,9 +38,16 @@ public class MatchingService {
 
     /** Compute matching score via AI, with caching */
     public MatchingResult computeMatch(String studentId, String jobId) throws Exception {
-        MatchingResult cached = getCachedResult(studentId, jobId);
-        if (cached != null) {
-            return cached;
+        return computeMatch(studentId, jobId, false);
+    }
+
+    /** Compute matching score via AI, with optional cache bypass */
+    public MatchingResult computeMatch(String studentId, String jobId, boolean forceRecompute) throws Exception {
+        if (!forceRecompute) {
+            MatchingResult cached = getCachedResult(studentId, jobId);
+            if (cached != null) {
+                return cached;
+            }
         }
 
         TAApplication profile = TAApplicationUtils.loadUser(studentId);
