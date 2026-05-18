@@ -856,12 +856,14 @@ public class LoginView extends Application {
                 role, authCodeInput.getText());
 
             if (result.equals("SUCCESS")) {
-                showAlert("Registration Successful", "Your account has been created successfully!\n\nAccount ID: " + regAccountField.getText() + "\nRole: " + role + "\n\nPlease switch to the Login page to sign in.");
-                regAccountField.clear();
-                regPasswordField.clear();
-                confirmField.clear();
-                authCodeInput.clear();
-                roleCombo.getSelectionModel().select(0);
+                showAlert("Registration Successful", "Your account has been created successfully!\n\nAccount ID: " + regAccountField.getText() + "\nRole: " + role + "\n\nPlease sign in with your new account.", () -> {
+                    regAccountField.clear();
+                    regPasswordField.clear();
+                    confirmField.clear();
+                    authCodeInput.clear();
+                    roleCombo.getSelectionModel().select(0);
+                    switchToLogin();
+                });
             } else {
                 messageLabel.getStyleClass().removeAll("message-success");
                 messageLabel.getStyleClass().add("message-error");
@@ -978,11 +980,20 @@ public class LoginView extends Application {
     }
 
     private void showAlert(String title, String message) {
+        showAlert(title, message, null);
+    }
+
+    private void showAlert(String title, String message, Runnable onClose) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.setOnCloseRequest(e -> {
+            if (onClose != null) {
+                onClose.run();
+            }
+        });
         alert.showAndWait();
     }
 
