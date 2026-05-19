@@ -51,6 +51,19 @@ public class JobDataManager {
         objectMapper.writeValue(file, job);
     }
 
+    public boolean saveJobForMo(TAJob job, String moStaffId) {
+        if (job == null || !canManageJob(job.getJobId(), moStaffId)) {
+            return false;
+        }
+        try {
+            saveJob(job);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * 删除指定职位。
      *
@@ -80,6 +93,13 @@ public class JobDataManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean deactivateJobForMo(String jobId, String moStaffId) {
+        if (!canManageJob(jobId, moStaffId)) {
+            return false;
+        }
+        return deactivateJob(jobId);
     }
 
     // ==================== 读操作 ====================
@@ -114,7 +134,7 @@ public class JobDataManager {
     public List<TAJob> getActiveJobs() {
         List<TAJob> result = new ArrayList<>();
         for (TAJob job : getAllJobs()) {
-            if (!job.isActive()) {
+            if (isJobOpen(job)) {
                 result.add(job);
             }
         }
@@ -164,10 +184,40 @@ public class JobDataManager {
         File file = new File(DataConfig.JOB_DIR + jobId + ".json");
         if (!file.exists()) return null;
         try {
-            return objectMapper.readValue(file, TAJob.class);
+            TAJob job = objectMapper.readValue(file, TAJob.class);
+            refreshExpiredJob(job);
+            return job;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public boolean canManageJob(String jobId, String moStaffId) {
+        if (jobId == null || moStaffId == null || moStaffId.trim().isEmpty()) {
+            return false;
+        }
+        TAJob job = getJobById(jobId);
+        return job != null && moStaffId.equals(job.getMoStaffId());
+    }
+
+    public boolean isJobOpen(String jobId) {
+        return isJobOpen(getJobById(jobId));
+    }
+
+    public boolean isJobOpen(TAJob job) {
+        return job != null && !job.isActive() && !isJobExpired(job);
+    }
+
+    public boolean isJobExpired(TAJob job) {
+        if (job == null || job.getDeadline() == null || job.getDeadline().trim().isEmpty()) {
+            return false;
+        }
+        try {
+            LocalDate deadline = LocalDate.parse(job.getDeadline(), DATE_FORMATTER);
+            return deadline.isBefore(LocalDate.now());
+        } catch (DateTimeParseException ex) {
+            return false;
         }
     }
 }
