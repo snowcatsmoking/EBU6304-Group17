@@ -26,12 +26,12 @@ import java.util.List;
 
 public class AIService {
     private static final String SYSTEM_PROMPT =
-        "You are a Teaching Assistant (TA) recruitment assistant. " +
-        "Your sole purpose is to help students with TA-related matters: " +
-        "understanding TA positions, preparing application materials, answering questions about the TA application process, " +
-        "and providing guidance on qualifications and requirements. " +
-        "Do not answer questions unrelated to TA recruitment or the TA application system. " +
-        "If asked about unrelated topics, politely redirect the conversation back to TA-related matters.";
+            "You are a Teaching Assistant (TA) recruitment assistant. " +
+                    "Your sole purpose is to help students with TA-related matters: " +
+                    "understanding TA positions, preparing application materials, answering questions about the TA application process, " +
+                    "and providing guidance on qualifications and requirements. " +
+                    "Do not answer questions unrelated to TA recruitment or the TA application system. " +
+                    "If asked about unrelated topics, politely redirect the conversation back to TA-related matters.";
 
     private final AIConfig config;
     private final ArkService service;
@@ -60,20 +60,20 @@ public class AIService {
         InputContentItemText textItem = InputContentItemText.builder()
                 .text(userMessage)
                 .build();
-        
+
         MessageContent content = MessageContent.builder()
                 .addListItem(textItem)
                 .build();
-        
+
         ItemEasyMessage userMsg = ItemEasyMessage.builder()
                 .role(ResponsesConstants.MESSAGE_ROLE_USER)
                 .content(content)
                 .build();
-        
+
         ResponsesInput input = ResponsesInput.builder()
                 .addListItem(userMsg)
                 .build();
-        
+
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
                 .instructions(SYSTEM_PROMPT)
@@ -91,25 +91,25 @@ public class AIService {
                 .anInputContentItemFile()
                 .fileId(uploadedFile.id)
                 .build();
-        
+
         InputContentItemText textItem = InputContentItemText.builder()
                 .text(userMessage)
                 .build();
-        
+
         MessageContent content = MessageContent.builder()
                 .addListItem(fileItem)
                 .addListItem(textItem)
                 .build();
-        
+
         ItemEasyMessage userMsg = ItemEasyMessage.builder()
                 .role(ResponsesConstants.MESSAGE_ROLE_USER)
                 .content(content)
                 .build();
-        
+
         ResponsesInput input = ResponsesInput.builder()
                 .addListItem(userMsg)
                 .build();
-        
+
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
                 .instructions(SYSTEM_PROMPT)
@@ -126,20 +126,20 @@ public class AIService {
         InputContentItemText textItem = InputContentItemText.builder()
                 .text(userMessage)
                 .build();
-        
+
         MessageContent content = MessageContent.builder()
                 .addListItem(textItem)
                 .build();
-        
+
         ItemEasyMessage userMsg = ItemEasyMessage.builder()
                 .role(ResponsesConstants.MESSAGE_ROLE_USER)
                 .content(content)
                 .build();
-        
+
         ResponsesInput input = ResponsesInput.builder()
                 .addListItem(userMsg)
                 .build();
-        
+
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
                 .instructions(SYSTEM_PROMPT)
@@ -186,25 +186,25 @@ public class AIService {
                 .anInputContentItemFile()
                 .fileId(uploadedFile.id)
                 .build();
-        
+
         InputContentItemText textItem = InputContentItemText.builder()
                 .text(userMessage)
                 .build();
-        
+
         MessageContent content = MessageContent.builder()
                 .addListItem(fileItem)
                 .addListItem(textItem)
                 .build();
-        
+
         ItemEasyMessage userMsg = ItemEasyMessage.builder()
                 .role(ResponsesConstants.MESSAGE_ROLE_USER)
                 .content(content)
                 .build();
-        
+
         ResponsesInput input = ResponsesInput.builder()
                 .addListItem(userMsg)
                 .build();
-        
+
         CreateResponsesRequest request = CreateResponsesRequest.builder()
                 .model(config.getModel())
                 .instructions(SYSTEM_PROMPT)
@@ -265,7 +265,7 @@ public class AIService {
 
         String status = fileMeta.getStatus();
         if ("error".equals(status) || "failed".equals(status)) {
-            throw new Exception("文件处理失败: " + status);
+            throw new Exception("File processing failed: " + status);
         }
 
         return new UploadedFile(
@@ -296,7 +296,7 @@ public class AIService {
             return;
         }
         if (!config.isValid()) {
-            throw new Exception("请先配置 API Key");
+            throw new Exception("Please configure an API key first.");
         }
     }
 
@@ -361,8 +361,8 @@ public class AIService {
 
                 if (contentList != null && !contentList.isEmpty()) {
                     for (Object contentItem : contentList) {
-                        if (contentItem != null && 
-                            contentItem.getClass().getSimpleName().equals("OutputContentItemText")) {
+                        if (contentItem != null &&
+                                contentItem.getClass().getSimpleName().equals("OutputContentItemText")) {
 
                             Method getTextMethod = contentItem.getClass().getMethod("getText");
                             String text = (String) getTextMethod.invoke(contentItem);
@@ -421,4 +421,3 @@ public class AIService {
         return null;
     }
 }
-

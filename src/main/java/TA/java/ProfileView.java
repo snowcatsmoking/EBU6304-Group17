@@ -77,8 +77,8 @@ public class ProfileView {
         hasActiveApplication = false;
         for (TAApplicationRecord record : records) {
             String status = record.getStatus();
-            if (TAApplicationRecord.STATUS_PENDING.equals(status) || 
-                TAApplicationRecord.STATUS_APPROVED.equals(status)) {
+            if (TAApplicationRecord.STATUS_PENDING.equals(status) ||
+                    TAApplicationRecord.STATUS_APPROVED.equals(status)) {
                 hasActiveApplication = true;
                 break;
             }
@@ -138,10 +138,10 @@ public class ProfileView {
         Button saveButton = new Button("Save");
         saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         saveButton.setOnMouseEntered(e ->
-            saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
+                saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
         );
         saveButton.setOnMouseExited(e ->
-            saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
+                saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
         );
         saveButton.setOnAction(e -> saveProfile());
 
@@ -226,7 +226,7 @@ public class ProfileView {
 
         DatePicker datePicker = new DatePicker();
         datePicker.setPrefWidth(400);
-        datePicker.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 16px;");
+        datePicker.getStyleClass().add("ta-date-picker");
 
         if (!value.isEmpty()) {
             try {
@@ -237,7 +237,7 @@ public class ProfileView {
 
         if (isLocked) {
             datePicker.setDisable(true);
-            datePicker.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 16px;");
+            datePicker.getStyleClass().add("ta-date-picker-locked");
         }
 
         datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -289,7 +289,7 @@ public class ProfileView {
                         "- Domain part after '@' must have at least one '.' (like .com, .org)\n" +
                         "- No consecutive '.' in local part\n" +
                         "- No '.' immediately before or after '@'";
-                
+
                 javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
                 alert.setTitle("Invalid Email Format");
                 alert.setHeaderText("Email format is incorrect");

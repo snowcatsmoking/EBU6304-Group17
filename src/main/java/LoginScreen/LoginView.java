@@ -7,6 +7,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
@@ -15,14 +16,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -32,7 +32,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -102,7 +104,7 @@ public class LoginView extends Application {
     // ========== Creature Builder ==========
 
     private CreatureData createCreature(int height, String gradient,
-                                         double eyeR, double pupilR) {
+                                        double eyeR, double pupilR) {
         Pane pane = new Pane();
         pane.setPrefSize(110, height);
         pane.setMinSize(110, height);
@@ -114,9 +116,9 @@ public class LoginView extends Application {
         body.setMaxSize(110, height);
         body.setMinSize(110, height);
         body.setStyle(
-            "-fx-background-color: " + gradient + ";" +
-            "-fx-background-radius: 55 55 0 0;" +
-            "-fx-effect: innershadow(gaussian, rgba(0,0,0,0.15), 30, 0.5, 14, 0);"
+                "-fx-background-color: " + gradient + ";" +
+                        "-fx-background-radius: 55 55 0 0;" +
+                        "-fx-effect: innershadow(gaussian, rgba(0,0,0,0.15), 30, 0.5, 14, 0);"
         );
 
         Region highlight = new Region();
@@ -148,7 +150,7 @@ public class LoginView extends Application {
             Label squeezeEye = new Label(i == 0 ? ">" : "<");
             squeezeEye.setTextFill(Color.WHITE);
             squeezeEye.setStyle("-fx-font-size: 28px; -fx-font-weight: 900;" +
-                "-fx-effect: dropshadow(gaussian, rgba(30,41,59,0.16), 4, 0, 0, 2);");
+                    "-fx-effect: dropshadow(gaussian, rgba(30,41,59,0.16), 4, 0, 0, 2);");
 
             StackPane eyeStack = new StackPane(eyeWhite, pupil, pupilDot, squeezeEye);
             eyeWhites[i] = eyeWhite;
@@ -197,14 +199,14 @@ public class LoginView extends Application {
             fade.setToValue(1);
 
             Timeline squash = new Timeline(
-                new KeyFrame(Duration.ZERO,
-                    new KeyValue(creature.pane.scaleYProperty(), 0.96)),
-                new KeyFrame(Duration.millis(650),
-                    new KeyValue(creature.pane.scaleYProperty(), 1.04)),
-                new KeyFrame(Duration.millis(900),
-                    new KeyValue(creature.pane.scaleYProperty(), 0.985)),
-                new KeyFrame(Duration.millis(1050),
-                    new KeyValue(creature.pane.scaleYProperty(), 1.0))
+                    new KeyFrame(Duration.ZERO,
+                            new KeyValue(creature.pane.scaleYProperty(), 0.96)),
+                    new KeyFrame(Duration.millis(650),
+                            new KeyValue(creature.pane.scaleYProperty(), 1.04)),
+                    new KeyFrame(Duration.millis(900),
+                            new KeyValue(creature.pane.scaleYProperty(), 0.985)),
+                    new KeyFrame(Duration.millis(1050),
+                            new KeyValue(creature.pane.scaleYProperty(), 1.0))
             );
             squash.setDelay(Duration.millis(baseDelay + i * 180));
 
@@ -220,7 +222,7 @@ public class LoginView extends Application {
             shadowFade.setFromValue(0);
             shadowFade.setToValue(1);
             javafx.animation.ScaleTransition shadowScale =
-                new javafx.animation.ScaleTransition(Duration.millis(850), groundShadow);
+                    new javafx.animation.ScaleTransition(Duration.millis(850), groundShadow);
             shadowScale.setFromX(0.45);
             shadowScale.setToX(1);
             new ParallelTransition(shadowFade, shadowScale).play();
@@ -276,17 +278,17 @@ public class LoginView extends Application {
 
         // OS-level AWT listener: catches mouse events before JavaFX sees them
         java.awt.Toolkit.getDefaultToolkit().addAWTEventListener(
-            awtEvent -> {
-                if (awtEvent instanceof java.awt.event.MouseEvent me) {
-                    java.awt.Point screenLoc = me.getLocationOnScreen();
-                    // Convert screen → scene coordinates via root (must run on FX thread later)
-                    // Store raw screen coords; timer will convert on FX thread
-                    mouseScreenX = screenLoc.getX();
-                    mouseScreenY = screenLoc.getY();
-                }
-            },
-            java.awt.AWTEvent.MOUSE_MOTION_EVENT_MASK |
-            java.awt.AWTEvent.MOUSE_EVENT_MASK
+                awtEvent -> {
+                    if (awtEvent instanceof java.awt.event.MouseEvent me) {
+                        java.awt.Point screenLoc = me.getLocationOnScreen();
+                        // Convert screen → scene coordinates via root (must run on FX thread later)
+                        // Store raw screen coords; timer will convert on FX thread
+                        mouseScreenX = screenLoc.getX();
+                        mouseScreenY = screenLoc.getY();
+                    }
+                },
+                java.awt.AWTEvent.MOUSE_MOTION_EVENT_MASK |
+                        java.awt.AWTEvent.MOUSE_EVENT_MASK
         );
 
         eyeTimer = new AnimationTimer() {
@@ -296,7 +298,7 @@ public class LoginView extends Application {
                 if (!Double.isNaN(mouseScreenX)) {
                     try {
                         javafx.geometry.Point2D local = root.screenToLocal(
-                            mouseScreenX, mouseScreenY);
+                                mouseScreenX, mouseScreenY);
                         if (local != null) {
                             mouseX = local.getX();
                             mouseY = local.getY();
@@ -354,7 +356,7 @@ public class LoginView extends Application {
 
         while (node != null) {
             if (node instanceof TextField || node instanceof PasswordField ||
-                node instanceof ComboBox || node instanceof Button) {
+                    node instanceof ComboBox || node instanceof Button) {
                 return true;
             }
             node = node.getParent();
@@ -453,14 +455,14 @@ public class LoginView extends Application {
 
         // Creatures
         CreatureData c1 = createCreature(320,
-            "linear-gradient(to bottom, #fca5a5 0%, #f87171 20%, " +
-            "#ef4444 50%, #dc2626 100%)", 12, 6.5);
+                "linear-gradient(to bottom, #fca5a5 0%, #f87171 20%, " +
+                        "#ef4444 50%, #dc2626 100%)", 12, 6.5);
         CreatureData c2 = createCreature(460,
-            "linear-gradient(to bottom, #fde68a 0%, #fbbf24 20%, " +
-            "#f59e0b 50%, #d97706 100%)", 13, 7);
+                "linear-gradient(to bottom, #fde68a 0%, #fbbf24 20%, " +
+                        "#f59e0b 50%, #d97706 100%)", 13, 7);
         CreatureData c3 = createCreature(270,
-            "linear-gradient(to bottom, #a5b4fc 0%, #818cf8 20%, " +
-            "#6366f1 50%, #4f46e5 100%)", 11, 6);
+                "linear-gradient(to bottom, #a5b4fc 0%, #818cf8 20%, " +
+                        "#6366f1 50%, #4f46e5 100%)", 11, 6);
         allCreatures.clear();
         allCreatures.addAll(List.of(c1, c2, c3));
 
@@ -658,8 +660,8 @@ public class LoginView extends Application {
         loginButton.getStyleClass().add("btn-primary");
         loginButton.setOnAction(e -> {
             String result = userManager.login(
-                loginAccountField.getText(),
-                loginPasswordField.getText()
+                    loginAccountField.getText(),
+                    loginPasswordField.getText()
             );
 
             if (result.startsWith("SUCCESS:")) {
@@ -849,11 +851,11 @@ public class LoginView extends Application {
                 return;
             }
             String role = roleCombo.getSelectionModel().getSelectedIndex() == 0 ? "" :
-                          roleCombo.getSelectionModel().getSelectedItem().toString();
+                    roleCombo.getSelectionModel().getSelectedItem().toString();
 
             String result = userManager.register(
-                regAccountField.getText(), regPasswordField.getText(),
-                role, authCodeInput.getText());
+                    regAccountField.getText(), regPasswordField.getText(),
+                    role, authCodeInput.getText());
 
             if (result.equals("SUCCESS")) {
                 showAlert("Registration Successful", "Your account has been created successfully!\n\nAccount ID: " + regAccountField.getText() + "\nRole: " + role + "\n\nPlease sign in with your new account.", () -> {
@@ -995,17 +997,174 @@ public class LoginView extends Application {
     }
 
     private void showAlert(String title, String message, Runnable onClose) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-        alert.setOnCloseRequest(e -> {
+        Stage dialog = new Stage();
+        dialog.initOwner(primaryStage);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle(title);
+
+        boolean success = title.toLowerCase().contains("successful");
+        boolean invalid = title.toLowerCase().contains("invalid");
+        String accent = success ? "#4f46e5" : (invalid ? "#f59e0b" : "#ef4444");
+        String softAccent = success ? "#eef2ff" : (invalid ? "#fffbeb" : "#fef2f2");
+        String borderAccent = success ? "#c7d2fe" : (invalid ? "#fde68a" : "#fecaca");
+        String iconText = success ? "✓" : "!";
+        String buttonText = success ? "Sign In Now" : "Got It";
+
+        StackPane shell = new StackPane();
+        shell.setPadding(new Insets(18));
+        shell.setStyle("-fx-background-color: transparent;");
+
+        VBox card = new VBox(16);
+        card.setAlignment(Pos.TOP_CENTER);
+        card.setMaxWidth(440);
+        card.setPadding(new Insets(18, 22, 20, 22));
+        card.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 18;" +
+                        "-fx-border-color: " + borderAccent + ";" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 18;"
+        );
+
+        HBox creatureDots = new HBox(7);
+        creatureDots.setAlignment(Pos.CENTER);
+        String[] dotColors = {"#ef4444", "#f59e0b", "#6366f1"};
+        for (String color : dotColors) {
+            Circle dot = new Circle(color.equals(accent) || (success && color.equals("#6366f1")) ? 5.5 : 4.5);
+            dot.setFill(Color.web(color));
+            dot.setOpacity(color.equals(accent) || (success && color.equals("#6366f1")) ? 1 : 0.55);
+            creatureDots.getChildren().add(dot);
+        }
+
+        StackPane iconBadge = new StackPane();
+        iconBadge.setMinSize(48, 48);
+        iconBadge.setPrefSize(48, 48);
+        iconBadge.setMaxSize(48, 48);
+        iconBadge.setStyle(
+                "-fx-background-color: " + softAccent + ";" +
+                        "-fx-background-radius: 24;" +
+                        "-fx-border-color: " + borderAccent + ";" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 24;"
+        );
+        Label icon = new Label(iconText);
+        icon.setTextFill(Color.web(accent));
+        icon.setStyle("-fx-font-size: 24px; -fx-font-weight: 800;");
+        iconBadge.getChildren().add(icon);
+
+        Label titleLabel = new Label(title);
+        titleLabel.setWrapText(true);
+        titleLabel.setAlignment(Pos.CENTER);
+        titleLabel.setMaxWidth(380);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+
+        VBox messageBox = createAlertMessageBox(message, success, softAccent, borderAccent, accent);
+
+        Button closeButton = new Button(buttonText);
+        closeButton.setDefaultButton(true);
+        closeButton.setMinWidth(150);
+        closeButton.setStyle(
+                "-fx-font-size: 14px;" +
+                        "-fx-font-weight: 700;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-color: " + accent + ";" +
+                        "-fx-background-radius: 999;" +
+                        "-fx-padding: 10 26;" +
+                        "-fx-cursor: hand;"
+        );
+        closeButton.setOnMouseEntered(e -> closeButton.setOpacity(0.88));
+        closeButton.setOnMouseExited(e -> closeButton.setOpacity(1));
+        closeButton.setOnAction(e -> dialog.close());
+
+        card.getChildren().addAll(creatureDots, iconBadge, titleLabel, messageBox, closeButton);
+        shell.getChildren().add(card);
+
+        Scene scene = new Scene(shell, 510, success ? 360 : 320);
+        scene.setFill(Color.TRANSPARENT);
+        scene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE || e.getCode() == KeyCode.ENTER) {
+                dialog.close();
+            }
+        });
+        dialog.setScene(scene);
+        dialog.setOnHidden(e -> {
             if (onClose != null) {
                 onClose.run();
             }
         });
-        alert.showAndWait();
+
+        card.setOpacity(0);
+        card.setScaleX(0.94);
+        card.setScaleY(0.94);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(180), card);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(220), card);
+        scaleIn.setFromX(0.94);
+        scaleIn.setFromY(0.94);
+        scaleIn.setToX(1);
+        scaleIn.setToY(1);
+        scaleIn.setInterpolator(javafx.animation.Interpolator.SPLINE(0.2, 0.9, 0.2, 1));
+        dialog.setOnShown(e -> {
+            new ParallelTransition(fadeIn, scaleIn).play();
+            closeButton.requestFocus();
+        });
+
+        dialog.showAndWait();
+    }
+
+    private VBox createAlertMessageBox(String message, boolean success, String softAccent, String borderAccent, String accent) {
+        VBox messageBox = new VBox(8);
+        messageBox.setAlignment(Pos.CENTER);
+        messageBox.setMaxWidth(390);
+
+        if (success && message.contains("Account ID:") && message.contains("Role:")) {
+            String[] lines = message.split("\\n");
+            Label lead = new Label(lines[0]);
+            lead.setWrapText(true);
+            lead.setAlignment(Pos.CENTER);
+            lead.setMaxWidth(370);
+            lead.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+
+            VBox infoBox = new VBox(6);
+            infoBox.setAlignment(Pos.CENTER);
+            infoBox.setPadding(new Insets(10, 12, 10, 12));
+            infoBox.setStyle(
+                    "-fx-background-color: " + softAccent + ";" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-color: " + borderAccent + ";" +
+                            "-fx-border-width: 1;" +
+                            "-fx-border-radius: 12;"
+            );
+
+            for (String line : lines) {
+                if (line.startsWith("Account ID:") || line.startsWith("Role:")) {
+                    Label item = new Label(line);
+                    item.setAlignment(Pos.CENTER);
+                    item.setMaxWidth(Double.MAX_VALUE);
+                    item.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: " + accent + ";");
+                    infoBox.getChildren().add(item);
+                }
+            }
+
+            Label hint = new Label("The blue one is cheering for your first login.");
+            hint.setWrapText(true);
+            hint.setAlignment(Pos.CENTER);
+            hint.setMaxWidth(370);
+            hint.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
+
+            messageBox.getChildren().addAll(lead, infoBox, hint);
+        } else {
+            Label body = new Label(message);
+            body.setWrapText(true);
+            body.setAlignment(Pos.CENTER);
+            body.setMaxWidth(370);
+            body.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-line-spacing: 2;");
+            messageBox.getChildren().add(body);
+        }
+
+        return messageBox;
     }
 
     public static void main(String[] args) {
