@@ -170,11 +170,31 @@ public class ApplicationDetailView {
         skillsValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b;");
         skillsBox.getChildren().addAll(skillsLabel, skillsValue);
 
+        HBox keywordsBox = new HBox();
+        keywordsBox.setSpacing(10);
+        Label keywordsLabel = new Label("Keywords:");
+        keywordsLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-min-width: 100px;");
+        Label keywordsValue = new Label(SkillUtils.toDisplayText(record.getEffectiveKeywords(), "No keywords extracted"));
+        keywordsValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b; -fx-wrap-text: true;");
+        keywordsValue.setWrapText(true);
+        keywordsBox.getChildren().addAll(keywordsLabel, keywordsValue);
+
+        VBox resumeBox = new VBox();
+        resumeBox.setSpacing(5);
+        Label resumeLabel = new Label("Resume Text:");
+        resumeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748b;");
+        Label resumeValue = new Label(record.getResumeText() == null || record.getResumeText().trim().isEmpty()
+            ? "No resume text provided"
+            : record.getResumeText().trim());
+        resumeValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b; -fx-wrap-text: true;");
+        resumeValue.setWrapText(true);
+        resumeBox.getChildren().addAll(resumeLabel, resumeValue);
+
         detailBox.getChildren().addAll(
                 positionTitle, positionNameBox, courseNameBox, moduleCodeBox,
                 applicationTitle, applicationDateBox, statusBox,
                 reviewTitle, reviewerBox, commentBox,
-                personalTitle, studentNameBox, majorBox, phoneBox, emailBox, availableTimeBox, skillsBox
+                personalTitle, studentNameBox, majorBox, phoneBox, emailBox, availableTimeBox, skillsBox, keywordsBox, resumeBox
         );
 
         HBox buttonBox = new HBox();
