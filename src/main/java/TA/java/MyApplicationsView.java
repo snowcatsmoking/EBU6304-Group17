@@ -58,8 +58,8 @@ public class MyApplicationsView {
         availableTimeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
         availableTimeField = new DatePicker();
         availableTimeField.setPromptText("Select date");
-        availableTimeField.setStyle("-fx-font-size: 14px; -fx-padding: 8 12 8 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8;");
-        availableTimeField.setPrefWidth(150);
+        availableTimeField.getStyleClass().add("ta-date-picker");
+        availableTimeField.setPrefWidth(190);
 
         Button filterButton = new Button("Filter");
         filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
@@ -73,7 +73,7 @@ public class MyApplicationsView {
 
         // 获取所有申请记录（含已撤回、未通过）
         allApplications = recordManager.getApplicationsByStudentId(currentStudentId);
-        
+
         // 按照申请时间排序，从新到旧
         java.util.Collections.sort(allApplications, (a1, a2) -> {
             if (a1.getApplicationDate() != null && a2.getApplicationDate() != null) {
@@ -81,21 +81,21 @@ public class MyApplicationsView {
             }
             return 0;
         });
-        
+
         // 初始化当前显示的记录为所有记录
         currentApplications = new java.util.ArrayList<>(allApplications);
-        
+
         HBox tableHeader = createTableHeader();
-        
+
         // 创建表格内容容器
         tableContentBox = new VBox();
         tableContentBox.setSpacing(0);
-        
+
         // 创建空标签
         emptyLabel = new Label("No application records");
         emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #94a3b8;");
         emptyLabel.setPadding(new Insets(40, 0, 40, 0));
-        
+
         // 创建滚动面板
         scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
@@ -103,10 +103,10 @@ public class MyApplicationsView {
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        
+
         // 刷新表格内容
         refreshTableContent();
-        
+
         content.getChildren().addAll(titleLabel, filterBox, tableHeader, scrollPane);
 
         ScrollPane outerScrollPane = new ScrollPane();
@@ -119,10 +119,10 @@ public class MyApplicationsView {
 
         return outerScrollPane;
     }
-    
+
     private void refreshTableContent() {
         tableContentBox.getChildren().clear();
-        
+
         if (currentApplications.isEmpty()) {
             // 显示空标签
             scrollPane.setContent(emptyLabel);
@@ -132,13 +132,13 @@ public class MyApplicationsView {
                 String statusType = getStatusType(record.getStatus());
                 boolean canWithdraw = TAApplicationRecord.STATUS_PENDING.equals(record.getStatus());
                 HBox row = createTableRow(
-                    record.getPositionName(),
-                    dateFormat.format(record.getApplicationDate()),
-                    getStatusDisplay(record.getStatus()),
-                    statusType,
-                    canWithdraw,
-                    record.getApplicationId(),
-                    record
+                        record.getPositionName(),
+                        dateFormat.format(record.getApplicationDate()),
+                        getStatusDisplay(record.getStatus()),
+                        statusType,
+                        canWithdraw,
+                        record.getApplicationId(),
+                        record
                 );
                 tableContentBox.getChildren().add(row);
             }
@@ -156,7 +156,7 @@ public class MyApplicationsView {
 
             if (inputDate != null) {
                 java.time.LocalDate applicationDate = record.getApplicationDate().toInstant()
-                    .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+                        .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
                 if (applicationDate.isAfter(inputDate)) {
                     match = false;
                 }

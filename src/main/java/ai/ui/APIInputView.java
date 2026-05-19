@@ -27,60 +27,60 @@ public class APIInputView {
         Label title = new Label("AI Assistant");
         title.setStyle("-fx-font-size: 28px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
 
-        Label subtitle = new Label("请输入API Key以使用AI助手");
+        Label subtitle = new Label("Enter your API key to use the AI assistant");
         subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748b;");
 
         PasswordField apiKeyField = new PasswordField();
-        apiKeyField.setPromptText("在此输入API Key");
+        apiKeyField.setPromptText("Enter API key");
         apiKeyField.setStyle(
                 "-fx-padding: 12px 16px;" +
-                "-fx-background-color: #ffffff;" +
-                "-fx-border-color: #e2e8f0;" +
-                "-fx-border-width: 1px;" +
-                "-fx-border-radius: 8px;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-font-size: 14px;"
+                        "-fx-background-color: #ffffff;" +
+                        "-fx-border-color: #e2e8f0;" +
+                        "-fx-border-width: 1px;" +
+                        "-fx-border-radius: 8px;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-font-size: 14px;"
         );
         apiKeyField.setMaxWidth(400);
 
         Label errorLabel = new Label("");
         errorLabel.setStyle("-fx-font-size: 13px;");
 
-        Button submitBtn = new Button("进入AI助手");
+        Button submitBtn = new Button("Open AI Assistant");
         submitBtn.setStyle(
                 "-fx-font-size: 14px;" +
-                "-fx-text-fill: #ffffff;" +
-                "-fx-background-color: #6366f1;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-padding: 12px 32px;" +
-                "-fx-cursor: hand;"
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-background-color: #6366f1;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-padding: 12px 32px;" +
+                        "-fx-cursor: hand;"
         );
         submitBtn.setOnMouseEntered(e -> submitBtn.setStyle(
                 "-fx-font-size: 14px;" +
-                "-fx-text-fill: #ffffff;" +
-                "-fx-background-color: #4f46e5;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-padding: 12px 32px;" +
-                "-fx-cursor: hand;")
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-background-color: #4f46e5;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-padding: 12px 32px;" +
+                        "-fx-cursor: hand;")
         );
         submitBtn.setOnMouseExited(e -> submitBtn.setStyle(
                 "-fx-font-size: 14px;" +
-                "-fx-text-fill: #ffffff;" +
-                "-fx-background-color: #6366f1;" +
-                "-fx-background-radius: 8px;" +
-                "-fx-padding: 12px 32px;" +
-                "-fx-cursor: hand;")
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-background-color: #6366f1;" +
+                        "-fx-background-radius: 8px;" +
+                        "-fx-padding: 12px 32px;" +
+                        "-fx-cursor: hand;")
         );
 
         submitBtn.setOnAction(e -> {
             String apiKey = apiKeyField.getText().trim();
             if (apiKey.isEmpty()) {
-                errorLabel.setText("请输入有效的API Key！");
+                errorLabel.setText("Please enter a valid API key.");
                 errorLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #ef4444;");
                 return;
             }
 
-            errorLabel.setText("验证成功！正在进入...");
+            errorLabel.setText("Verified. Opening assistant...");
             errorLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #15803d;");
 
             if (onAPISubmitted != null) {
@@ -90,18 +90,18 @@ public class APIInputView {
 
         apiKeyField.setOnAction(e -> submitBtn.fire());
 
-        Button clearKeyBtn = new Button("清除已保存的API Key");
+        Button clearKeyBtn = new Button("Clear saved API key");
         clearKeyBtn.setStyle(
                 "-fx-font-size: 12px;" +
-                "-fx-text-fill: #64748b;" +
-                "-fx-background-color: transparent;" +
-                "-fx-underline: true;" +
-                "-fx-cursor: hand;"
+                        "-fx-text-fill: #64748b;" +
+                        "-fx-background-color: transparent;" +
+                        "-fx-underline: true;" +
+                        "-fx-cursor: hand;"
         );
         clearKeyBtn.setOnAction(e -> {
             AIConfig config = new AIConfig();
             config.setApiKey("");
-            errorLabel.setText("API Key已清除");
+            errorLabel.setText("API key cleared.");
             errorLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         });
 

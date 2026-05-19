@@ -56,7 +56,7 @@ public class FilterComponent {
         timeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
         availableTimeField = new DatePicker();
         availableTimeField.setPromptText("Select date");
-        availableTimeField.setStyle("-fx-font-size: 14px; -fx-padding: 8 12 8 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8;");
+        availableTimeField.getStyleClass().add("ta-date-picker");
         availableTimeField.setPrefWidth(200);
         timeBox.getChildren().addAll(timeLabel, availableTimeField);
 
@@ -79,10 +79,10 @@ public class FilterComponent {
         Button filterButton = new Button("Filter");
         filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         filterButton.setOnMouseEntered(e ->
-            filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
+                filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
         );
         filterButton.setOnMouseExited(e ->
-            filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
+                filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
         );
         filterButton.setOnAction(e -> applyFilter());
 
@@ -110,9 +110,9 @@ public class FilterComponent {
                 availableTimeStr = availableTimeField.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             }
             listener.onFilter(
-                courseNameField.getText().trim(),
-                availableTimeStr,
-                recruitmentCountField.getText().trim()
+                    courseNameField.getText().trim(),
+                    availableTimeStr,
+                    recruitmentCountField.getText().trim()
             );
         }
     }

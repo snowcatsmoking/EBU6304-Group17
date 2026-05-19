@@ -53,7 +53,7 @@ public class TAPositionListUI extends Application {
     public void navigateTo() {
         this.primaryStage = core.AppNavigator.getInstance().getStage();
         buildUI();
-        core.AppNavigator.getInstance().navigateTo(new Scene(rootContainer), "TA Application System");
+        core.AppNavigator.getInstance().navigateTo(createStyledScene(), "TA Application System");
     }
 
     @Override
@@ -61,7 +61,13 @@ public class TAPositionListUI extends Application {
         this.primaryStage = primaryStage;
         core.AppNavigator.getInstance().init(primaryStage);
         buildUI();
-        core.AppNavigator.getInstance().navigateTo(new Scene(rootContainer), "TA Application System");
+        core.AppNavigator.getInstance().navigateTo(createStyledScene(), "TA Application System");
+    }
+
+    private Scene createStyledScene() {
+        Scene scene = new Scene(rootContainer);
+        scene.getStylesheets().add(TAPositionListUI.class.getResource("/styles/ta-theme.css").toExternalForm());
+        return scene;
     }
 
     private void buildUI() {
@@ -257,11 +263,11 @@ public class TAPositionListUI extends Application {
             if (!availableTime.isEmpty()) {
                 try {
                     // 解析用户输入的日期
-                    java.time.LocalDate inputDate = java.time.LocalDate.parse(availableTime, 
-                        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    java.time.LocalDate inputDate = java.time.LocalDate.parse(availableTime,
+                            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     // 解析岗位的截止日期
-                    java.time.LocalDate deadlineDate = java.time.LocalDate.parse(job.getDeadline(), 
-                        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    java.time.LocalDate deadlineDate = java.time.LocalDate.parse(job.getDeadline(),
+                            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     // 只保留截止日期在输入日期及之前的岗位
                     if (deadlineDate.isAfter(inputDate)) {
                         match = false;
@@ -304,7 +310,7 @@ public class TAPositionListUI extends Application {
     private void refreshPositionList() {
         // 当筛选或分页变化时，刷新职位列表
         VBox newPositionListUI = positionListComponent.createPositionList(filteredJobList, paginationComponent.getCurrentPage(), PAGE_SIZE);
-        
+
         // 替换当前的职位列表
         if (positionListUI != null) {
             javafx.scene.Parent parent = positionListUI.getParent();
