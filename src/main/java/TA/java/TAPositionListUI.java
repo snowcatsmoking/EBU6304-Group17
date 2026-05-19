@@ -131,7 +131,7 @@ public class TAPositionListUI extends Application {
     }
 
     private void initJobList() {
-        jobList = new JobDataManager().getAllJobs();
+        jobList = new JobDataManager().getActiveJobs();
     }
 
 
@@ -335,8 +335,23 @@ public class TAPositionListUI extends Application {
             return;
         }
 
+        JobDataManager jobDataManager = new JobDataManager();
+        TAJob latestJob = jobDataManager.getJobById(job.getJobId());
+        if (!jobDataManager.isJobOpen(latestJob)) {
+            TAAlertDialog.showWarning(
+                primaryStage,
+                "Position Unavailable",
+                "This position is no longer open",
+                "The deadline has passed or the module organiser has closed this position. Existing applications are not affected.",
+                null
+            );
+            initJobList();
+            switchToView("positions");
+            return;
+        }
+
         overlay.setVisible(true);
-        TAApplicationFormView formView = new TAApplicationFormView(job, currentStudentId);
+        TAApplicationFormView formView = new TAApplicationFormView(latestJob, currentStudentId);
         formView.setApplicationListener(() -> {
             overlay.setVisible(false);
             switchToView("positions");

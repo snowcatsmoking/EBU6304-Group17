@@ -1,6 +1,8 @@
 package TA.java;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class TAApplicationRecord {
@@ -29,12 +31,17 @@ public class TAApplicationRecord {
     private String reviewComment;
     private Date statusChangeDate;
     private boolean notified;
+    private String resumeText;
+    private List<String> resumeKeywords = new ArrayList<>();
+    private List<String> verifiedKeywords = new ArrayList<>();
+    private boolean keywordsVerified;
 
     public TAApplicationRecord() {
         this.applicationId = UUID.randomUUID().toString();
         this.applicationDate = new Date();
         this.status = "PENDING";
         this.notified = false;
+        this.keywordsVerified = false;
     }
 
     public TAApplicationRecord(String taStudentId, String moStaffId, String moduleCode, String jobId,
@@ -206,5 +213,53 @@ public class TAApplicationRecord {
 
     public void setNotified(boolean notified) {
         this.notified = notified;
+    }
+
+    public String getResumeText() {
+        return resumeText;
+    }
+
+    public void setResumeText(String resumeText) {
+        this.resumeText = resumeText;
+    }
+
+    public List<String> getResumeKeywords() {
+        if (resumeKeywords == null) {
+            resumeKeywords = new ArrayList<>();
+        }
+        return resumeKeywords;
+    }
+
+    public void setResumeKeywords(List<String> resumeKeywords) {
+        this.resumeKeywords = SkillUtils.normalizeKeywords(resumeKeywords);
+    }
+
+    public List<String> getVerifiedKeywords() {
+        if (verifiedKeywords == null) {
+            verifiedKeywords = new ArrayList<>();
+        }
+        return verifiedKeywords;
+    }
+
+    public void setVerifiedKeywords(List<String> verifiedKeywords) {
+        this.verifiedKeywords = SkillUtils.normalizeKeywords(verifiedKeywords);
+    }
+
+    public boolean isKeywordsVerified() {
+        return keywordsVerified;
+    }
+
+    public void setKeywordsVerified(boolean keywordsVerified) {
+        this.keywordsVerified = keywordsVerified;
+    }
+
+    public List<String> getEffectiveKeywords() {
+        if (keywordsVerified) {
+            return getVerifiedKeywords();
+        }
+        if (!getVerifiedKeywords().isEmpty()) {
+            return getVerifiedKeywords();
+        }
+        return getResumeKeywords();
     }
 }

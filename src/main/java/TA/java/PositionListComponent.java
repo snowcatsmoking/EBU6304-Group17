@@ -116,6 +116,12 @@ public class PositionListComponent {
 
         Label requirementLabel = new Label("Requirements: " + job.getRequirements());
         requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        requirementLabel.setWrapText(true);
+
+        Label requiredSkillsLabel = new Label("Required Skills: "
+            + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
+        requiredSkillsLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        requiredSkillsLabel.setWrapText(true);
 
         HBox deadlineBox = new HBox();
         deadlineBox.setSpacing(24);
@@ -194,7 +200,7 @@ public class PositionListComponent {
 
         // AI matching section
         HBox matchingBox = createMatchingBox(job);
-        positionBox.getChildren().addAll(titleBox, infoBox, deadlineBox, actionBox, matchingBox);
+        positionBox.getChildren().addAll(titleBox, infoBox, requiredSkillsLabel, deadlineBox, actionBox, matchingBox);
 
         return positionBox;
     }

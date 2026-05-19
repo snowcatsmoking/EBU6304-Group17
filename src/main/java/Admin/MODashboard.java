@@ -3,11 +3,17 @@ package Admin;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import TA.java.SkillUtils;
+import TA.java.SkillMatchResult;
+import TA.java.SkillMatcher;
 import TA.java.TAApplicationRecord;
 import TA.java.TAApplicationRecordManager;
 import TA.java.TAJob;
@@ -18,12 +24,14 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -35,6 +43,10 @@ public class MODashboard extends javafx.application.Application {
     private static final int POSITION_PAGE_SIZE = 5;
     private static final int APPLICANT_PAGE_SIZE = 5;
     private static final int APPLICATION_RECORD_PAGE_SIZE = 5;
+    private static final String SORT_MATCH = "Match Score";
+    private static final String SORT_DATE = "Application Date";
+    private static final String SORT_STATUS = "Review Status";
+    private static final String SORT_NAME = "Name / Student ID";
 
     private static final String NAV_DEFAULT =
         "-fx-font-size: 14px; -fx-text-fill: #555555; -fx-cursor: hand;" +
@@ -224,6 +236,26 @@ public class MODashboard extends javafx.application.Application {
         return section;
     }
 
+    private Node buildAccessDeniedPage(String message) {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(16);
+
+        Label title = new Label("Access Denied");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label body = new Label(message);
+        body.setWrapText(true);
+        body.setStyle("-fx-font-size: 14px; -fx-text-fill: #cc0000;");
+
+        Button backButton = new Button("Back to My Positions");
+        backButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+
+        page.getChildren().addAll(title, body, backButton);
+        return wrapScrollablePage(page);
+    }
+
     private Node buildDashboardTips() {
         VBox box = new VBox();
         box.setSpacing(12);
@@ -269,6 +301,7 @@ public class MODashboard extends javafx.application.Application {
         requirementsArea.setPrefRowCount(4);
         requirementsArea.setWrapText(true);
         requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
+        SkillInputControl skillInput = createSkillInputControl(null);
 
         DatePicker deadlinePicker = new DatePicker();
         deadlinePicker.setPromptText("Application Deadline");
@@ -285,9 +318,14 @@ public class MODashboard extends javafx.application.Application {
             String recruitText = recruitmentCountField.getText();
             String requirements = requirementsArea.getText();
             LocalDate deadline = deadlinePicker.getValue();
+            String skillError = SkillUtils.validateSkills(skillInput.getRawSkills());
 
             if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
                 showMessage(messageLabel, "Please fill in all required fields and select a deadline.", false);
+                return;
+            }
+            if (skillError != null) {
+                showMessage(messageLabel, skillError, false);
                 return;
             }
             int count;
@@ -313,6 +351,7 @@ public class MODashboard extends javafx.application.Application {
             job.setCourseCode(courseCode.trim());
             job.setRecruitmentCount(count);
             job.setRequirements(requirements == null ? "" : requirements.trim());
+            job.setRequiredSkills(skillInput.getSkills());
             job.setDeadline(deadline.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             job.setPublisher("MO:" + moStaffId);
             job.setMoStaffId(moStaffId);
@@ -326,6 +365,7 @@ public class MODashboard extends javafx.application.Application {
                 courseCodeField.clear();
                 recruitmentCountField.clear();
                 requirementsArea.clear();
+                skillInput.clear();
                 deadlinePicker.setValue(null);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -339,6 +379,7 @@ public class MODashboard extends javafx.application.Application {
             courseCodeField,
             recruitmentCountField,
             new Label("Requirements"), requirementsArea,
+            new Label("Skill Requirements"), skillInput.getView(),
             new Label("Application Deadline"), deadlinePicker,
             submitButton,
             messageLabel
@@ -392,6 +433,7 @@ public class MODashboard extends javafx.application.Application {
         requirementsArea.setWrapText(true);
         requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
         requirementsArea.setText(job.getRequirements());
+        SkillInputControl skillInput = createSkillInputControl(job.getRequiredSkills());
 
         DatePicker deadlinePicker = new DatePicker();
         deadlinePicker.setPromptText("Application Deadline");
@@ -421,9 +463,14 @@ public class MODashboard extends javafx.application.Application {
             String recruitText = recruitmentCountField.getText();
             String requirements = requirementsArea.getText();
             LocalDate deadline = deadlinePicker.getValue();
+            String skillError = SkillUtils.validateSkills(skillInput.getRawSkills());
 
             if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
                 showMessage(messageLabel, "Please fill in all required fields and select a deadline.", false);
+                return;
+            }
+            if (skillError != null) {
+                showMessage(messageLabel, skillError, false);
                 return;
             }
 
@@ -448,11 +495,15 @@ public class MODashboard extends javafx.application.Application {
             latestJob.setCourseCode(courseCode.trim());
             latestJob.setRecruitmentCount(count);
             latestJob.setRequirements(requirements == null ? "" : requirements.trim());
+            latestJob.setRequiredSkills(skillInput.getSkills());
             latestJob.setDeadline(deadline.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
             try {
-                jobManager.saveJob(latestJob);
-                root.setCenter(buildMyPositionsView());
+                if (jobManager.saveJobForMo(latestJob, moStaffId)) {
+                    root.setCenter(buildMyPositionsView());
+                } else {
+                    showMessage(messageLabel, "You do not have permission to edit this position.", false);
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
                 showMessage(messageLabel, "Failed to save changes. Please try again.", false);
@@ -473,6 +524,7 @@ public class MODashboard extends javafx.application.Application {
             courseCodeField,
             recruitmentCountField,
             new Label("Requirements"), requirementsArea,
+            new Label("Skill Requirements"), skillInput.getView(),
             new Label("Application Deadline"), deadlinePicker,
             buttonBox,
             messageLabel
@@ -545,6 +597,10 @@ public class MODashboard extends javafx.application.Application {
             Label rowMeta = new Label("Openings: " + job.getRecruitmentCount()
                 + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
             rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            Label skillsMeta = new Label("Skill Requirements: "
+                + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
+            skillsMeta.setWrapText(true);
+            skillsMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
             List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId)
                 .stream().filter(r -> r.getJobId().equals(job.getJobId())).collect(Collectors.toList());
             long pendingCount = jobRecords.stream()
@@ -563,7 +619,7 @@ public class MODashboard extends javafx.application.Application {
                     + " -fx-border-width: 1; -fx-padding: 1 8 1 8;");
                 applicantRow.getChildren().add(pendingBadge);
             }
-            textBox.getChildren().addAll(titleRow, rowMeta, applicantRow);
+            textBox.getChildren().addAll(titleRow, rowMeta, skillsMeta, applicantRow);
 
             HBox actionBox = new HBox();
             actionBox.setSpacing(8);
@@ -589,9 +645,13 @@ public class MODashboard extends javafx.application.Application {
                 Button reopenButton = new Button("Reopen Position");
                 reopenButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #008800; -fx-border-color: #008800; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
                 reopenButton.setOnAction(e -> {
-                    job.setActive(false);
+                    TAJob latestJob = jobManager.getJobById(job.getJobId());
+                    if (latestJob == null || !jobManager.canManageJob(latestJob.getJobId(), moStaffId)) {
+                        return;
+                    }
+                    latestJob.setActive(false);
                     try {
-                        jobManager.saveJob(job);
+                        jobManager.saveJobForMo(latestJob, moStaffId);
                         root.setCenter(buildMyPositionsView(currentPage[0]));
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -609,9 +669,8 @@ public class MODashboard extends javafx.application.Application {
                     confirm.setContentText("Closing this position will remove it from the public listing.\nApplicants will no longer be able to apply.\nYou can reopen it at any time.");
                     confirm.showAndWait().ifPresent(response -> {
                         if (response == javafx.scene.control.ButtonType.OK) {
-                            job.setActive(true);
                             try {
-                                jobManager.saveJob(job);
+                                jobManager.deactivateJobForMo(job.getJobId(), moStaffId);
                                 root.setCenter(buildMyPositionsView(currentPage[0]));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -740,7 +799,12 @@ public class MODashboard extends javafx.application.Application {
         Label progress = new Label("Applications: " + applicationCount + "  Approved: " + approvedCount);
         progress.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
 
-        item.getChildren().addAll(title, status, meta, progress);
+        Label skills = new Label("Skill Requirements: "
+            + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
+        skills.setWrapText(true);
+        skills.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        item.getChildren().addAll(title, status, meta, skills, progress);
         return item;
     }
 
@@ -749,6 +813,12 @@ public class MODashboard extends javafx.application.Application {
     }
 
     private Node buildJobDetailView(TAJob job, int initialPage) {
+        TAJob latestJob = jobManager.getJobById(job.getJobId());
+        if (latestJob == null || !jobManager.canManageJob(latestJob.getJobId(), moStaffId)) {
+            return buildAccessDeniedPage("You can only view positions published by your own MO account.");
+        }
+        final TAJob displayJob = latestJob;
+
         VBox page = new VBox();
         page.setPadding(new Insets(24));
         page.setSpacing(18);
@@ -757,27 +827,32 @@ public class MODashboard extends javafx.application.Application {
         backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
         backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
 
-        Label title = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
+        Label title = new Label(displayJob.getPositionName() + " (" + displayJob.getCourseCode() + ")");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
-        Label meta = new Label("Openings: " + job.getRecruitmentCount() + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()) + "  Status: " + getJobStatus(job));
+        Label meta = new Label("Openings: " + displayJob.getRecruitmentCount() + "  Deadline: " + (isBlank(displayJob.getDeadline()) ? "Not set" : displayJob.getDeadline()) + "  Status: " + getJobStatus(displayJob));
         meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label desc = new Label("Description: " + (isBlank(job.getRequirements()) ? "None" : job.getRequirements()));
+        Label desc = new Label("Description: " + (isBlank(displayJob.getRequirements()) ? "None" : displayJob.getRequirements()));
         desc.setWrapText(true);
         desc.setStyle("-fx-font-size: 14px; -fx-text-fill: #444444;");
+
+        Label skills = new Label("Skill Requirements: "
+            + SkillUtils.toDisplayText(displayJob.getRequiredSkills(), "No specific skill requirements"));
+        skills.setWrapText(true);
+        skills.setStyle("-fx-font-size: 14px; -fx-text-fill: #444444;");
 
         HBox topActionBox = new HBox();
         topActionBox.setSpacing(10);
 
         Button editButton = new Button("Edit Position");
         editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-        editButton.setDisable(!canEditJob(job));
-        editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+        editButton.setDisable(!canEditJob(displayJob));
+        editButton.setOnAction(e -> root.setCenter(buildEditPositionView(displayJob)));
 
-        Label editHint = new Label(canEditJob(job)
+        Label editHint = new Label(canEditJob(displayJob)
             ? "This position can still be edited."
-            : "Edit locked: " + getEditBlockedReason(job));
+            : "Edit locked: " + getEditBlockedReason(displayJob));
         editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
         topActionBox.getChildren().addAll(editButton, editHint);
 
@@ -786,7 +861,7 @@ public class MODashboard extends javafx.application.Application {
         recordBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
 
         List<TAApplicationRecord> records = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
-            .filter(r -> job.getJobId().equals(r.getJobId()))
+            .filter(r -> displayJob.getJobId().equals(r.getJobId()))
             .collect(Collectors.toList());
 
         Label applicantTitle = new Label("Applicants for this Position (showing current MO's positions only)");
@@ -799,9 +874,9 @@ public class MODashboard extends javafx.application.Application {
         int[] currentPage = { initialPage };
 
         recordBox.getChildren().addAll(applicantTitle, recordList, paginationBox);
-        refreshJobDetailRecords(recordList, paginationBox, records, job, currentPage);
+        refreshJobDetailRecords(recordList, paginationBox, records, displayJob, currentPage);
 
-        page.getChildren().addAll(backButton, title, meta, desc, topActionBox, recordBox);
+        page.getChildren().addAll(backButton, title, meta, desc, skills, topActionBox, recordBox);
         return page;
     }
 
@@ -838,7 +913,10 @@ public class MODashboard extends javafx.application.Application {
             name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
             Label applicantMeta = new Label("Major: " + record.getMajor() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
             applicantMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
-            textBox.getChildren().addAll(name, applicantMeta);
+            Label matchMeta = new Label(formatMatchSummary(SkillMatcher.calculate(job, record)));
+            matchMeta.setWrapText(true);
+            matchMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #555555;");
+            textBox.getChildren().addAll(name, applicantMeta, matchMeta);
 
             Label statusLabel = new Label(formatStatus(record.getStatus()));
             statusLabel.setStyle(statusBadgeStyle(record.getStatus()));
@@ -887,14 +965,20 @@ public class MODashboard extends javafx.application.Application {
 
         TextField majorFilterField = createTextField("Filter by major");
         TextField availableTimeFilterField = createTextField("Filter by available time");
-        TextField skillsFilterField = createTextField("Filter by skills");
+        TextField skillsFilterField = createTextField("Filter by skills or keywords");
         HBox.setHgrow(majorFilterField, Priority.ALWAYS);
         HBox.setHgrow(availableTimeFilterField, Priority.ALWAYS);
         HBox.setHgrow(skillsFilterField, Priority.ALWAYS);
 
+        ComboBox<String> sortBox = new ComboBox<>();
+        sortBox.getItems().addAll(SORT_MATCH, SORT_DATE, SORT_STATUS, SORT_NAME);
+        sortBox.setValue(SORT_MATCH);
+        sortBox.setPrefWidth(180);
+        sortBox.setStyle("-fx-font-size: 13px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1;");
+
         Button clearButton = new Button("Clear Filters");
         clearButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
-        filterBox.getChildren().addAll(majorFilterField, availableTimeFilterField, skillsFilterField, clearButton);
+        filterBox.getChildren().addAll(majorFilterField, availableTimeFilterField, skillsFilterField, sortBox, clearButton);
 
         HBox batchActionBox = new HBox();
         batchActionBox.setSpacing(12);
@@ -935,7 +1019,8 @@ public class MODashboard extends javafx.application.Application {
             currentPage,
             majorFilterField,
             availableTimeFilterField,
-            skillsFilterField
+            skillsFilterField,
+            sortBox
         );
 
         majorFilterField.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -950,10 +1035,15 @@ public class MODashboard extends javafx.application.Application {
             currentPage[0] = 1;
             refreshList.run();
         });
+        sortBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+            currentPage[0] = 1;
+            refreshList.run();
+        });
         clearButton.setOnAction(e -> {
             majorFilterField.clear();
             availableTimeFilterField.clear();
             skillsFilterField.clear();
+            sortBox.setValue(SORT_MATCH);
             currentPage[0] = 1;
             refreshList.run();
         });
@@ -962,7 +1052,8 @@ public class MODashboard extends javafx.application.Application {
                 getFilteredApplicantRecords(
                     majorFilterField.getText(),
                     availableTimeFilterField.getText(),
-                    skillsFilterField.getText()
+                    skillsFilterField.getText(),
+                    sortBox.getValue()
                 ),
                 currentPage[0],
                 APPLICANT_PAGE_SIZE
@@ -998,7 +1089,8 @@ public class MODashboard extends javafx.application.Application {
             currentPage,
             majorFilterField,
             availableTimeFilterField,
-            skillsFilterField
+            skillsFilterField,
+            sortBox
         ));
         batchRejectButton.setOnAction(e -> handleBatchReviewAction(
             false,
@@ -1011,7 +1103,8 @@ public class MODashboard extends javafx.application.Application {
             currentPage,
             majorFilterField,
             availableTimeFilterField,
-            skillsFilterField
+            skillsFilterField,
+            sortBox
         ));
 
         refreshList.run();
@@ -1030,7 +1123,8 @@ public class MODashboard extends javafx.application.Application {
         int[] currentPage,
         TextField majorFilterField,
         TextField availableTimeFilterField,
-        TextField skillsFilterField
+        TextField skillsFilterField,
+        ComboBox<String> sortBox
     ) {
         list.getChildren().clear();
 
@@ -1043,7 +1137,8 @@ public class MODashboard extends javafx.application.Application {
         List<TAApplicationRecord> filteredRecords = getFilteredApplicantRecords(
             majorFilterField.getText(),
             availableTimeFilterField.getText(),
-            skillsFilterField.getText()
+            skillsFilterField.getText(),
+            sortBox.getValue()
         );
         long pendingCount = filteredRecords.stream()
             .filter(record -> TAApplicationRecord.STATUS_PENDING.equals(record.getStatus()))
@@ -1074,7 +1169,8 @@ public class MODashboard extends javafx.application.Application {
             currentPage,
             majorFilterField,
             availableTimeFilterField,
-            skillsFilterField
+            skillsFilterField,
+            sortBox
         );
 
         for (TAApplicationRecord record : pageRecords) {
@@ -1099,7 +1195,8 @@ public class MODashboard extends javafx.application.Application {
                     currentPage,
                     majorFilterField,
                     availableTimeFilterField,
-                    skillsFilterField
+                    skillsFilterField,
+                    sortBox
                 );
             },
             () -> {
@@ -1114,7 +1211,8 @@ public class MODashboard extends javafx.application.Application {
                     currentPage,
                     majorFilterField,
                     availableTimeFilterField,
-                    skillsFilterField
+                    skillsFilterField,
+                    sortBox
                 );
             }
         );
@@ -1162,6 +1260,10 @@ public class MODashboard extends javafx.application.Application {
         Label meta = new Label("Applied: " + fmtDate(record.getApplicationDate()) + "  Status: " + formatStatus(record.getStatus()));
         meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
 
+        Label matchLabel = new Label(formatMatchSummary(getSkillMatchResult(record)));
+        matchLabel.setWrapText(true);
+        matchLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #f2f7ff; -fx-border-color: #c7d7f0; -fx-border-width: 1; -fx-padding: 6 8 6 8;");
+
         Button openButton = new Button("Open Review");
         openButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
         openButton.setOnAction(e -> root.setCenter(
@@ -1174,24 +1276,30 @@ public class MODashboard extends javafx.application.Application {
             Button approveButton = new Button("Approve");
             approveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
             approveButton.setOnAction(e -> {
-                recordManager.approveApplication(record.getApplicationId());
+                recordManager.approveApplicationForMo(record.getApplicationId(), moStaffId);
                 refreshAction.run();
             });
 
             Button rejectButton = new Button("Reject");
             rejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
             rejectButton.setOnAction(e -> {
-                recordManager.rejectApplication(record.getApplicationId());
+                recordManager.rejectApplicationForMo(record.getApplicationId(), moStaffId);
                 refreshAction.run();
             });
             actionBox.getChildren().addAll(approveButton, rejectButton);
         }
 
-        item.getChildren().addAll(summaryRow, profile, meta, actionBox);
+        item.getChildren().addAll(summaryRow, profile, meta, matchLabel, actionBox);
         return item;
     }
 
     private Node buildApplicationDetailView(TAApplicationRecord record, Runnable onBack) {
+        TAApplicationRecord latestRecord = recordManager.getApplicationByIdForMo(record.getApplicationId(), moStaffId);
+        if (latestRecord == null) {
+            return buildAccessDeniedPage("You can only review applications for positions published by your own MO account.");
+        }
+        record = latestRecord;
+
         VBox page = new VBox();
         page.setPadding(new Insets(24));
         page.setSpacing(20);
@@ -1216,10 +1324,13 @@ public class MODashboard extends javafx.application.Application {
         // 申请人信息卡片
         VBox profileCard = buildDetailCard("Applicant Profile", buildProfileGrid(record));
 
+        VBox matchCard = buildDetailCard("Skill Match", buildMatchDetail(record));
+        VBox keywordCard = buildKeywordReviewCard(record, onBack);
+
         // 审核操作区
         VBox reviewCard = buildReviewCard(record, onBack);
 
-        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, reviewCard);
+        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, matchCard, keywordCard, reviewCard);
         return page;
     }
 
@@ -1246,6 +1357,8 @@ public class MODashboard extends javafx.application.Application {
             {"Email",          record.getEmail()},
             {"Available Time", record.getAvailableTime()},
             {"Skills",         record.getSkills()},
+            {"Keywords",       SkillUtils.toDisplayText(record.getEffectiveKeywords(), "No keywords extracted")},
+            {"Resume Text",    showFallback(record.getResumeText())},
         };
 
         for (int i = 0; i < fields.length; i++) {
@@ -1261,6 +1374,98 @@ public class MODashboard extends javafx.application.Application {
             grid.add(val, 1, i);
         }
         return grid;
+    }
+
+    private Node buildMatchDetail(TAApplicationRecord record) {
+        SkillMatchResult result = getSkillMatchResult(record);
+        VBox box = new VBox();
+        box.setSpacing(8);
+
+        Label score = new Label(result.hasRequirements()
+            ? "Match Score: " + result.getScore() + "%"
+            : "Match Score: Not available because this position has no skill requirements.");
+        score.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label explanation = new Label(result.getExplanation());
+        explanation.setWrapText(true);
+        explanation.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Label matched = new Label("Matched Skills: "
+            + SkillUtils.toDisplayText(result.getMatchedSkills(), "None"));
+        matched.setWrapText(true);
+        matched.setStyle("-fx-font-size: 13px; -fx-text-fill: #008800;");
+
+        Label missing = new Label("Missing Skills: "
+            + SkillUtils.toDisplayText(result.getMissingSkills(), "None"));
+        missing.setWrapText(true);
+        missing.setStyle("-fx-font-size: 13px; -fx-text-fill: #cc0000;");
+
+        Label evidence = new Label("Applicant Keywords Used: "
+            + SkillUtils.toDisplayText(result.getCandidateKeywords(), "No skills or keywords available"));
+        evidence.setWrapText(true);
+        evidence.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        box.getChildren().addAll(score, explanation, matched, missing, evidence);
+        return box;
+    }
+
+    private VBox buildKeywordReviewCard(TAApplicationRecord record, Runnable onBack) {
+        VBox card = new VBox();
+        card.setSpacing(14);
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+
+        Label title = new Label("Resume Keywords");
+        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label hint = new Label(record.isKeywordsVerified()
+            ? "These keywords have been manually verified. Re-extraction will update the automatic keywords but keep this verified list."
+            : "Automatic keywords are shown below. You can confirm, remove incorrect keywords, or add missing ones.");
+        hint.setWrapText(true);
+        hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+        Label autoKeywords = new Label("Automatically Extracted: "
+            + SkillUtils.toDisplayText(record.getResumeKeywords(), "No keywords extracted"));
+        autoKeywords.setWrapText(true);
+        autoKeywords.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        TextArea keywordArea = new TextArea(SkillUtils.toEditableText(record.getEffectiveKeywords()));
+        keywordArea.setPromptText("Comma-separated keywords, max 20 labels");
+        keywordArea.setPrefRowCount(3);
+        keywordArea.setWrapText(true);
+        keywordArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1;");
+
+        Label feedback = new Label();
+        feedback.setStyle("-fx-font-size: 13px;");
+
+        Button saveButton = new Button("Save Verified Keywords");
+        saveButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        saveButton.setOnAction(e -> {
+            List<String> keywords = SkillUtils.parseKeywords(keywordArea.getText());
+            if (recordManager.saveVerifiedKeywordsForMo(record.getApplicationId(), moStaffId, keywords)) {
+                showMessage(feedback, "Verified keywords saved.", true);
+                root.setCenter(buildApplicationDetailView(record, onBack));
+            } else {
+                showMessage(feedback, "You do not have permission to update these keywords.", false);
+            }
+        });
+
+        Button reextractButton = new Button("Re-extract Automatically");
+        reextractButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        reextractButton.setOnAction(e -> {
+            if (recordManager.reextractKeywordsForMo(record.getApplicationId(), moStaffId)) {
+                showMessage(feedback, "Automatic keywords refreshed. Verified keywords were not overwritten.", true);
+                root.setCenter(buildApplicationDetailView(record, onBack));
+            } else {
+                showMessage(feedback, "You do not have permission to refresh these keywords.", false);
+            }
+        });
+
+        HBox buttons = new HBox();
+        buttons.setSpacing(10);
+        buttons.getChildren().addAll(saveButton, reextractButton);
+
+        card.getChildren().addAll(title, hint, autoKeywords, new Label("Verified Keywords"), keywordArea, buttons, feedback);
+        return card;
     }
 
     private VBox buildReviewCard(TAApplicationRecord record, Runnable onBack) {
@@ -1288,14 +1493,14 @@ public class MODashboard extends javafx.application.Application {
             Button approveBtn = new Button("✓  Approve");
             approveBtn.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
             approveBtn.setOnAction(e -> {
-                recordManager.approveApplication(record.getApplicationId(), commentField.getText().trim());
+                recordManager.approveApplicationForMo(record.getApplicationId(), moStaffId, commentField.getText().trim());
                 onBack.run();
             });
 
             Button rejectBtn = new Button("✗  Reject");
             rejectBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
             rejectBtn.setOnAction(e -> {
-                recordManager.rejectApplication(record.getApplicationId(), commentField.getText().trim());
+                recordManager.rejectApplicationForMo(record.getApplicationId(), moStaffId, commentField.getText().trim());
                 onBack.run();
             });
 
@@ -1331,7 +1536,7 @@ public class MODashboard extends javafx.application.Application {
                     confirm.setContentText("The applicant's status will return to Pending and you can re-review it.");
                     confirm.showAndWait().ifPresent(response -> {
                         if (response == javafx.scene.control.ButtonType.OK) {
-                            recordManager.resetToPending(record.getApplicationId());
+                            recordManager.resetToPendingForMo(record.getApplicationId(), moStaffId);
                             onBack.run();
                         }
                     });
@@ -1429,11 +1634,14 @@ public class MODashboard extends javafx.application.Application {
     private List<TAApplicationRecord> getFilteredApplicantRecords(
         String majorFilter,
         String availableTimeFilter,
-        String skillsFilter
+        String skillsFilter,
+        String sortMode
     ) {
-        return recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+        List<TAApplicationRecord> records = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
             .filter(record -> matchesApplicantFilters(record, majorFilter, availableTimeFilter, skillsFilter))
             .collect(Collectors.toList());
+        records.sort(getApplicantComparator(sortMode));
+        return records;
     }
 
     private boolean matchesApplicantFilters(
@@ -1444,7 +1652,10 @@ public class MODashboard extends javafx.application.Application {
     ) {
         return matchesKeywordFilter(record.getMajor(), majorFilter)
             && matchesKeywordFilter(record.getAvailableTime(), availableTimeFilter)
-            && matchesKeywordFilter(record.getSkills(), skillsFilter);
+            && matchesKeywordFilter(
+                record.getSkills() + " " + SkillUtils.toDisplayText(record.getEffectiveKeywords(), ""),
+                skillsFilter
+            );
     }
 
     private boolean matchesKeywordFilter(String value, String filterText) {
@@ -1462,6 +1673,61 @@ public class MODashboard extends javafx.application.Application {
         return true;
     }
 
+    private Comparator<TAApplicationRecord> getApplicantComparator(String sortMode) {
+        if (SORT_DATE.equals(sortMode)) {
+            return Comparator.comparing(TAApplicationRecord::getApplicationDate,
+                    Comparator.nullsLast(Comparator.naturalOrder()))
+                .reversed();
+        }
+        if (SORT_STATUS.equals(sortMode)) {
+            return Comparator.comparingInt((TAApplicationRecord record) -> statusRank(record.getStatus()))
+                .thenComparing(TAApplicationRecord::getApplicationDate,
+                    Comparator.nullsLast(Comparator.reverseOrder()));
+        }
+        if (SORT_NAME.equals(sortMode)) {
+            return Comparator.comparing((TAApplicationRecord record) -> safeLower(record.getStudentName()))
+                .thenComparing(record -> safeLower(record.getTaStudentId()));
+        }
+        return Comparator.comparingInt((TAApplicationRecord record) -> getSkillMatchResult(record).getScore())
+            .reversed()
+            .thenComparing(TAApplicationRecord::getApplicationDate, Comparator.nullsLast(Comparator.reverseOrder()));
+    }
+
+    private int statusRank(String status) {
+        if (TAApplicationRecord.STATUS_PENDING.equals(status)) {
+            return 0;
+        }
+        if (TAApplicationRecord.STATUS_APPROVED.equals(status)) {
+            return 1;
+        }
+        if (TAApplicationRecord.STATUS_REJECTED.equals(status)) {
+            return 2;
+        }
+        if (TAApplicationRecord.STATUS_WITHDRAWN.equals(status)) {
+            return 3;
+        }
+        return 4;
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.trim().toLowerCase();
+    }
+
+    private SkillMatchResult getSkillMatchResult(TAApplicationRecord record) {
+        TAJob job = jobManager.getJobById(record.getJobId());
+        return SkillMatcher.calculate(job, record);
+    }
+
+    private String formatMatchSummary(SkillMatchResult result) {
+        if (result == null || !result.hasRequirements()) {
+            return "Skill Match: No position skill requirements set.";
+        }
+        return "Skill Match: " + result.getScore() + "%  Matched: "
+            + SkillUtils.toDisplayText(result.getMatchedSkills(), "None")
+            + "  Missing: "
+            + SkillUtils.toDisplayText(result.getMissingSkills(), "None");
+    }
+
     private void handleBatchReviewAction(
         boolean approve,
         Set<String> selectedApplicationIds,
@@ -1473,7 +1739,8 @@ public class MODashboard extends javafx.application.Application {
         int[] currentPage,
         TextField majorFilterField,
         TextField availableTimeFilterField,
-        TextField skillsFilterField
+        TextField skillsFilterField,
+        ComboBox<String> sortBox
     ) {
         if (selectedApplicationIds.isEmpty()) {
             showMessage(feedbackLabel, "Select at least one pending application first.", false);
@@ -1484,8 +1751,8 @@ public class MODashboard extends javafx.application.Application {
         int updatedCount = 0;
         for (String applicationId : new HashSet<>(selectedApplicationIds)) {
             boolean updated = approve
-                ? recordManager.approveApplication(applicationId)
-                : recordManager.rejectApplication(applicationId);
+                ? recordManager.approveApplicationForMo(applicationId, moStaffId)
+                : recordManager.rejectApplicationForMo(applicationId, moStaffId);
             if (updated) {
                 updatedCount++;
                 selectedApplicationIds.remove(applicationId);
@@ -1515,7 +1782,8 @@ public class MODashboard extends javafx.application.Application {
             currentPage,
             majorFilterField,
             availableTimeFilterField,
-            skillsFilterField
+            skillsFilterField,
+            sortBox
         );
     }
 
@@ -1585,10 +1853,16 @@ public class MODashboard extends javafx.application.Application {
     }
 
     private boolean canEditJob(TAJob job) {
-        return !isJobExpired(job) && countApplicationsForJob(job.getJobId()) == 0;
+        return job != null
+            && jobManager.canManageJob(job.getJobId(), moStaffId)
+            && !isJobExpired(job)
+            && countApplicationsForJob(job.getJobId()) == 0;
     }
 
     private String getEditBlockedReason(TAJob job) {
+        if (job == null || !jobManager.canManageJob(job.getJobId(), moStaffId)) {
+            return "you do not have permission to edit this position";
+        }
         if (isJobExpired(job)) {
             return "deadline has already passed";
         }
@@ -1621,6 +1895,10 @@ public class MODashboard extends javafx.application.Application {
         return field;
     }
 
+    private SkillInputControl createSkillInputControl(List<String> initialSkills) {
+        return new SkillInputControl(initialSkills);
+    }
+
     private void showMessage(Label label, String message, boolean success) {
         label.setText(message);
         label.setStyle("-fx-font-size: 13px; -fx-text-fill: " + (success ? "#008800" : "#cc0000") + ";");
@@ -1640,6 +1918,84 @@ public class MODashboard extends javafx.application.Application {
 
     private void updateSelectionLabel(Label selectionLabel, Set<String> selectedApplicationIds) {
         selectionLabel.setText("Selected pending applications: " + selectedApplicationIds.size());
+    }
+
+    private static class SkillInputControl {
+        private final VBox view = new VBox();
+        private final List<CheckBox> presetBoxes = new ArrayList<>();
+        private final TextField customField = new TextField();
+
+        SkillInputControl(List<String> initialSkills) {
+            List<String> normalizedInitial = SkillUtils.normalizeSkills(initialSkills);
+            List<String> defaultSkills = SkillUtils.getDefaultSkills();
+
+            view.setSpacing(10);
+            view.setStyle("-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 12;");
+
+            Label hint = new Label("Select preset skills or enter custom skills separated by commas. Max 10 skills, 20 characters each.");
+            hint.setWrapText(true);
+            hint.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+
+            FlowPane presetPane = new FlowPane();
+            presetPane.setHgap(10);
+            presetPane.setVgap(8);
+            for (String skill : defaultSkills) {
+                CheckBox box = new CheckBox(skill);
+                box.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333;");
+                box.setSelected(normalizedInitial.stream().anyMatch(existing -> SkillUtils.looselyMatches(skill, existing)));
+                presetBoxes.add(box);
+                presetPane.getChildren().add(box);
+            }
+
+            customField.setPromptText("Custom skills, e.g. Data Mining, Mentoring");
+            customField.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 8 10 8 10;");
+            customField.setText(toCustomSkillText(normalizedInitial, defaultSkills));
+
+            view.getChildren().addAll(hint, presetPane, customField);
+        }
+
+        Node getView() {
+            return view;
+        }
+
+        List<String> getRawSkills() {
+            List<String> values = new ArrayList<>();
+            for (CheckBox box : presetBoxes) {
+                if (box.isSelected()) {
+                    values.add(box.getText());
+                }
+            }
+            values.addAll(splitCustomSkills(customField.getText()));
+            return values;
+        }
+
+        List<String> getSkills() {
+            return SkillUtils.normalizeSkills(getRawSkills());
+        }
+
+        void clear() {
+            for (CheckBox box : presetBoxes) {
+                box.setSelected(false);
+            }
+            customField.clear();
+        }
+
+        private String toCustomSkillText(List<String> initialSkills, List<String> defaultSkills) {
+            List<String> customSkills = initialSkills.stream()
+                .filter(skill -> defaultSkills.stream().noneMatch(defaultSkill -> SkillUtils.looselyMatches(defaultSkill, skill)))
+                .collect(Collectors.toList());
+            return String.join(", ", customSkills);
+        }
+
+        private List<String> splitCustomSkills(String rawText) {
+            if (rawText == null || rawText.trim().isEmpty()) {
+                return new ArrayList<>();
+            }
+            return Arrays.stream(rawText.split("[,，;；\\n\\r\\t]+"))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .collect(Collectors.toList());
+        }
     }
 
     public static void main(String[] args) {

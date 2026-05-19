@@ -1,5 +1,8 @@
 package TA.java;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TAJob {
     private String jobId;
     private String positionName;
@@ -11,6 +14,7 @@ public class TAJob {
     private String publisher;
     private String moStaffId;
     private boolean isActive;
+    private List<String> requiredSkills = new ArrayList<>();
 
     public TAJob() {}
 
@@ -26,6 +30,13 @@ public class TAJob {
         this.deadline = deadline;
         this.publisher = publisher;
         this.isActive = isActive;
+    }
+
+    public TAJob(String jobId, String positionName, String courseName, String courseCode,
+                int recruitmentCount, String requirements, String deadline,
+                String publisher, boolean isActive, List<String> requiredSkills) {
+        this(jobId, positionName, courseName, courseCode, recruitmentCount, requirements, deadline, publisher, isActive);
+        setRequiredSkills(requiredSkills);
     }
 
     public String getJobId() {
@@ -106,5 +117,16 @@ public class TAJob {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public List<String> getRequiredSkills() {
+        if (requiredSkills == null) {
+            requiredSkills = new ArrayList<>();
+        }
+        return requiredSkills;
+    }
+
+    public void setRequiredSkills(List<String> requiredSkills) {
+        this.requiredSkills = SkillUtils.normalizeSkills(requiredSkills);
     }
 }

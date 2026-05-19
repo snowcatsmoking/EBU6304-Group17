@@ -3,6 +3,9 @@ package Admin;
 import TA.java.TAApplicationRecord;
 import TA.java.TAApplicationRecordManager;
 import TA.java.TAJob;
+import TA.java.SkillUtils;
+import TA.java.SkillMatchResult;
+import TA.java.SkillMatcher;
 import data.JobDataManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -145,7 +148,7 @@ public class DataExportView {
         List<String[]> rows = new ArrayList<>();
         rows.add(new String[]{
             "JobId", "PositionName", "CourseName", "CourseCode",
-            "RecruitmentCount", "Publisher", "MoStaffId", "Deadline", "IsActive"
+            "RecruitmentCount", "RequiredSkills", "Publisher", "MoStaffId", "Deadline", "IsActive"
         });
         for (TAJob job : jobDataManager.getAllJobs()) {
             rows.add(new String[]{
@@ -154,6 +157,7 @@ public class DataExportView {
                 nvl(job.getCourseName()),
                 nvl(job.getCourseCode()),
                 String.valueOf(job.getRecruitmentCount()),
+                SkillUtils.toDisplayText(job.getRequiredSkills(), ""),
                 nvl(job.getPublisher()),
                 nvl(job.getMoStaffId()),
                 nvl(job.getDeadline()),
@@ -169,9 +173,13 @@ public class DataExportView {
         rows.add(new String[]{
             "ApplicationId", "TaStudentId", "StudentName", "JobId",
             "PositionName", "CourseName", "Status",
-            "ApplicationDate", "Reviewer", "ReviewComment"
+            "ApplicationDate", "ResumeKeywords", "KeywordsVerified",
+            "MatchScore", "MatchedSkills", "MissingSkills",
+            "Reviewer", "ReviewComment"
         });
         for (TAApplicationRecord app : appRecordManager.getAllApplications()) {
+            TAJob job = jobDataManager.getJobById(app.getJobId());
+            SkillMatchResult match = SkillMatcher.calculate(job, app);
             rows.add(new String[]{
                 nvl(app.getApplicationId()),
                 nvl(app.getTaStudentId()),
@@ -181,6 +189,11 @@ public class DataExportView {
                 nvl(app.getCourseName()),
                 nvl(app.getStatus()),
                 app.getApplicationDate() != null ? sdf.format(app.getApplicationDate()) : "",
+                SkillUtils.toDisplayText(app.getEffectiveKeywords(), ""),
+                String.valueOf(app.isKeywordsVerified()),
+                match.hasRequirements() ? String.valueOf(match.getScore()) : "",
+                SkillUtils.toDisplayText(match.getMatchedSkills(), ""),
+                SkillUtils.toDisplayText(match.getMissingSkills(), ""),
                 nvl(app.getReviewer()),
                 nvl(app.getReviewComment())
             });
