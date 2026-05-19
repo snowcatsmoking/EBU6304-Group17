@@ -31,6 +31,7 @@ public class TAApplicationFormView {
     private ApplicationListener applicationListener;
     private DialogCloseListener dialogCloseListener;
     private Stage dialogStage;
+    private javafx.scene.control.TextArea resumeTextArea;
 
     public TAApplicationFormView(TAJob job) {
         this.currentJob = job;
@@ -83,10 +84,17 @@ public class TAApplicationFormView {
         HBox headerBox = createHeaderBox();
         VBox jobInfoBox = createJobInfoBox();
         VBox personalInfoBox = createPersonalInfoBox();
+        VBox resumeBox = createResumeBox();
         HBox actionBox = createActionBox();
 
-        content.getChildren().addAll(headerBox, jobInfoBox, personalInfoBox, actionBox);
-        root.setCenter(content);
+        content.getChildren().addAll(headerBox, jobInfoBox, personalInfoBox, resumeBox, actionBox);
+
+        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        root.setCenter(scrollPane);
 
         Scene scene = new Scene(root, 700, 750);
         dialogStage.setScene(scene);
@@ -183,6 +191,21 @@ public class TAApplicationFormView {
 
         requirementRow.getChildren().addAll(requirementLabel, requirementValue);
 
+        HBox requiredSkillsRow = new HBox();
+        requiredSkillsRow.setSpacing(12);
+        requiredSkillsRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label requiredSkillsLabel = new Label("Required Skills:");
+        requiredSkillsLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
+
+        Label requiredSkillsValue = new Label(
+            SkillUtils.toDisplayText(currentJob.getRequiredSkills(), "No specific skill requirements")
+        );
+        requiredSkillsValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        requiredSkillsValue.setWrapText(true);
+
+        requiredSkillsRow.getChildren().addAll(requiredSkillsLabel, requiredSkillsValue);
+
         HBox deadlineRow = new HBox();
         deadlineRow.setSpacing(12);
         deadlineRow.setAlignment(Pos.CENTER_LEFT);
@@ -207,7 +230,7 @@ public class TAApplicationFormView {
 
         publisherRow.getChildren().addAll(publisherLabel, publisherValue);
 
-        detailsBox.getChildren().addAll(titleRow, courseRow, countRow, requirementRow, deadlineRow, publisherRow);
+        detailsBox.getChildren().addAll(titleRow, courseRow, countRow, requirementRow, requiredSkillsRow, deadlineRow, publisherRow);
         jobBox.getChildren().addAll(sectionTitle, detailsBox);
 
         return jobBox;
@@ -315,6 +338,32 @@ public class TAApplicationFormView {
         return personalBox;
     }
 
+    private VBox createResumeBox() {
+        VBox resumeBox = new VBox();
+        resumeBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
+        resumeBox.setPadding(new Insets(16, 16, 16, 16));
+        resumeBox.setSpacing(12);
+
+        Label sectionTitle = new Label("Resume / Supporting Statement");
+        sectionTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
+
+        Label hint = new Label("Paste key resume content, TA experience, projects, courses, or skills here. The system will extract keywords automatically for the organiser.");
+        hint.setWrapText(true);
+        hint.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
+
+        resumeTextArea = new javafx.scene.control.TextArea();
+        resumeTextArea.setPromptText("Example: Python project experience, machine learning coursework, previous TA work, lab support, grading experience...");
+        resumeTextArea.setPrefRowCount(5);
+        resumeTextArea.setWrapText(true);
+        resumeTextArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-background-color: #ffffff;");
+
+        Label emptyHint = new Label("Optional: leaving this empty will not block your application.");
+        emptyHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
+
+        resumeBox.getChildren().addAll(sectionTitle, hint, resumeTextArea, emptyHint);
+        return resumeBox;
+    }
+
     private HBox createActionBox() {
         HBox actionBox = new HBox();
         actionBox.setAlignment(Pos.CENTER);
@@ -352,6 +401,15 @@ public class TAApplicationFormView {
         System.out.println("学生ID: " + currentUser.getTAId());
         System.out.println("岗位ID: " + currentJob.getJobId());
 
+        data.JobDataManager jobDataManager = new data.JobDataManager();
+        TAJob latestJob = jobDataManager.getJobById(currentJob.getJobId());
+        if (!jobDataManager.isJobOpen(latestJob)) {
+            System.out.println("岗位已截止或已下架，已阻止申请");
+            showAlert("Position Closed", "This position is no longer open for new applications.\n\nExisting applications can still be reviewed by the module organiser.");
+            return;
+        }
+        currentJob = latestJob;
+
         if (currentUser.getName() == null || currentUser.getName().trim().isEmpty()
             || currentUser.getMajor() == null || currentUser.getMajor().trim().isEmpty()
             || currentUser.getPhone() == null || currentUser.getPhone().trim().isEmpty()
@@ -382,9 +440,13 @@ public class TAApplicationFormView {
             currentUser.getAvailableTime(),
             currentUser.getSkill()
         );
+        String resumeText = resumeTextArea == null ? "" : resumeTextArea.getText().trim();
+        record.setResumeText(resumeText);
+        record.setResumeKeywords(ResumeKeywordExtractor.extractKeywords(resumeText, currentUser.getSkill(), currentJob));
 
         System.out.println("申请ID: " + record.getApplicationId());
         System.out.println("申请状态: " + record.getStatus());
+        System.out.println("提取关键词: " + SkillUtils.toDisplayText(record.getResumeKeywords(), "None"));
         
         recordManager.saveApplication(record);
         System.out.println("申请记录已保存！");
