@@ -49,7 +49,7 @@ public class TAPositionListUI extends Application {
     private Stage primaryStage;
     private VBox overlay;
 
-    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
+    /** Called from LoginView after login 鈥?uses the shared Stage via AppNavigator. */
     public void navigateTo() {
         this.primaryStage = core.AppNavigator.getInstance().getStage();
         buildUI();
@@ -76,7 +76,7 @@ public class TAPositionListUI extends Application {
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
 
-        // 让 BorderPane 始终填满 StackPane，防止内容短时侧边栏收缩
+        // 璁?BorderPane 濮嬬粓濉弧 StackPane锛岄槻姝㈠唴瀹圭煭鏃朵晶杈规爮鏀剁缉
         rootContainer = new StackPane();
         rootContainer.setStyle("-fx-background-color: #f8fafc;");
         root.minWidthProperty().bind(rootContainer.widthProperty());
@@ -116,10 +116,10 @@ public class TAPositionListUI extends Application {
 
         rootContainer.getChildren().addAll(root, overlay);
 
-        // 初始化通知服务
+        // 鍒濆鍖栭€氱煡鏈嶅姟
         notificationService = new NotificationService(recordManager, currentStudentId, primaryStage);
 
-        // 检查并显示申请状态变更通知 - 延迟显示，让控制台先显示
+        // 妫€鏌ュ苟鏄剧ず鐢宠鐘舵€佸彉鏇撮€氱煡 - 寤惰繜鏄剧ず锛岃鎺у埗鍙板厛鏄剧ず
         javafx.application.Platform.runLater(() -> {
             try {
                 Thread.sleep(500);
@@ -160,12 +160,7 @@ public class TAPositionListUI extends Application {
 
                     @Override
                     public void onCompleteProfile() {
-                        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                        alert.setTitle("Incomplete Profile");
-                        alert.setHeaderText("Please complete your profile before applying");
-                        alert.setContentText("Please go to the \"Profile\" page and fill in:\n• Name\n• Major\n• Phone\n• Available Time\n• Skills");
-                        alert.showAndWait();
-                        switchToView("profile");
+                        showIncompleteProfileDialog(() -> switchToView("profile"));
                     }
                 });
                 root.setCenter(favoritesView.getView());
@@ -218,12 +213,7 @@ public class TAPositionListUI extends Application {
 
             @Override
             public void onCompleteProfile() {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                alert.setTitle("Incomplete Profile");
-                alert.setHeaderText("Please complete your profile before applying");
-                alert.setContentText("Please go to the \"Profile\" page and fill in:\n• Name\n• Major\n• Phone\n• Available Time\n• Skills");
-                alert.showAndWait();
-                switchToView("profile");
+                showIncompleteProfileDialog(() -> switchToView("profile"));
             }
         });
 
@@ -262,18 +252,18 @@ public class TAPositionListUI extends Application {
 
             if (!availableTime.isEmpty()) {
                 try {
-                    // 解析用户输入的日期
+                    // 瑙ｆ瀽鐢ㄦ埛杈撳叆鐨勬棩鏈?
                     java.time.LocalDate inputDate = java.time.LocalDate.parse(availableTime,
                             java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    // 解析岗位的截止日期
+                    // 瑙ｆ瀽宀椾綅鐨勬埅姝㈡棩鏈?
                     java.time.LocalDate deadlineDate = java.time.LocalDate.parse(job.getDeadline(),
                             java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    // 只保留截止日期在输入日期及之前的岗位
+                    // 鍙繚鐣欐埅姝㈡棩鏈熷湪杈撳叆鏃ユ湡鍙婁箣鍓嶇殑宀椾綅
                     if (deadlineDate.isAfter(inputDate)) {
                         match = false;
                     }
                 } catch (Exception e) {
-                    // 输入格式不正确，不匹配
+                    // 杈撳叆鏍煎紡涓嶆纭紝涓嶅尮閰?
                     match = false;
                 }
             }
@@ -285,7 +275,7 @@ public class TAPositionListUI extends Application {
                         match = false;
                     }
                 } catch (NumberFormatException e) {
-                    // 输入不是数字，不匹配
+                    // 杈撳叆涓嶆槸鏁板瓧锛屼笉鍖归厤
                     match = false;
                 }
             }
@@ -308,10 +298,10 @@ public class TAPositionListUI extends Application {
     }
 
     private void refreshPositionList() {
-        // 当筛选或分页变化时，刷新职位列表
+        // 褰撶瓫閫夋垨鍒嗛〉鍙樺寲鏃讹紝鍒锋柊鑱屼綅鍒楄〃
         VBox newPositionListUI = positionListComponent.createPositionList(filteredJobList, paginationComponent.getCurrentPage(), PAGE_SIZE);
 
-        // 替换当前的职位列表
+        // 鏇挎崲褰撳墠鐨勮亴浣嶅垪琛?
         if (positionListUI != null) {
             javafx.scene.Parent parent = positionListUI.getParent();
             if (parent instanceof VBox) {
@@ -329,13 +319,19 @@ public class TAPositionListUI extends Application {
         return TAApplicationUtils.checkProfileComplete(currentStudentId);
     }
 
+    private void showIncompleteProfileDialog(Runnable onClose) {
+        TAAlertDialog.showWarning(
+            primaryStage,
+            "Incomplete Profile",
+            "Please complete your profile before applying",
+            "Required fields:\n- Name\n- Major\n- Phone\n- Available Time\n- Skills\n\nOpen the Profile page to complete your details.",
+            onClose
+        );
+    }
+
     private void openApplicationForm(TAJob job) {
         if (!checkProfileComplete()) {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING);
-            alert.setTitle("Application Rejected");
-            alert.setHeaderText("Incomplete Profile");
-            alert.setContentText("Please complete your profile before applying for a TA position.\n\nRequired fields: Name, Major, Phone, Available Time, Skills\n\nGo to the \"Profile\" page to complete your details.");
-            alert.showAndWait();
+            showIncompleteProfileDialog(null);
             return;
         }
 
