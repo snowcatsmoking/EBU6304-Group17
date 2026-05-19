@@ -290,12 +290,7 @@ public class ProfileView {
                         "- No consecutive '.' in local part\n" +
                         "- No '.' immediately before or after '@'";
 
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-                alert.setTitle("Invalid Email Format");
-                alert.setHeaderText("Email format is incorrect");
-                alert.setContentText(errorMsg);
-                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-                alert.showAndWait();
+                TAAlertDialog.showError(null, "Invalid Email Format", "Email format is incorrect", errorMsg);
                 return;
             }
         }
@@ -304,18 +299,10 @@ public class ProfileView {
             String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
             objectMapper.writeValue(new File(fileName), currentUser);
             System.out.println("个人档案已保存！");
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-            alert.setTitle("Save Successful");
-            alert.setHeaderText("Profile saved successfully");
-            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-            alert.showAndWait();
+            TAAlertDialog.showSuccess(null, "Save Successful", "Your profile changes have been saved.");
         } catch (IOException e) {
             e.printStackTrace();
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-            alert.setTitle("Save Failed");
-            alert.setHeaderText("Failed to save profile");
-            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-            alert.showAndWait();
+            TAAlertDialog.showError(null, "Save Failed", "Failed to save profile", "Please try again or check whether the profile file is writable.");
         }
     }
 
@@ -327,18 +314,10 @@ public class ProfileView {
 
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(filePath), currentUser);
 
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-            alert.setTitle("Export Successful");
-            alert.setHeaderText("Profile exported successfully!");
-            alert.setContentText("File saved to:\n" + filePath);
-            alert.showAndWait();
+            TAAlertDialog.showExportSuccess(null, "Export Successful", "File saved to:\n" + filePath);
         } catch (IOException e) {
             e.printStackTrace();
-            javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-            errorAlert.setTitle("Export Failed");
-            errorAlert.setHeaderText("Failed to export profile");
-            errorAlert.setContentText("An error occurred while exporting. Please try again.");
-            errorAlert.showAndWait();
+            TAAlertDialog.showExportError(null, "Export Failed", "An error occurred while exporting. Please try again.");
         }
     }
 }
