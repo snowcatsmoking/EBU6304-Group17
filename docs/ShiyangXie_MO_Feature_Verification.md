@@ -20,3 +20,10 @@ mvn -Dmaven.repo.local=/tmp/m2repo -DskipTests test-compile
 ```
 
 Both commands should finish with `BUILD SUCCESS`.
+
+## Contribution Summary
+
+- Added persistent skill requirement and keyword fields without removing existing fields, so older JSON files remain readable.
+- Added rule-based extraction and matching helpers so smart screening works without external AI services.
+- Added backend-style manager checks for MO ownership before edit, review, batch review, and keyword update operations.
+- Added test coverage for skill normalization, keyword extraction, and match scoring logic.
