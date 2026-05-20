@@ -37,7 +37,7 @@ public final class SkillMatcher {
         }
 
         int score = Math.round((matchedSkills.size() * 100f) / requiredSkills.size());
-        String explanation = "Matched " + matchedSkills.size() + " of " + requiredSkills.size()
+        String explanation = "Matched: " + matchedSkills.size() + " of " + requiredSkills.size()
             + " required skills.";
 
         return new SkillMatchResult(score, requiredSkills, candidateKeywords, matchedSkills, missingSkills, explanation);

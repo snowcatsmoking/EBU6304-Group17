@@ -92,6 +92,7 @@ public class FavoritesView {
         }
 
         content.getChildren().addAll(titleLabel, favoritesList);
+        core.UiText.localize(content);
         return content;
     }
 

@@ -357,7 +357,7 @@ public class AIChatView {
                                 exceptionString.contains("API key")) {
                             errorMessage = "API key error. Please check that your API key is correct.";
                         }
-                        answerArea.setText(errorMessage);
+                        answerArea.setText(core.UiText.tr(errorMessage));
                         fitTextAreaHeight(answerArea, BUBBLE_WIDTH - 32);
                     }
                 });

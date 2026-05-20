@@ -94,15 +94,15 @@ public class PositionListComponent {
         boolean expiringSoon = !manuallyClosed && !expired && isDeadlineExpiringSoon(job);
 
         if (manuallyClosed) {
-            Label badge = new Label("Closed");
+            Label badge = new Label(core.UiText.tr("Closed"));
             badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, badge, favButton);
         } else if (expired) {
-            Label badge = new Label("Not Apply");
+            Label badge = new Label(core.UiText.tr("Not Apply"));
             badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #dc2626; -fx-background-color: #fee2e2; -fx-border-color: #fecaca; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, badge, favButton);
         } else if (expiringSoon) {
-            Label badge = new Label("Expiring Soon");
+            Label badge = new Label(core.UiText.tr("Expiring Soon"));
             badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
             titleBox.getChildren().addAll(titleLabel, badge, favButton);
         } else {
@@ -113,18 +113,18 @@ public class PositionListComponent {
         infoBox.setSpacing(24);
         infoBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label courseLabel = new Label("Course/Activity: " + job.getCourseName());
+        Label courseLabel = new Label(core.UiText.tr("Course/Activity: ") + job.getCourseName());
         courseLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label countLabel = new Label("Openings: " + job.getRecruitmentCount());
+        Label countLabel = new Label(core.UiText.tr("Openings: ") + job.getRecruitmentCount());
         countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label requirementLabel = new Label("Requirements: " + job.getRequirements());
+        Label requirementLabel = new Label(core.UiText.tr("Requirements: ") + job.getRequirements());
         requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         requirementLabel.setWrapText(true);
 
-        Label requiredSkillsLabel = new Label("Required Skills: "
-            + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
+        String skillText = SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements");
+        Label requiredSkillsLabel = new Label(core.UiText.tr("Required Skills: ") + core.UiText.tr(skillText));
         requiredSkillsLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         requiredSkillsLabel.setWrapText(true);
 
@@ -132,10 +132,10 @@ public class PositionListComponent {
         deadlineBox.setSpacing(24);
         deadlineBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label deadlineLabel = new Label("Deadline: " + job.getDeadline());
+        Label deadlineLabel = new Label(core.UiText.tr("Deadline: ") + job.getDeadline());
         deadlineLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label publisherLabel = new Label("Posted By: " + job.getPublisher());
+        Label publisherLabel = new Label(core.UiText.tr("Posted By: ") + job.getPublisher());
         publisherLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         HBox actionBox = new HBox();
@@ -143,12 +143,12 @@ public class PositionListComponent {
         actionBox.setPadding(new Insets(8, 0, 0, 0));
 
         if (manuallyClosed) {
-            Button closedButton = new Button("Closed by Organiser");
+            Button closedButton = new Button(core.UiText.tr("Closed by Organiser"));
             closedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
             closedButton.setDisable(true);
             actionBox.getChildren().add(closedButton);
         } else if (expired) {
-            Button expiredButton = new Button("Deadline Passed");
+            Button expiredButton = new Button(core.UiText.tr("Deadline Passed"));
             expiredButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: not-allowed;");
             expiredButton.setDisable(true);
             actionBox.getChildren().add(expiredButton);
@@ -157,12 +157,12 @@ public class PositionListComponent {
             boolean profileComplete = checkProfileComplete();
 
             if (hasApplied) {
-                Button appliedButton = new Button("Applied");
+                Button appliedButton = new Button(core.UiText.tr("Applied"));
                 appliedButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: default;");
                 appliedButton.setDisable(true);
                 actionBox.getChildren().add(appliedButton);
             } else if (!profileComplete) {
-                Button incompleteButton = new Button("Complete Profile");
+                Button incompleteButton = new Button(core.UiText.tr("Complete Profile"));
                 incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #b45309; -fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
                 incompleteButton.setOnAction(e -> {
                     if (listener != null) {
@@ -173,7 +173,7 @@ public class PositionListComponent {
             } else {
                 Button applyButton;
                 if (expiringSoon) {
-                    applyButton = new Button("Apply Now");
+                    applyButton = new Button(core.UiText.tr("Apply Now"));
                     applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
                     applyButton.setOnMouseEntered(e ->
                         applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #dc2626; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
@@ -182,7 +182,7 @@ public class PositionListComponent {
                         applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
                     );
                 } else {
-                    applyButton = new Button("Apply");
+                    applyButton = new Button(core.UiText.tr("Apply"));
                     applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
                     applyButton.setOnMouseEntered(e ->
                         applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
@@ -232,7 +232,7 @@ public class PositionListComponent {
     }
 
     private void showMatchButton(HBox matchingBox, TAJob job) {
-        Button matchButton = new Button("AI Match");
+        Button matchButton = new Button(core.UiText.tr("AI Match"));
         matchButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1; -fx-background-color: #eef2ff; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 4 14 4 14; -fx-cursor: hand;");
         matchButton.setOnMouseEntered(e ->
             matchButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-border-color: #6366f1; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 4 14 4 14; -fx-cursor: hand;")
@@ -242,7 +242,7 @@ public class PositionListComponent {
         );
         matchButton.setOnAction(e -> {
             matchingBox.getChildren().clear();
-            Label loadingLabel = new Label("Matching...");
+            Label loadingLabel = new Label(core.UiText.tr("Matching..."));
             loadingLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1;");
             ProgressBar loadingBar = new ProgressBar();
             loadingBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
@@ -260,7 +260,7 @@ public class PositionListComponent {
                 } catch (Exception ex) {
                     Platform.runLater(() -> {
                         matchingBox.getChildren().clear();
-                        Label errorLabel = new Label("Match failed");
+                        Label errorLabel = new Label(core.UiText.tr("Match failed"));
                         errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #ef4444;");
                         matchingBox.getChildren().add(errorLabel);
                     });
@@ -271,7 +271,7 @@ public class PositionListComponent {
     }
 
     private void showMatchingBar(HBox matchingBox, MatchingResult result, TAJob job) {
-        Label matchLabel = new Label("Match:");
+        Label matchLabel = new Label(core.UiText.tr("Match:"));
         matchLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
 
         int percentage = result.getPercentage();
@@ -283,7 +283,7 @@ public class PositionListComponent {
         Label percentLabel = new Label(percentage + "%");
         percentLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: 600; -fx-text-fill: " + barColor + ";");
 
-        Button detailButton = new Button("Details");
+        Button detailButton = new Button(core.UiText.tr("Details"));
         detailButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-background-color: transparent; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
         detailButton.setOnMouseEntered(e ->
             detailButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-border-color: #6366f1; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
@@ -293,7 +293,7 @@ public class PositionListComponent {
         );
         detailButton.setOnAction(e -> MatchDetailDialog.show(result, job.getPositionName(), job.getCourseName()));
 
-        Button reMatchButton = new Button("Re-match");
+        Button reMatchButton = new Button(core.UiText.tr("Re-match"));
         reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #f59e0b; -fx-background-color: transparent; -fx-border-color: #fcd34d; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
         reMatchButton.setOnMouseEntered(e ->
             reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #f59e0b; -fx-border-color: #f59e0b; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
@@ -303,7 +303,7 @@ public class PositionListComponent {
         );
         reMatchButton.setOnAction(e -> {
             matchingBox.getChildren().clear();
-            Label loadingLabel = new Label("Re-matching...");
+            Label loadingLabel = new Label(core.UiText.tr("Re-matching..."));
             loadingLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1;");
             ProgressBar loadingBar = new ProgressBar();
             loadingBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
@@ -321,10 +321,10 @@ public class PositionListComponent {
                 } catch (Exception ex) {
                     Platform.runLater(() -> {
                         matchingBox.getChildren().clear();
-                        Label errorLabel = new Label("Re-match failed");
+                        Label errorLabel = new Label(core.UiText.tr("Re-match failed"));
                         errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #ef4444;");
                         matchingBox.getChildren().add(errorLabel);
-                        Button retryButton = new Button("Retry");
+                        Button retryButton = new Button(core.UiText.tr("Retry"));
                         retryButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-background-color: transparent; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
                         retryButton.setOnAction(evt -> {
                             matchingBox.getChildren().clear();

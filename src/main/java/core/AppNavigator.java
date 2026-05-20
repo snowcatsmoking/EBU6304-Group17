@@ -43,7 +43,8 @@ public class AppNavigator {
         if (!scene.getStylesheets().contains(css)) {
             scene.getStylesheets().add(css);
         }
-        primaryStage.setTitle(title);
+        UiText.localize(scene.getRoot());
+        primaryStage.setTitle(UiText.tr(title));
         primaryStage.setScene(scene);
         if (!primaryStage.isShowing()) {
             primaryStage.show();

@@ -45,7 +45,7 @@ public class MyApplicationsView {
         content.setPadding(new Insets(20, 20, 20, 20));
         content.setSpacing(20);
 
-        Label titleLabel = new Label("My Applications");
+        Label titleLabel = new Label(core.UiText.tr("My Applications"));
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
 
         // 添加时间筛选功能
@@ -55,18 +55,18 @@ public class MyApplicationsView {
         filterBox.setSpacing(12);
         filterBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label availableTimeLabel = new Label("Available Time:");
+        Label availableTimeLabel = new Label(core.UiText.tr("Available Time:"));
         availableTimeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
         availableTimeField = new DatePicker();
-        availableTimeField.setPromptText("Select date");
+        availableTimeField.setPromptText(core.UiText.tr("Select date"));
         availableTimeField.getStyleClass().add("ta-date-picker");
         availableTimeField.setPrefWidth(190);
 
-        Button filterButton = new Button("Filter");
+        Button filterButton = new Button(core.UiText.tr("Filter"));
         filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
         filterButton.setOnAction(e -> applyDateFilter());
 
-        Button resetButton = new Button("Reset");
+        Button resetButton = new Button(core.UiText.tr("Reset"));
         resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
         resetButton.setOnAction(e -> resetDateFilter());
 
@@ -93,7 +93,7 @@ public class MyApplicationsView {
         tableContentBox.setSpacing(0);
 
         // 创建空标签
-        emptyLabel = new Label("No application records");
+        emptyLabel = new Label(core.UiText.tr("No application records"));
         emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #94a3b8;");
         emptyLabel.setPadding(new Insets(40, 0, 40, 0));
 
@@ -171,7 +171,7 @@ public class MyApplicationsView {
         currentApplications = filteredApplications;
 
         if (currentApplications.isEmpty()) {
-            emptyLabel.setText("No matching applications");
+            emptyLabel.setText(core.UiText.tr("No matching applications"));
         }
 
         refreshTableContent();
@@ -180,7 +180,7 @@ public class MyApplicationsView {
     private void resetDateFilter() {
         availableTimeField.setValue(null);
         currentApplications = new java.util.ArrayList<>(allApplications);
-        emptyLabel.setText("No application records");
+        emptyLabel.setText(core.UiText.tr("No application records"));
         refreshTableContent();
     }
 
@@ -191,19 +191,19 @@ public class MyApplicationsView {
         header.setSpacing(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label header1 = new Label("Position");
+        Label header1 = new Label(core.UiText.tr("Position"));
         header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header1.setPrefWidth(300);
 
-        Label header2 = new Label("Applied On");
+        Label header2 = new Label(core.UiText.tr("Applied On"));
         header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header2.setPrefWidth(120);
 
-        Label header3 = new Label("Status");
+        Label header3 = new Label(core.UiText.tr("Status"));
         header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
-        Label header4 = new Label("Actions");
+        Label header4 = new Label(core.UiText.tr("Actions"));
         header4.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header4.setPrefWidth(100);
 
@@ -253,12 +253,12 @@ public class MyApplicationsView {
         actionBox.setAlignment(Pos.CENTER_LEFT);
 
         if (canWithdraw) {
-            Button withdrawButton = new Button("Withdraw");
+            Button withdrawButton = new Button(core.UiText.tr("Withdraw"));
             withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
             withdrawButton.setOnAction(e -> {
                 boolean success = recordManager.withdrawApplication(applicationId);
                 if (success) {
-                    System.out.println("成功撤回申请: " + applicationId);
+                    System.out.println("Application withdrawn successfully: " + applicationId);
                     // 查找主 BorderPane 并刷新当前视图
                     if (row.getScene() != null && row.getScene().getRoot() != null) {
                         javafx.scene.Node newView = getView();
@@ -276,7 +276,7 @@ public class MyApplicationsView {
                         }
                     }
                 } else {
-                    System.out.println("撤回失败: " + applicationId);
+                    System.out.println("Withdrawal failed: " + applicationId);
                 }
             });
             actionBox.getChildren().add(withdrawButton);
@@ -302,13 +302,13 @@ public class MyApplicationsView {
     private String getStatusDisplay(String status) {
         switch (status) {
             case TAApplicationRecord.STATUS_PENDING:
-                return "Under Review";
+                return core.UiText.tr("Under Review");
             case TAApplicationRecord.STATUS_APPROVED:
-                return "Approved";
+                return core.UiText.tr("Approved");
             case TAApplicationRecord.STATUS_REJECTED:
-                return "Rejected";
+                return core.UiText.tr("Rejected");
             case TAApplicationRecord.STATUS_WITHDRAWN:
-                return "Withdrawn";
+                return core.UiText.tr("Withdrawn");
             default:
                 return status;
         }

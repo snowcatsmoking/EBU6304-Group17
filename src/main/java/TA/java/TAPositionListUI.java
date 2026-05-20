@@ -54,6 +54,7 @@ public class TAPositionListUI extends Application {
     private FilterComponent filterComponent;
     private PositionListComponent positionListComponent;
     private SidebarComponent sidebarComponent;
+    private String currentViewName = "dashboard";
 
     public void setCurrentStudentId(String studentId) {
         this.currentStudentId = studentId;
@@ -88,6 +89,8 @@ public class TAPositionListUI extends Application {
 
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
+        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            Platform.runLater(() -> core.UiText.localize(root)));
 
         // 璁?BorderPane 濮嬬粓濉弧 StackPane锛岄槻姝㈠唴瀹圭煭鏃朵晶杈规爮鏀剁缉
         rootContainer = new StackPane();
@@ -114,6 +117,10 @@ public class TAPositionListUI extends Application {
                 ex.printStackTrace();
             }
         });
+        sidebarComponent.setLanguageChangeListener(() -> {
+            buildUI();
+            core.AppNavigator.getInstance().navigateTo(createStyledScene(), "TA Application System");
+        });
         VBox sidebar = sidebarComponent.createSidebar();
         root.setLeft(sidebar);
 
@@ -128,6 +135,10 @@ public class TAPositionListUI extends Application {
         overlay.setVisible(false);
 
         rootContainer.getChildren().addAll(root, overlay);
+
+        if (!"dashboard".equals(currentViewName)) {
+            switchToView(currentViewName);
+        }
 
         // 鍒濆鍖栭€氱煡鏈嶅姟
         notificationService = new NotificationService(recordManager, currentStudentId, primaryStage);
@@ -150,6 +161,7 @@ public class TAPositionListUI extends Application {
 
 
     private void switchToView(String viewName) {
+        currentViewName = viewName;
         sidebarComponent.setActiveNavItem(viewName);
         switch (viewName) {
             case "dashboard":
@@ -323,6 +335,7 @@ public class TAPositionListUI extends Application {
                 if (index != -1) {
                     parentVBox.getChildren().set(index, newPositionListUI);
                     positionListUI = newPositionListUI;
+                    core.UiText.localize(newPositionListUI);
                 }
             }
         }

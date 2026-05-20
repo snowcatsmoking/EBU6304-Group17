@@ -64,11 +64,11 @@ public final class SkillUtils {
     public static String validateSkills(Collection<String> values) {
         List<String> labels = compactLabels(values);
         if (labels.size() > MAX_SKILL_COUNT) {
-            return "Please keep skill requirements to " + MAX_SKILL_COUNT + " items or fewer.";
+            return "Please keep skill requirements to: " + MAX_SKILL_COUNT + " items or fewer.";
         }
         for (String label : labels) {
             if (label.length() > MAX_LABEL_LENGTH) {
-                return "Each skill must be " + MAX_LABEL_LENGTH + " characters or fewer: " + label;
+                return "Skill too long: each skill must be " + MAX_LABEL_LENGTH + " characters or fewer: " + label;
             }
         }
         return null;

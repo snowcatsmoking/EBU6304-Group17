@@ -38,7 +38,7 @@ public class PaginationComponent {
         paginationBox.setSpacing(16);
         paginationBox.setAlignment(Pos.CENTER);
 
-        prevButton = new Button("Previous");
+        prevButton = new Button(core.UiText.tr("Previous"));
         prevButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         prevButton.setOnAction(e -> {
             if (currentPage > 1) {
@@ -53,7 +53,7 @@ public class PaginationComponent {
         pageInfoLabel = new Label();
         pageInfoLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        nextButton = new Button("Next");
+        nextButton = new Button(core.UiText.tr("Next"));
         nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         nextButton.setOnAction(e -> {
             if (currentPage < totalPages) {
@@ -107,6 +107,6 @@ public class PaginationComponent {
             nextButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 16 6 16; -fx-cursor: hand;");
         }
 
-        pageInfoLabel.setText("Page " + currentPage + " of " + totalPages);
+        pageInfoLabel.setText(core.UiText.tr("Page ") + currentPage + core.UiText.tr(" of ") + totalPages);
     }
 }

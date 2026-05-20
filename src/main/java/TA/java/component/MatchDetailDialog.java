@@ -16,7 +16,7 @@ public class MatchDetailDialog {
 
     public static void show(MatchingResult result, String positionName, String courseName) {
         Stage stage = new Stage();
-        stage.setTitle("Match Details - " + positionName);
+        stage.setTitle(core.UiText.tr("Match Details - ") + positionName);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initStyle(StageStyle.DECORATED);
 
@@ -96,6 +96,7 @@ public class MatchDetailDialog {
         ScrollPane scrollPane = new ScrollPane(root);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background-color: transparent;");
+        core.UiText.localize(scrollPane);
 
         Scene scene = new Scene(scrollPane, 520, 520);
         stage.setScene(scene);

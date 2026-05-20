@@ -48,7 +48,7 @@ public final class TAAlertDialog {
     }
 
     public static void showExportError(Stage owner, String title, String message) {
-        show(owner, Variant.ERROR, title, "Export failed", message, "Try Again", null);
+        show(owner, Variant.ERROR, title, "Export Failed", message, "Try Again", null);
     }
 
     private static void show(Stage owner, Variant variant, String title, String header,
@@ -65,7 +65,7 @@ public final class TAAlertDialog {
         }
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initStyle(StageStyle.TRANSPARENT);
-        dialog.setTitle(title);
+        dialog.setTitle(core.UiText.tr(title));
 
         Palette palette = Palette.forVariant(variant);
 
@@ -96,6 +96,7 @@ public final class TAAlertDialog {
         );
 
         shell.getChildren().add(card);
+        core.UiText.localize(shell);
 
         Scene scene = new Scene(shell, 530, chooseHeight(variant, header, message));
         scene.setFill(Color.TRANSPARENT);

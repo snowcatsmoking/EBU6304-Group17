@@ -47,6 +47,8 @@ public class AdminDashboard extends Application {
     private void buildUI() {
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
+        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
         root.setLeft(buildSidebar());
         showWithFade(new DashboardView().build());
     }
@@ -128,10 +130,16 @@ public class AdminDashboard extends Application {
             } catch (Exception ex) { ex.printStackTrace(); }
         });
 
+        VBox languageBox = new VBox(core.LanguageSwitcher.create(() -> {
+            buildUI();
+            core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA Recruitment System - Admin Console");
+        }));
+        languageBox.setPadding(new Insets(0, 16, 10, 16));
+
         VBox logoutBox = new VBox(logoutBtn);
         logoutBox.setPadding(new Insets(0, 16, 16, 16));
 
-        sidebar.getChildren().addAll(topSpacer, navStack, spacer, logoutBox);
+        sidebar.getChildren().addAll(topSpacer, navStack, spacer, languageBox, logoutBox);
         return sidebar;
     }
 
@@ -161,6 +169,7 @@ public class AdminDashboard extends Application {
     private void showWithFade(Node content) {
         content.setOpacity(0);
         root.setCenter(content);
+        core.UiText.localize(root);
         FadeTransition ft = new FadeTransition(Duration.millis(180), content);
         ft.setFromValue(0.0);
         ft.setToValue(1.0);
