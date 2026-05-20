@@ -1,5 +1,6 @@
-package TA.java;
-
+package TA.java.view;
+import TA.java.TAApplicationRecord;
+import TA.java.SkillUtils;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

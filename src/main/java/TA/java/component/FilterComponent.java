@@ -1,4 +1,4 @@
-package TA.java;
+package TA.java.component;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

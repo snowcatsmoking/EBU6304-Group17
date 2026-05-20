@@ -1,5 +1,7 @@
-package TA.java;
-
+package TA.java.service;
+import TA.java.model.MatchingResult;
+import TA.java.TAApplication;
+import TA.java.TAJob;
 import TA.java.utils.TAApplicationUtils;
 import ai.service.AIService;
 import ai.model.AIResponse;

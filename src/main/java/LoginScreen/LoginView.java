@@ -698,7 +698,7 @@ public class LoginView extends Application {
                     new Thread(() -> {
                         try { Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
-                                Admin.MODashboard dashboard = new Admin.MODashboard(studentId);
+                                MO.MODashboard dashboard = new MO.MODashboard(studentId);
                                 dashboard.navigateTo();
                             });
                         } catch (Exception ex) { ex.printStackTrace(); }

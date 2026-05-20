@@ -1,4 +1,4 @@
-package TA.java;
+package TA.java.component;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;

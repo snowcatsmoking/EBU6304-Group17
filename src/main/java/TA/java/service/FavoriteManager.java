@@ -1,5 +1,5 @@
-package TA.java;
-
+package TA.java.service;
+import TA.java.model.Favorite;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import data.DataConfig;

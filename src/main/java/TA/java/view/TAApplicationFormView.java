@@ -1,5 +1,10 @@
-package TA.java;
-
+package TA.java.view;
+import TA.java.TAJob;
+import TA.java.TAApplication;
+import TA.java.TAApplicationRecordManager;
+import TA.java.TAApplicationRecord;
+import TA.java.ResumeKeywordExtractor;
+import TA.java.SkillUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

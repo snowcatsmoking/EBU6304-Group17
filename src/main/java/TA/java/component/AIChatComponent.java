@@ -1,4 +1,4 @@
-package TA.java;
+package TA.java.component;
 
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;

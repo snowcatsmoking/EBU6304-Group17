@@ -1,4 +1,4 @@
-package TA.java;
+package TA.java.model;
 
 public class Favorite {
     private String favoriteId;

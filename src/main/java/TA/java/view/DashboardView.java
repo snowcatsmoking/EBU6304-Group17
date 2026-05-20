@@ -1,5 +1,7 @@
-package TA.java;
-
+package TA.java.view;
+import TA.java.TAApplication;
+import TA.java.TAApplicationRecordManager;
+import TA.java.TAApplicationRecord;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

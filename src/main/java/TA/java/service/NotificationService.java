@@ -1,5 +1,6 @@
-package TA.java;
-
+package TA.java.service;
+import TA.java.TAApplicationRecordManager;
+import TA.java.TAApplicationRecord;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
