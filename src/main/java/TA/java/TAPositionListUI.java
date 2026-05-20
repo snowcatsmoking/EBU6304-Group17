@@ -1,6 +1,19 @@
 package TA.java;
 
 import TA.java.utils.TAApplicationUtils;
+import TA.java.view.DashboardView;
+import TA.java.view.FavoritesView;
+import TA.java.view.ProfileView;
+import TA.java.view.MyApplicationsView;
+import TA.java.view.TAApplicationFormView;
+import TA.java.service.FavoriteManager;
+import TA.java.service.MatchingService;
+import TA.java.service.NotificationService;
+import TA.java.component.PaginationComponent;
+import TA.java.component.FilterComponent;
+import TA.java.component.PositionListComponent;
+import TA.java.component.SidebarComponent;
+import TA.java.component.TAAlertDialog;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.FadeTransition;

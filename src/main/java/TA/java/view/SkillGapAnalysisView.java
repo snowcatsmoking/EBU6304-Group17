@@ -1,5 +1,6 @@
-package TA.java;
-
+package TA.java.view;
+import TA.java.TAJob;
+import TA.java.TAApplication;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

@@ -1,5 +1,5 @@
-package TA.java;
-
+package TA.java.component;
+import TA.java.model.MatchingResult;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

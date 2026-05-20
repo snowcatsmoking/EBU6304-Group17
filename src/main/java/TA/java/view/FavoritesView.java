@@ -1,5 +1,12 @@
-package TA.java;
-
+package TA.java.view;
+import TA.java.TAJob;
+import TA.java.service.FavoriteManager;
+import TA.java.model.Favorite;
+import TA.java.TAApplicationRecordManager;
+import TA.java.service.MatchingService;
+import TA.java.model.MatchingResult;
+import TA.java.component.MatchDetailDialog;
+import TA.java.SkillUtils;
 import TA.java.utils.TAApplicationUtils;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
@@ -15,55 +22,80 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class PositionListComponent {
+public class FavoritesView {
 
-    public interface PositionActionListener {
-        void onApply(TAJob job);
+    public interface NavigationListener {
+        void onNavigateTo(String viewName);
+    }
+
+    public interface ApplicationListener {
+        void onApplyForPosition(TAJob job);
         void onCompleteProfile();
     }
 
-    private PositionActionListener listener;
+    private String currentStudentId;
     private FavoriteManager favoriteManager;
     private TAApplicationRecordManager recordManager;
-    private String currentStudentId;
+    private NavigationListener navigationListener;
+    private ApplicationListener applicationListener;
     private MatchingService matchingService;
 
-    public PositionListComponent(FavoriteManager favoriteManager, TAApplicationRecordManager recordManager, String currentStudentId) {
+    public FavoritesView(String studentId, FavoriteManager favoriteManager, TAApplicationRecordManager recordManager) {
+        this.currentStudentId = studentId;
         this.favoriteManager = favoriteManager;
         this.recordManager = recordManager;
-        this.currentStudentId = currentStudentId;
     }
 
     public void setMatchingService(MatchingService matchingService) {
         this.matchingService = matchingService;
     }
 
-    public void setPositionActionListener(PositionActionListener listener) {
-        this.listener = listener;
+    public void setNavigationListener(NavigationListener listener) {
+        this.navigationListener = listener;
     }
 
-    public VBox createPositionList(List<TAJob> jobs, int currentPage, int pageSize) {
-        VBox positionListBox = new VBox();
-        positionListBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
-        positionListBox.setSpacing(0);
+    public void setApplicationListener(ApplicationListener listener) {
+        this.applicationListener = listener;
+    }
 
-        int start = (currentPage - 1) * pageSize;
-        int end = Math.min(start + pageSize, jobs.size());
+    public VBox getView() {
+        VBox content = new VBox();
+        content.setPadding(new Insets(20, 20, 20, 20));
+        content.setSpacing(20);
 
-        for (int i = start; i < end; i++) {
-            TAJob job = jobs.get(i);
-            VBox positionBox = createPositionBox(job);
-            positionListBox.getChildren().add(positionBox);
+        Label titleLabel = new Label("My Favorite Positions");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+
+        VBox favoritesList = new VBox();
+        favoritesList.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
+        favoritesList.setSpacing(0);
+
+        List<Favorite> favorites = favoriteManager.getFavoritesByTA(currentStudentId);
+        if (favorites.isEmpty()) {
+            Label emptyLabel = new Label("No favorites yet. Click the star icon on positions to add them here.");
+            emptyLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8;");
+            emptyLabel.setAlignment(Pos.CENTER);
+            emptyLabel.setPadding(new Insets(40, 20, 40, 20));
+            favoritesList.getChildren().add(emptyLabel);
+        } else {
+            data.JobDataManager jobDataManager = new data.JobDataManager();
+            for (Favorite fav : favorites) {
+                TAJob job = jobDataManager.getJobById(fav.getJobId());
+                if (job != null) {
+                    VBox favBox = createFavoritePositionBox(job);
+                    favoritesList.getChildren().add(favBox);
+                }
+            }
         }
 
-        return positionListBox;
+        content.getChildren().addAll(titleLabel, favoritesList);
+        return content;
     }
 
-    private VBox createPositionBox(TAJob job) {
+    private VBox createFavoritePositionBox(TAJob job) {
         VBox positionBox = new VBox();
         positionBox.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         positionBox.setPadding(new Insets(16, 16, 16, 16));
@@ -79,29 +111,42 @@ public class PositionListComponent {
         titleLabel.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(titleLabel, javafx.scene.layout.Priority.ALWAYS);
 
-        boolean isFav = favoriteManager.isFavorite(currentStudentId, job.getJobId());
-        Button favButton = new Button(isFav ? "★" : "☆");
-        favButton.setStyle("-fx-font-size: 18px; -fx-text-fill: " + (isFav ? "#ffd700" : "#cccccc") + "; -fx-background-color: transparent; -fx-cursor: hand; -fx-border: none;");
-        favButton.setOnAction(e -> toggleFavorite(job, favButton));
+        Button unfavButton = new Button("★");
+        unfavButton.setStyle("-fx-font-size: 18px; -fx-text-fill: #ffd700; -fx-background-color: transparent; -fx-cursor: hand; -fx-border: none;");
+        unfavButton.setOnAction(e -> {
+            ScaleTransition scaleUp = new ScaleTransition(Duration.millis(100), unfavButton);
+            scaleUp.setToX(1.5);
+            scaleUp.setToY(1.5);
+
+            ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150), unfavButton);
+            scaleDown.setToX(1.0);
+            scaleDown.setToY(1.0);
+
+            SequentialTransition anim = new SequentialTransition(scaleUp, scaleDown);
+
+            scaleUp.setOnFinished(ev -> {
+                favoriteManager.removeFavorite(currentStudentId, job.getJobId());
+                if (navigationListener != null) {
+                    navigationListener.onNavigateTo("favorites");
+                }
+            });
+
+            anim.play();
+        });
 
         boolean manuallyClosed = job.isActive();
         boolean expired = isDeadlineExpired(job);
-        boolean expiringSoon = !manuallyClosed && !expired && isDeadlineExpiringSoon(job);
 
         if (manuallyClosed) {
             Label badge = new Label("Closed");
             badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f1f5f9; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
-            titleBox.getChildren().addAll(titleLabel, badge, favButton);
+            titleBox.getChildren().addAll(titleLabel, badge, unfavButton);
         } else if (expired) {
-            Label badge = new Label("Not Apply");
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #dc2626; -fx-background-color: #fee2e2; -fx-border-color: #fecaca; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
-            titleBox.getChildren().addAll(titleLabel, badge, favButton);
-        } else if (expiringSoon) {
-            Label badge = new Label("Expiring Soon");
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
-            titleBox.getChildren().addAll(titleLabel, badge, favButton);
+            Label badge = new Label("Expired");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #b45309; -fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 3 8 3 8;");
+            titleBox.getChildren().addAll(titleLabel, badge, unfavButton);
         } else {
-            titleBox.getChildren().addAll(titleLabel, favButton);
+            titleBox.getChildren().addAll(titleLabel, unfavButton);
         }
 
         HBox infoBox = new HBox();
@@ -149,7 +194,7 @@ public class PositionListComponent {
             actionBox.getChildren().add(expiredButton);
         } else {
             boolean hasApplied = recordManager.hasDuplicateApplication(currentStudentId, job.getJobId());
-            boolean profileComplete = checkProfileComplete();
+            boolean profileComplete = TAApplicationUtils.checkProfileComplete(currentStudentId);
 
             if (hasApplied) {
                 Button appliedButton = new Button("Applied");
@@ -160,35 +205,23 @@ public class PositionListComponent {
                 Button incompleteButton = new Button("Complete Profile");
                 incompleteButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #b45309; -fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
                 incompleteButton.setOnAction(e -> {
-                    if (listener != null) {
-                        listener.onCompleteProfile();
+                    if (applicationListener != null) {
+                        applicationListener.onCompleteProfile();
                     }
                 });
                 actionBox.getChildren().add(incompleteButton);
             } else {
-                Button applyButton;
-                if (expiringSoon) {
-                    applyButton = new Button("Apply Now");
-                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
-                    applyButton.setOnMouseEntered(e ->
-                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #dc2626; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
-                    );
-                    applyButton.setOnMouseExited(e ->
-                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
-                    );
-                } else {
-                    applyButton = new Button("Apply");
-                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
-                    applyButton.setOnMouseEntered(e ->
-                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
-                    );
-                    applyButton.setOnMouseExited(e ->
-                        applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
-                    );
-                }
+                Button applyButton = new Button("Apply");
+                applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;");
+                applyButton.setOnMouseEntered(e ->
+                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                );
+                applyButton.setOnMouseExited(e ->
+                    applyButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 6 20 6 20; -fx-cursor: hand;")
+                );
                 applyButton.setOnAction(e -> {
-                    if (listener != null) {
-                        listener.onApply(job);
+                    if (applicationListener != null) {
+                        applicationListener.onApplyForPosition(job);
                     }
                 });
                 actionBox.getChildren().add(applyButton);
@@ -198,7 +231,6 @@ public class PositionListComponent {
         infoBox.getChildren().addAll(courseLabel, countLabel, requirementLabel);
         deadlineBox.getChildren().addAll(deadlineLabel, publisherLabel);
 
-        // AI matching section
         HBox matchingBox = createMatchingBox(job);
         positionBox.getChildren().addAll(titleBox, infoBox, requiredSkillsLabel, deadlineBox, actionBox, matchingBox);
 
@@ -211,7 +243,7 @@ public class PositionListComponent {
         matchingBox.setPadding(new Insets(4, 0, 0, 0));
         matchingBox.setSpacing(10);
 
-        boolean profileComplete = checkProfileComplete();
+        boolean profileComplete = TA.java.utils.TAApplicationUtils.checkProfileComplete(currentStudentId);
         if (!profileComplete || matchingService == null) {
             return matchingBox;
         }
@@ -288,84 +320,12 @@ public class PositionListComponent {
         );
         detailButton.setOnAction(e -> MatchDetailDialog.show(result, job.getPositionName(), job.getCourseName()));
 
-        Button reMatchButton = new Button("Re-match");
-        reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #f59e0b; -fx-background-color: transparent; -fx-border-color: #fcd34d; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
-        reMatchButton.setOnMouseEntered(e ->
-            reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #f59e0b; -fx-border-color: #f59e0b; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
-        );
-        reMatchButton.setOnMouseExited(e ->
-            reMatchButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #f59e0b; -fx-background-color: transparent; -fx-border-color: #fcd34d; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;")
-        );
-        reMatchButton.setOnAction(e -> {
-            matchingBox.getChildren().clear();
-            Label loadingLabel = new Label("Re-matching...");
-            loadingLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1;");
-            ProgressBar loadingBar = new ProgressBar();
-            loadingBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-            loadingBar.setPrefWidth(80);
-            loadingBar.setStyle("-fx-accent: #6366f1;");
-            matchingBox.getChildren().addAll(loadingLabel, loadingBar);
-
-            new Thread(() -> {
-                try {
-                    MatchingResult newResult = matchingService.computeMatch(currentStudentId, job.getJobId(), true);
-                    Platform.runLater(() -> {
-                        matchingBox.getChildren().clear();
-                        showMatchingBar(matchingBox, newResult, job);
-                    });
-                } catch (Exception ex) {
-                    Platform.runLater(() -> {
-                        matchingBox.getChildren().clear();
-                        Label errorLabel = new Label("Re-match failed");
-                        errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #ef4444;");
-                        matchingBox.getChildren().add(errorLabel);
-                        Button retryButton = new Button("Retry");
-                        retryButton.setStyle("-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-background-color: transparent; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4; -fx-padding: 2 8 2 8; -fx-cursor: hand;");
-                        retryButton.setOnAction(evt -> {
-                            matchingBox.getChildren().clear();
-                            showMatchButton(matchingBox, job);
-                        });
-                        matchingBox.getChildren().add(retryButton);
-                    });
-                }
-            }).start();
-        });
-
-        matchingBox.getChildren().addAll(matchLabel, progressBar, percentLabel, detailButton, reMatchButton);
+        matchingBox.getChildren().addAll(matchLabel, progressBar, percentLabel, detailButton);
 
         if (result.getReason() != null && !result.getReason().isEmpty()) {
             Tooltip tooltip = new Tooltip(result.getReason());
             Tooltip.install(matchingBox, tooltip);
         }
-    }
-
-    private void toggleFavorite(TAJob job, Button favButton) {
-        boolean isCurrentlyFav = favoriteManager.isFavorite(currentStudentId, job.getJobId());
-        
-        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(100), favButton);
-        scaleUp.setToX(1.5);
-        scaleUp.setToY(1.5);
-        
-        ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150), favButton);
-        scaleDown.setToX(1.0);
-        scaleDown.setToY(1.0);
-        
-        SequentialTransition anim = new SequentialTransition(scaleUp, scaleDown);
-        
-        if (isCurrentlyFav) {
-            favoriteManager.removeFavorite(currentStudentId, job.getJobId());
-            scaleUp.setOnFinished(ev -> {
-                favButton.setText("☆");
-                favButton.setStyle("-fx-font-size: 18px; -fx-text-fill: #cccccc; -fx-background-color: transparent; -fx-cursor: hand; -fx-border: none;");
-            });
-        } else {
-            favoriteManager.addFavorite(currentStudentId, job.getJobId());
-            scaleUp.setOnFinished(ev -> {
-                favButton.setText("★");
-                favButton.setStyle("-fx-font-size: 18px; -fx-text-fill: #ffd700; -fx-background-color: transparent; -fx-cursor: hand; -fx-border: none;");
-            });
-        }
-        anim.play();
     }
 
     private boolean isDeadlineExpired(TAJob job) {
@@ -378,22 +338,5 @@ public class PositionListComponent {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    private boolean isDeadlineExpiringSoon(TAJob job) {
-        if (job.getDeadline() == null || job.getDeadline().trim().isEmpty()) {
-            return false;
-        }
-        try {
-            LocalDate deadline = LocalDate.parse(job.getDeadline(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalDate tomorrow = LocalDate.now().plusDays(1);
-            return !deadline.isBefore(LocalDate.now()) && !deadline.isAfter(tomorrow);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean checkProfileComplete() {
-        return TAApplicationUtils.checkProfileComplete(currentStudentId);
     }
 }
