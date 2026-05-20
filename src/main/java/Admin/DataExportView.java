@@ -37,13 +37,13 @@ public class DataExportView {
     public ScrollPane build() {
         VBox page = new VBox(24);
         page.setPadding(new Insets(32));
-        page.setStyle("-fx-background-color: #fafafa;");
+        page.setStyle("-fx-background-color: #f8fafc;");
 
         Label pageTitle = new Label("Data Export");
-        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label subtitle = new Label("Export system data to CSV files for offline analysis.");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #777777;");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         page.getChildren().addAll(
             pageTitle,
@@ -70,7 +70,7 @@ public class DataExportView {
 
         ScrollPane scroll = new ScrollPane(page);
         scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: #fafafa; -fx-background: #fafafa;");
+        scroll.setStyle("-fx-background-color: #f8fafc; -fx-background: #f8fafc;");
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -80,7 +80,9 @@ public class DataExportView {
     private VBox buildExportCard(String title, String description,
                                  String filenameStem, CsvDataProvider provider) {
         VBox card = new VBox(0);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         HBox body = new HBox(16);
         body.setPadding(new Insets(20));
@@ -90,26 +92,28 @@ public class DataExportView {
         HBox.setHgrow(textBox, Priority.ALWAYS);
 
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label descLabel = new Label(description);
-        descLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+        descLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
         descLabel.setWrapText(true);
 
         Label formatBadge = new Label("CSV");
         formatBadge.setStyle(
-            "-fx-font-size: 11px; -fx-text-fill: #005500; -fx-background-color: #eeffee;" +
-            "-fx-border-color: #aaddaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
+            "-fx-font-size: 11px; -fx-text-fill: #16a34a; -fx-background-color: #f0fdf4;" +
+            "-fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
 
         textBox.getChildren().addAll(titleLabel, descLabel, new HBox(formatBadge));
 
         Button exportBtn = new Button("Export CSV");
         String btnStyle =
-            "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #111111;" +
-            "-fx-border-color: #111111; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;";
+            "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1;" +
+            "-fx-border-color: #6366f1; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;";
         String btnHoverStyle =
-            "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333;" +
-            "-fx-border-color: #333333; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;";
+            "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5;" +
+            "-fx-border-color: #4f46e5; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;";
         exportBtn.setStyle(btnStyle);
         exportBtn.setOnMouseEntered(e -> exportBtn.setStyle(btnHoverStyle));
         exportBtn.setOnMouseExited(e -> exportBtn.setStyle(btnStyle));

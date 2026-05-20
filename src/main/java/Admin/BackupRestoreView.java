@@ -19,19 +19,19 @@ public class BackupRestoreView {
     public ScrollPane build() {
         VBox page = new VBox(24);
         page.setPadding(new Insets(32));
-        page.setStyle("-fx-background-color: #fafafa;");
+        page.setStyle("-fx-background-color: #f8fafc;");
 
         Label pageTitle = new Label("Backup & Restore");
-        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label subtitle = new Label("Protect your data by creating backups and restoring from previous snapshots.");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #777777;");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         page.getChildren().addAll(pageTitle, subtitle, buildBackupCard(), buildRestoreCard());
 
         ScrollPane scroll = new ScrollPane(page);
         scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: #fafafa; -fx-background: #fafafa;");
+        scroll.setStyle("-fx-background-color: #f8fafc; -fx-background: #f8fafc;");
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -45,11 +45,11 @@ public class BackupRestoreView {
             "Export all system data (users, jobs, application records, logs) as a single ZIP file.\n" +
             "Store the file in a safe location for future recovery."
         );
-        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         desc.setWrapText(true);
 
         Button backupBtn = new Button("Backup Now");
-        styleActionButton(backupBtn, "#111111", "#ffffff", "#111111");
+        styleActionButton(backupBtn, "#6366f1", "#ffffff", "#6366f1");
         backupBtn.setOnAction(e -> handleBackup(backupBtn.getScene().getWindow()));
 
         HBox btnRow = new HBox(backupBtn);
@@ -70,17 +70,17 @@ public class BackupRestoreView {
             "Select a backup ZIP file to restore. All current data will be overwritten with the\n" +
             "backup contents. This operation cannot be undone."
         );
-        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         desc.setWrapText(true);
 
         Label warning = new Label("⚠  Restoring will permanently overwrite existing data.");
-        warning.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc6600;" +
-                "-fx-background-color: #fff8ee; -fx-border-color: #f0c070; -fx-border-width: 1;" +
-                "-fx-padding: 8 12 8 12;");
+        warning.setStyle("-fx-font-size: 12px; -fx-text-fill: #d97706;" +
+                "-fx-background-color: #fffbeb; -fx-border-color: #fde68a; -fx-border-width: 1;" +
+                "-fx-padding: 8 12 8 12; -fx-border-radius: 8; -fx-background-radius: 8;");
         warning.setMaxWidth(Double.MAX_VALUE);
 
         Button restoreBtn = new Button("Restore from Backup");
-        styleActionButton(restoreBtn, "#ffffff", "#cc3300", "#cc3300");
+        styleActionButton(restoreBtn, "#ffffff", "#ef4444", "#ef4444");
         restoreBtn.setOnAction(e -> handleRestore(restoreBtn.getScene().getWindow()));
 
         HBox btnRow = new HBox(restoreBtn);
@@ -211,13 +211,15 @@ public class BackupRestoreView {
 
     private VBox buildCard(String title) {
         VBox card = new VBox(0);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         HBox header = new HBox();
         header.setPadding(new Insets(16, 20, 14, 20));
-        header.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        header.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        titleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         header.getChildren().add(titleLabel);
 
         card.getChildren().add(header);
@@ -227,7 +229,8 @@ public class BackupRestoreView {
     private void styleActionButton(Button btn, String textColor, String bgColor, String borderColor) {
         String style = String.format(
             "-fx-font-size: 13px; -fx-text-fill: %s; -fx-background-color: %s;" +
-            "-fx-border-color: %s; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;",
+            "-fx-border-color: %s; -fx-border-width: 1; -fx-padding: 8 20 8 20; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;",
             textColor, bgColor, borderColor);
         btn.setStyle(style);
         btn.setOnMouseEntered(e -> btn.setStyle(style + "-fx-opacity: 0.85;"));

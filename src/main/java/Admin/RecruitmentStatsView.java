@@ -54,13 +54,13 @@ public class RecruitmentStatsView {
         // ── Layout ────────────────────────────────────────────────────
         VBox page = new VBox(24);
         page.setPadding(new Insets(32));
-        page.setStyle("-fx-background-color: #fafafa;");
+        page.setStyle("-fx-background-color: #f8fafc;");
 
         Label pageTitle = new Label("Recruitment Statistics");
-        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label subtitle = new Label("Real-time overview of recruitment progress across all positions and organisers.");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #777777;");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         // ── Summary stat cards ────────────────────────────────────────
         long totalApproved = apps.stream()
@@ -83,7 +83,7 @@ public class RecruitmentStatsView {
 
         ScrollPane scroll = new ScrollPane(page);
         scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: #fafafa; -fx-background: #fafafa;");
+        scroll.setStyle("-fx-background-color: #f8fafc; -fx-background: #f8fafc;");
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -116,7 +116,7 @@ public class RecruitmentStatsView {
     private HBox jobHeaderRow() {
         HBox row = new HBox();
         row.setPadding(new Insets(10, 20, 10, 20));
-        row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         row.getChildren().addAll(
             headerCell("Position / Course", 220),
             headerCell("Posted By",          130),
@@ -133,24 +133,24 @@ public class RecruitmentStatsView {
         HBox row = new HBox();
         row.setPadding(new Insets(12, 20, 12, 20));
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
 
         VBox posBox = new VBox(2);
         posBox.setPrefWidth(220);
         Label posName = new Label(nvl(job.getPositionName()));
-        posName.setStyle("-fx-font-size: 13px; -fx-text-fill: #222222;");
+        posName.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
         Label courseName = new Label(nvl(job.getCourseName()));
-        courseName.setStyle("-fx-font-size: 11px; -fx-text-fill: #999999;");
+        courseName.setStyle("-fx-font-size: 11px; -fx-text-fill: #94a3b8;");
         posBox.getChildren().addAll(posName, courseName);
 
-        Label lMo       = cell(nvl(job.getMoStaffId()), 130, "#555555");
-        Label lQuota    = cell(String.valueOf(quota),    70,  "#333333");
-        Label lApplied  = cell(String.valueOf(applied),  80,  "#333333");
-        Label lApproved = cell(String.valueOf(approved), 70,  "#333333");
+        Label lMo       = cell(nvl(job.getMoStaffId()), 130, "#64748b");
+        Label lQuota    = cell(String.valueOf(quota),    70,  "#334155");
+        Label lApplied  = cell(String.valueOf(applied),  80,  "#334155");
+        Label lApproved = cell(String.valueOf(approved), 70,  "#334155");
 
         int pct = quota == 0 ? 0 : Math.min(100, approved * 100 / quota);
         String rateText = quota == 0 ? "—" : pct + "%";
-        String rateColor = pct >= 100 ? "#006600" : pct >= 50 ? "#333333" : "#cc6600";
+        String rateColor = pct >= 100 ? "#16a34a" : pct >= 50 ? "#334155" : "#d97706";
         Label lRate = cell(rateText, 100, rateColor);
         lRate.setStyle("-fx-font-size: 13px; -fx-text-fill: " + rateColor + "; -fx-font-weight: bold;");
         lRate.setPrefWidth(100);
@@ -158,10 +158,10 @@ public class RecruitmentStatsView {
         boolean isOpen = !job.isActive();
         Label statusBadge = new Label(isOpen ? "Open" : "Closed");
         statusBadge.setStyle(isOpen
-            ? "-fx-font-size: 11px; -fx-text-fill: #006600; -fx-background-color: #eeffee;" +
-              "-fx-border-color: #aaddaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;"
-            : "-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #f0f0f0;" +
-              "-fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
+            ? "-fx-font-size: 11px; -fx-text-fill: #16a34a; -fx-background-color: #f0fdf4;" +
+              "-fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-padding: 2 8 2 8;"
+            : "-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f8fafc;" +
+              "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
         HBox statusWrap = new HBox(statusBadge);
         statusWrap.setPrefWidth(80);
         statusWrap.setAlignment(Pos.CENTER_LEFT);
@@ -193,7 +193,7 @@ public class RecruitmentStatsView {
     private HBox moHeaderRow() {
         HBox row = new HBox();
         row.setPadding(new Insets(10, 20, 10, 20));
-        row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         row.getChildren().addAll(
             headerCell("MO Account",   200),
             headerCell("Posted Jobs",  130),
@@ -207,13 +207,13 @@ public class RecruitmentStatsView {
         HBox row = new HBox();
         row.setPadding(new Insets(12, 20, 12, 20));
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
 
         row.getChildren().addAll(
-            cell(moId,                  200, "#222222"),
-            cell(String.valueOf(stats[0]), 130, "#333333"),
-            cell(String.valueOf(stats[1]), 130, "#333333"),
-            cell(String.valueOf(stats[2]), 130, "#333333")
+            cell(moId,                  200, "#1e293b"),
+            cell(String.valueOf(stats[0]), 130, "#334155"),
+            cell(String.valueOf(stats[1]), 130, "#334155"),
+            cell(String.valueOf(stats[2]), 130, "#334155")
         );
         return row;
     }
@@ -224,24 +224,28 @@ public class RecruitmentStatsView {
         VBox card = new VBox(6);
         card.setPadding(new Insets(20, 24, 20, 24));
         card.setAlignment(Pos.CENTER);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         HBox.setHgrow(card, Priority.ALWAYS);
         Label num = new Label(number);
-        num.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        num.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #6366f1;");
         Label desc = new Label(description);
-        desc.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+        desc.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
         card.getChildren().addAll(num, desc);
         return card;
     }
 
     private VBox buildCard(String title) {
         VBox card = new VBox(0);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         HBox header = new HBox();
         header.setPadding(new Insets(16, 20, 14, 20));
-        header.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        header.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        titleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         header.getChildren().add(titleLabel);
         card.getChildren().add(header);
         return card;
@@ -251,14 +255,14 @@ public class RecruitmentStatsView {
         HBox row = new HBox();
         row.setPadding(new Insets(20));
         Label lbl = new Label(msg);
-        lbl.setStyle("-fx-font-size: 13px; -fx-text-fill: #aaaaaa;");
+        lbl.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8;");
         row.getChildren().add(lbl);
         return row;
     }
 
     private Label headerCell(String text, double width) {
         Label lbl = new Label(text);
-        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         lbl.setPrefWidth(width);
         return lbl;
     }
