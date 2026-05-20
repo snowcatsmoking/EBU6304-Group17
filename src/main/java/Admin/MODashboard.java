@@ -18,6 +18,9 @@ import TA.java.TAApplicationRecord;
 import TA.java.TAApplicationRecordManager;
 import TA.java.TAJob;
 import data.JobDataManager;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -35,8 +38,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class MODashboard extends javafx.application.Application {
 
@@ -51,16 +56,21 @@ public class MODashboard extends javafx.application.Application {
     private static final String NAV_DEFAULT =
         "-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-cursor: hand;" +
         "-fx-padding: 10 16 10 16; -fx-alignment: CENTER_LEFT;" +
-        "-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0 0 0 3;";
+        "-fx-background-color: transparent;";
 
     private static final String NAV_ACTIVE =
         "-fx-font-size: 14px; -fx-text-fill: #6366f1; -fx-font-weight: 600; -fx-cursor: hand;" +
         "-fx-padding: 10 16 10 16; -fx-alignment: CENTER_LEFT;" +
-        "-fx-background-color: #eef2ff; -fx-border-color: #6366f1; -fx-border-width: 0 0 0 3;";
+        "-fx-background-color: transparent;";
+
+    private static final double NAV_H = 40.0;
 
     private final String moStaffId;
     private BorderPane root;
     private Node activeNavNode;
+    private Region navIndicator;
+    private TranslateTransition indicatorAnim;
+    private int activeNavIndex = 0;
     private final JobDataManager jobManager = new JobDataManager();
     private final TAApplicationRecordManager recordManager = new TAApplicationRecordManager();
     private Stage stage;
@@ -108,18 +118,45 @@ public class MODashboard extends javafx.application.Application {
         titleLabel.setWrapText(true);
         titleLabel.setPadding(new Insets(0, 0, 24, 20));
 
-        Label navDashboard = buildNavItem("Dashboard");
-        Label navPublish = buildNavItem("Post Position");
-        HBox navMyPositions = buildNavItemWithBadge("My Positions");
-        Label navStatistics = buildNavItem("Position Statistics");
-        Label navReviews = buildNavItem("Application Review");
+        Label navDashboard    = buildNavItem("Dashboard");
+        Label navPublish      = buildNavItem("Post Position");
+        HBox  navMyPositions  = buildNavItemWithBadge("My Positions");
+        Label navStatistics   = buildNavItem("Position Statistics");
+        Label navReviews      = buildNavItem("Application Review");
 
-        setActive(navDashboard);
-        navDashboard.setOnMouseClicked(e -> { setActive(navDashboard); root.setCenter(buildDashboardView()); });
-        navPublish.setOnMouseClicked(e -> { setActive(navPublish); root.setCenter(buildPostPositionView()); });
-        navMyPositions.setOnMouseClicked(e -> { setActive(navMyPositions); root.setCenter(buildMyPositionsView()); });
-        navStatistics.setOnMouseClicked(e -> { setActive(navStatistics); root.setCenter(buildPositionStatisticsView()); });
-        navReviews.setOnMouseClicked(e -> { setActive(navReviews); root.setCenter(buildApplicantReviewView()); });
+        // Sliding indicator
+        navIndicator = new Region();
+        navIndicator.setPrefWidth(240);
+        navIndicator.setMaxWidth(240);
+        navIndicator.setPrefHeight(NAV_H);
+        navIndicator.setMaxHeight(NAV_H);
+        navIndicator.setStyle(
+            "-fx-background-color: #eef2ff;" +
+            "-fx-border-width: 0 0 0 3;" +
+            "-fx-border-color: #6366f1;");
+        navIndicator.setTranslateY(0);
+        navIndicator.setMouseTransparent(true);
+
+        indicatorAnim = new TranslateTransition(Duration.millis(280), navIndicator);
+        indicatorAnim.setInterpolator(Interpolator.EASE_BOTH);
+
+        VBox navBox = new VBox();
+        navBox.setAlignment(Pos.TOP_LEFT);
+        navBox.getChildren().addAll(navDashboard, navPublish, navMyPositions, navStatistics, navReviews);
+
+        StackPane navStack = new StackPane();
+        navStack.setAlignment(Pos.TOP_LEFT);
+        navStack.getChildren().addAll(navIndicator, navBox);
+
+        // Wire click handlers
+        navDashboard  .setOnMouseClicked(e -> { setActive(navDashboard,   0); showWithFade(buildDashboardView()); });
+        navPublish    .setOnMouseClicked(e -> { setActive(navPublish,     1); showWithFade(buildPostPositionView()); });
+        navMyPositions.setOnMouseClicked(e -> { setActive(navMyPositions, 2); showWithFade(buildMyPositionsView()); });
+        navStatistics .setOnMouseClicked(e -> { setActive(navStatistics,  3); showWithFade(buildPositionStatisticsView()); });
+        navReviews    .setOnMouseClicked(e -> { setActive(navReviews,     4); showWithFade(buildApplicantReviewView()); });
+
+        // Initial active
+        setActive(navDashboard, 0);
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
@@ -136,13 +173,16 @@ public class MODashboard extends javafx.application.Application {
             }
         });
 
-        sidebar.getChildren().addAll(titleLabel, navDashboard, navPublish, navMyPositions, navStatistics, navReviews, spacer, logoutLabel);
+        sidebar.getChildren().addAll(titleLabel, navStack, spacer, logoutLabel);
         return sidebar;
     }
 
     private Label buildNavItem(String text) {
         Label item = new Label(text);
         item.setMaxWidth(Double.MAX_VALUE);
+        item.setPrefHeight(NAV_H);
+        item.setMinHeight(NAV_H);
+        item.setMaxHeight(NAV_H);
         item.setStyle(NAV_DEFAULT);
         item.setAlignment(Pos.CENTER_LEFT);
         return item;
@@ -174,6 +214,9 @@ public class MODashboard extends javafx.application.Application {
         HBox box = new HBox();
         box.setAlignment(Pos.CENTER_LEFT);
         box.setMaxWidth(Double.MAX_VALUE);
+        box.setPrefHeight(NAV_H);
+        box.setMinHeight(NAV_H);
+        box.setMaxHeight(NAV_H);
         box.setStyle(NAV_DEFAULT);
         box.getChildren().add(item);
 
@@ -187,16 +230,37 @@ public class MODashboard extends javafx.application.Application {
         return box;
     }
 
-    private void setActive(Label target) {
+    private void setActive(Label target, int index) {
         if (activeNavNode != null) activeNavNode.setStyle(NAV_DEFAULT);
         target.setStyle(NAV_ACTIVE);
         activeNavNode = target;
+        animateIndicator(index);
     }
 
-    private void setActive(HBox target) {
+    private void setActive(HBox target, int index) {
         if (activeNavNode != null) activeNavNode.setStyle(NAV_DEFAULT);
         target.setStyle(NAV_ACTIVE);
         activeNavNode = target;
+        animateIndicator(index);
+    }
+
+    private void animateIndicator(int index) {
+        if (indicatorAnim == null) return;
+        double toY = index * NAV_H;
+        indicatorAnim.stop();
+        indicatorAnim.setFromY(navIndicator.getTranslateY());
+        indicatorAnim.setToY(toY);
+        indicatorAnim.play();
+        activeNavIndex = index;
+    }
+
+    private void showWithFade(Node content) {
+        content.setOpacity(0);
+        root.setCenter(content);
+        FadeTransition ft = new FadeTransition(Duration.millis(180), content);
+        ft.setFromValue(0.0);
+        ft.setToValue(1.0);
+        ft.play();
     }
 
     private Node buildDashboardView() {
