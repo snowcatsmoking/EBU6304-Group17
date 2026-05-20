@@ -9,7 +9,7 @@ import java.util.List;
 
 public class TAApplicationManager {
     // 本地JSON存储目录路径
-    private static final String STORAGE_DIR = "resources/Data/TAData/";
+    private static final String STORAGE_DIR = data.DataConfig.TA_DIR;
     // Jackson JSON序列化工具
     private ObjectMapper objectMapper = new ObjectMapper();
 

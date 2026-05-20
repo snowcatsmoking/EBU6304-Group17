@@ -54,15 +54,15 @@ public class ProfileView {
 
     private void loadUserData(String studentId) {
         try {
-            File file = new File("resources/Data/TAData/" + studentId + ".json");
+            File file = new File(data.DataConfig.TA_DIR + studentId + ".json");
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
-                currentUser = new TAApplication("未知用户", studentId, "未知专业", "", "", "", "");
+                currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            currentUser = new TAApplication("未知用户", studentId, "未知专业", "", "", "", "");
+            currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
         }
         checkActiveApplication(studentId);
     }
@@ -90,7 +90,7 @@ public class ProfileView {
         titleBox.setAlignment(Pos.CENTER_LEFT);
         titleBox.setSpacing(16);
 
-        Label titleLabel = new Label("个人档案");
+        Label titleLabel = new Label("My Profile");
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         titleBox.getChildren().add(titleLabel);
@@ -103,24 +103,24 @@ public class ProfileView {
         if (hasActiveApplication) {
             statusBox.setStyle("-fx-background-color: #fff3cd; -fx-border-color: #ffeeba; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;");
             Label statusIcon = new Label("⚠️");
-            Label statusText = new Label("您有正在审核中的TA申请，个人信息已锁定不可修改。仅电子邮箱仍可正常更新。");
+            Label statusText = new Label("You have an active TA application under review. Personal information is locked. Only email can still be updated.");
             statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #856404;");
             statusBox.getChildren().addAll(statusIcon, statusText);
         } else {
             statusBox.setStyle("-fx-background-color: #d4edda; -fx-border-color: #c3e6cb; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;");
             Label statusIcon = new Label("✓");
-            Label statusText = new Label("暂无正在进行的申请，您可以自由编辑全部个人档案信息。");
+            Label statusText = new Label("No active applications. You can freely edit all profile information.");
             statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #155724;");
             statusBox.getChildren().addAll(statusIcon, statusText);
         }
 
-        VBox field1 = createFormField("姓名", currentUser != null ? currentUser.getName() : "", "name");
-        VBox field2 = createFormField("学号", currentUser != null ? currentUser.getTAId() : "", "studentId");
-        VBox field3 = createFormField("专业", currentUser != null ? currentUser.getMajor() : "", "major");
-        VBox field4 = createFormField("联系电话", currentUser != null ? currentUser.getPhone() : "", "phone");
-        VBox field5 = createFormField("邮箱", currentUser != null ? currentUser.getEmail() : "", "email");
-        VBox field6 = createFormField("可任职时间", currentUser != null ? currentUser.getAvailableTime() : "", "availableTime");
-        VBox field7 = createFormField("技能", currentUser != null ? currentUser.getSkill() : "", "skill");
+        VBox field1 = createFormField("Name", currentUser != null ? currentUser.getName() : "", "name");
+        VBox field2 = createFormField("Student ID", currentUser != null ? currentUser.getTAId() : "", "studentId");
+        VBox field3 = createFormField("Major", currentUser != null ? currentUser.getMajor() : "", "major");
+        VBox field4 = createFormField("Phone", currentUser != null ? currentUser.getPhone() : "", "phone");
+        VBox field5 = createFormField("Email", currentUser != null ? currentUser.getEmail() : "", "email");
+        VBox field6 = createFormField("Available Time", currentUser != null ? currentUser.getAvailableTime() : "", "availableTime");
+        VBox field7 = createFormField("Skills", currentUser != null ? currentUser.getSkill() : "", "skill");
 
         FileUploader fileUploader = new FileUploader(currentUser.getTAId());
         VBox fileUploadBox = fileUploader.getUploadComponent();
@@ -130,11 +130,11 @@ public class ProfileView {
         buttonBox.setSpacing(12);
         buttonBox.setPadding(new Insets(8, 0, 0, 0));
 
-        Button saveButton = new Button("保存");
+        Button saveButton = new Button("Save");
         saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #333333; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         saveButton.setOnAction(e -> saveProfile());
 
-        Button cancelButton = new Button("取消");
+        Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         cancelButton.setOnAction(e -> loadUserData(currentStudentId));
 
@@ -166,10 +166,10 @@ public class ProfileView {
                 case "skill":
                 case "phone":
                     isLocked = true;
-                    lockHint = "（申请审核中，不可修改）";
+                    lockHint = " (Under review, cannot be modified)";
                     break;
                 case "email":
-                    lockHint = "（可正常修改）";
+                    lockHint = " (Can be modified)";
                     break;
             }
         }
@@ -185,6 +185,11 @@ public class ProfileView {
         TextField valueField = new TextField(value);
         valueField.setStyle("-fx-font-size: 13px; -fx-text-fill: #111111; -fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1; -fx-padding: 8 12 8 12;");
         valueField.setPrefWidth(400);
+
+        // Add date format hint for available time field
+        if (fieldName.equals("availableTime")) {
+            valueField.setPromptText("YYYY-MM-DD");
+        }
 
         if (fieldName.equals("studentId") || isLocked) {
             valueField.setDisable(true);
@@ -229,7 +234,7 @@ public class ProfileView {
 
     private void saveProfile() {
         try {
-            String fileName = "resources/Data/TAData/" + currentUser.getTAId() + ".json";
+            String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
             objectMapper.writeValue(new File(fileName), currentUser);
             System.out.println("个人档案已保存！");
         } catch (IOException e) {

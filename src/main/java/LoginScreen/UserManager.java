@@ -29,22 +29,22 @@ public class UserManager {
     }
 
     private String getDirectoryByRole(String role) {
-        if (role.contains("应聘者")) {
+        if (role.contains("TA Applicant")) {
             return TA_DIR;
-        } else if (role.contains("课程组织者")) {
+        } else if (role.contains("Module Organiser")) {
             return MO_DIR;
-        } else if (role.contains("系统管理员")) {
+        } else if (role.contains("Admin")) {
             return ADMIN_DIR;
         }
         return TA_DIR;
     }
 
     private String getRoleKey(String role) {
-        if (role.contains("应聘者")) {
+        if (role.contains("TA Applicant")) {
             return "TA";
-        } else if (role.contains("课程组织者")) {
+        } else if (role.contains("Module Organiser")) {
             return "MO";
-        } else if (role.contains("系统管理员")) {
+        } else if (role.contains("Admin")) {
             return "ADMIN";
         }
         return "TA";
@@ -52,21 +52,21 @@ public class UserManager {
 
     public String register(String account, String password, String role, String authCode) {
         if (account == null || account.trim().isEmpty()) {
-            return "请输入账号";
+            return "Please enter your account";
         }
         if (password == null || password.isEmpty()) {
-            return "请输入密码";
+            return "Please enter your password";
         }
         if (password.length() < 6) {
-            return "密码至少需要6位";
+            return "Password must be at least 6 characters";
         }
         if (role == null || role.isEmpty()) {
-            return "请选择角色";
+            return "Please select a role";
         }
 
-        if (role.contains("系统管理员")) {
+        if (role.contains("Admin")) {
             if (authCode == null || !authCode.equals(ADMIN_AUTH_CODE)) {
-                return "管理员授权码错误";
+                return "Incorrect admin authorisation code";
             }
         }
 
@@ -74,76 +74,72 @@ public class UserManager {
         File userFile = new File(dir + account + ".json");
 
         if (userFile.exists()) {
-            return "该账号已注册";
+            return "This account is already registered";
         }
 
         User user = new User(account, password, getRoleKey(role));
         try {
             objectMapper.writeValue(userFile, user);
 
-            if (role.contains("应聘者")) {
+            if (role.contains("TA Applicant")) {
                 TAApplication taProfile = new TAApplication("", account, "", "", "", "", "");
                 taProfile.setPassword(password);
                 File taFile = new File(TA_DIR + account + ".json");
                 objectMapper.writeValue(taFile, taProfile);
             }
 
-            logManager.log(account, "注册账号", account, "角色: " + getRoleKey(role));
+            logManager.log(account, "Register", account, "Role: " + getRoleKey(role));
             return "SUCCESS";
         } catch (IOException e) {
             e.printStackTrace();
-            return "注册失败：" + e.getMessage();
+            return "Registration failed: " + e.getMessage();
         }
     }
 
-    public String login(String account, String password, String role) {
+    public String login(String account, String password) {
         if (account == null || account.trim().isEmpty()) {
-            return "请输入账号";
+            return "Please enter your account";
         }
         if (password == null || password.isEmpty()) {
-            return "请输入密码";
-        }
-        if (role == null || role.isEmpty()) {
-            return "请选择登录身份";
+            return "Please enter your password";
         }
 
-        if (role.contains("应聘者")) {
-            File taFile = new File(TA_DIR + account + ".json");
-            if (!taFile.exists()) {
-                return "账号不存在，请先注册";
-            }
+        // Try TA first
+        File taFile = new File(TA_DIR + account + ".json");
+        if (taFile.exists()) {
             try {
                 TAApplication ta = objectMapper.readValue(taFile, TAApplication.class);
                 if (ta.getPassword() != null && ta.getPassword().equals(password)) {
-                    logManager.log(account, "登录", account, "角色: TA");
+                    logManager.log(account, "Login", account, "Role: TA");
                     return "SUCCESS:TA";
                 } else {
-                    return "密码错误，请重试";
+                    return "Incorrect password, please try again";
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                return "登录失败：" + e.getMessage();
-            }
-        } else {
-            String dir = getDirectoryByRole(role);
-            File userFile = new File(dir + account + ".json");
-
-            if (!userFile.exists()) {
-                return "账号不存在，请先注册";
-            }
-
-            try {
-                User user = objectMapper.readValue(userFile, User.class);
-                if (user.getPassword().equals(password)) {
-                    logManager.log(account, "登录", account, "角色: " + user.getRole());
-                    return "SUCCESS:" + user.getRole();
-                } else {
-                    return "密码错误，请重试";
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "登录失败：" + e.getMessage();
+                return "Login failed: " + e.getMessage();
             }
         }
+
+        // Try MO and Admin directories
+        for (String dir : new String[]{MO_DIR, ADMIN_DIR}) {
+            File userFile = new File(dir + account + ".json");
+            if (userFile.exists()) {
+                try {
+                    User user = objectMapper.readValue(userFile, User.class);
+                    if (user.getPassword().equals(password)) {
+                        logManager.log(account, "Login", account, "Role: " + user.getRole());
+                        return "SUCCESS:" + user.getRole();
+                    } else {
+                        return "Incorrect password, please try again";
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return "Login failed: " + e.getMessage();
+                }
+            }
+        }
+
+        return "Account not found, please register first";
     }
 }

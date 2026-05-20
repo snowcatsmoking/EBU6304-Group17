@@ -143,9 +143,16 @@ public class TAApplicationRecordManager {
     }
 
     public boolean approveApplication(String applicationId) {
+        return approveApplication(applicationId, null);
+    }
+
+    public boolean approveApplication(String applicationId, String reviewComment) {
         TAApplicationRecord record = getApplicationById(applicationId);
         if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
             record.setStatus(TAApplicationRecord.STATUS_APPROVED);
+            if (reviewComment != null && !reviewComment.trim().isEmpty()) {
+                record.setReviewComment(reviewComment.trim());
+            }
             saveApplication(record);
             return true;
         }
@@ -153,9 +160,30 @@ public class TAApplicationRecordManager {
     }
 
     public boolean rejectApplication(String applicationId) {
+        return rejectApplication(applicationId, null);
+    }
+
+    public boolean rejectApplication(String applicationId, String reviewComment) {
         TAApplicationRecord record = getApplicationById(applicationId);
         if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
             record.setStatus(TAApplicationRecord.STATUS_REJECTED);
+            if (reviewComment != null && !reviewComment.trim().isEmpty()) {
+                record.setReviewComment(reviewComment.trim());
+            }
+            saveApplication(record);
+            return true;
+        }
+        return false;
+    }
+
+    /** Revert an APPROVED or REJECTED decision back to PENDING. */
+    public boolean resetToPending(String applicationId) {
+        TAApplicationRecord record = getApplicationById(applicationId);
+        if (record != null && (
+                TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()) ||
+                TAApplicationRecord.STATUS_REJECTED.equals(record.getStatus()))) {
+            record.setStatus(TAApplicationRecord.STATUS_PENDING);
+            record.setReviewComment(null);
             saveApplication(record);
             return true;
         }

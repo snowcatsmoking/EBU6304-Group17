@@ -1,0 +1,19 @@
+{
+  "applicationId" : "12f79562-acd3-4b8e-818e-c43221bbf615",
+  "taStudentId" : "TAPan",
+  "moStaffId" : "MOPan",
+  "moduleCode" : "114514",
+  "jobId" : "MOPan-1775873628766",
+  "positionName" : "TA_4_SWE",
+  "courseName" : "SoftwareEngineer",
+  "status" : "REJECTED",
+  "applicationDate" : 1775874525043,
+  "studentName" : "panmingh",
+  "major" : "计算机科学",
+  "phone" : "12345678999",
+  "email" : "panmingh@outlook.com",
+  "availableTime" : "any time",
+  "skills" : "no",
+  "reviewer" : null,
+  "reviewComment" : null
+}

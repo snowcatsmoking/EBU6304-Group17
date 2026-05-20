@@ -23,6 +23,7 @@ public class DashboardView {
     }
 
     private TAApplication currentUser;
+    private TAApplicationRecordManager recordManager;
     private ObjectMapper objectMapper = new ObjectMapper();
     private NavigationListener navigationListener;
     private LogoutListener logoutListener;
@@ -34,6 +35,7 @@ public class DashboardView {
 
     public BorderPane getView() {
         loadUserData(currentStudentId);
+        recordManager = new TAApplicationRecordManager();
         
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #fafafa;");
@@ -63,15 +65,15 @@ public class DashboardView {
 
     private void loadUserData(String studentId) {
         try {
-            File file = new File("resources/Data/TAData/" + studentId + ".json");
+            File file = new File(data.DataConfig.TA_DIR + studentId + ".json");
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
-                currentUser = new TAApplication("未知用户", studentId, "未知专业", "", "", "", "");
+                currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            currentUser = new TAApplication("未知用户", studentId, "未知专业", "", "", "", "");
+            currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
         }
     }
 
@@ -80,30 +82,22 @@ public class DashboardView {
         headerBox.setAlignment(Pos.CENTER_RIGHT);
         headerBox.setPadding(new Insets(0, 0, 10, 0));
 
-        Label welcomeLabel = new Label("欢迎回来，");
+        Label welcomeLabel = new Label("Welcome back, ");
         welcomeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label nameLabel = new Label(currentUser != null ? currentUser.getName() : "未知用户");
+        Label nameLabel = new Label(currentUser != null ? currentUser.getName() : "Unknown User");
         nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        Label roleLabel = new Label("（TA）");
+        Label roleLabel = new Label("(TA)");
         roleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-background-color: #f0f0f0; -fx-padding: 2 8 2 8; -fx-border-radius: 2; -fx-background-radius: 2;");
 
         Label idLabel = new Label(currentUser != null ? currentUser.getTAId() : "");
         idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
 
-        Button logoutButton = new Button("退出登录");
-        logoutButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
-        logoutButton.setOnAction(e -> {
-            if (logoutListener != null) {
-                logoutListener.onLogout();
-            }
-        });
-
         HBox userInfoBox = new HBox();
         userInfoBox.setSpacing(8);
         userInfoBox.setAlignment(Pos.CENTER);
-        userInfoBox.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, idLabel, logoutButton);
+        userInfoBox.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, idLabel);
 
         headerBox.getChildren().add(userInfoBox);
 
@@ -115,10 +109,20 @@ public class DashboardView {
         statsBox.setSpacing(16);
         statsBox.setAlignment(Pos.CENTER_LEFT);
 
-        VBox stat1 = createStatBox("3", "已提交申请");
-        VBox stat2 = createStatBox("1", "审核通过");
-        VBox stat3 = createStatBox("1", "审核中");
-        VBox stat4 = createStatBox("5", "可申请岗位");
+        java.util.List<TAApplicationRecord> myApps =
+            recordManager.getApplicationsByStudentId(currentStudentId);
+
+        long submitted = myApps.size();
+        long approved  = myApps.stream()
+            .filter(r -> TAApplicationRecord.STATUS_APPROVED.equals(r.getStatus())).count();
+        long pending   = myApps.stream()
+            .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
+        long available = new data.JobDataManager().getActiveJobs().size();
+
+        VBox stat1 = createStatBox(String.valueOf(submitted), "Applications Submitted");
+        VBox stat2 = createStatBox(String.valueOf(approved),  "Approved");
+        VBox stat3 = createStatBox(String.valueOf(pending),   "Under Review");
+        VBox stat4 = createStatBox(String.valueOf(available), "Available Positions");
 
         statsBox.getChildren().addAll(stat1, stat2, stat3, stat4);
 
@@ -154,10 +158,10 @@ public class DashboardView {
         titleBox.setAlignment(Pos.CENTER_LEFT);
         titleBox.setSpacing(16);
 
-        Label titleLabel = new Label("个人档案摘要");
+        Label titleLabel = new Label("Profile Summary");
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        Button editButton = new Button("编辑档案");
+        Button editButton = new Button("Edit Profile");
         editButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
         editButton.setOnAction(e -> {
             if (navigationListener != null) {
@@ -170,26 +174,15 @@ public class DashboardView {
         VBox singleColumn = new VBox();
         singleColumn.setSpacing(12);
 
-        addProfileItem(singleColumn, "姓名", currentUser != null ? currentUser.getName() : "");
-        addProfileItem(singleColumn, "学号", currentUser != null ? currentUser.getTAId() : "");
-        addProfileItem(singleColumn, "专业", currentUser != null ? currentUser.getMajor() : "");
-        addProfileItem(singleColumn, "联系电话", currentUser != null ? currentUser.getPhone() : "");
-        addProfileItem(singleColumn, "邮箱", currentUser != null ? currentUser.getEmail() : "");
-        addProfileItem(singleColumn, "可任职时间", currentUser != null ? currentUser.getAvailableTime() : "");
-        addProfileItem(singleColumn, "技能", currentUser != null ? currentUser.getSkill() : "");
+        addProfileItem(singleColumn, "Name", currentUser != null ? currentUser.getName() : "");
+        addProfileItem(singleColumn, "Student ID", currentUser != null ? currentUser.getTAId() : "");
+        addProfileItem(singleColumn, "Major", currentUser != null ? currentUser.getMajor() : "");
+        addProfileItem(singleColumn, "Phone", currentUser != null ? currentUser.getPhone() : "");
+        addProfileItem(singleColumn, "Email", currentUser != null ? currentUser.getEmail() : "");
+        addProfileItem(singleColumn, "Available Time", currentUser != null ? currentUser.getAvailableTime() : "");
+        addProfileItem(singleColumn, "Skills", currentUser != null ? currentUser.getSkill() : "");
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(singleColumn);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(false);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        scrollPane.setPadding(new Insets(0, 0, 0, 0));
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setPrefViewportHeight(200);
-        scrollPane.setMaxHeight(200);
-
-        profileBox.getChildren().addAll(titleBox, scrollPane);
+        profileBox.getChildren().addAll(titleBox, singleColumn);
 
         return profileBox;
     }
@@ -216,7 +209,7 @@ public class DashboardView {
         applicationsBox.setPadding(new Insets(24, 24, 24, 24));
         applicationsBox.setSpacing(16);
 
-        Label titleLabel = new Label("近期申请记录");
+        Label titleLabel = new Label("Recent Applications");
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
         HBox tableHeader = createTableHeader();
@@ -234,23 +227,19 @@ public class DashboardView {
         header.setSpacing(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label header1 = new Label("岗位名称");
+        Label header1 = new Label("Position");
         header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header1.setPrefWidth(300);
 
-        Label header2 = new Label("申请时间");
+        Label header2 = new Label("Applied On");
         header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header2.setPrefWidth(120);
 
-        Label header3 = new Label("状态");
+        Label header3 = new Label("Status");
         header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
-        Label header4 = new Label("操作");
-        header4.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 500;");
-        header4.setPrefWidth(100);
-
-        header.getChildren().addAll(header1, header2, header3, header4);
+        header.getChildren().addAll(header1, header2, header3);
 
         return header;
     }
@@ -259,16 +248,78 @@ public class DashboardView {
         VBox content = new VBox();
         content.setSpacing(0);
 
-        HBox row1 = createTableRow("EBU6304 Software Engineering TA", "2026-03-10", "审核中", "pending", true);
-        HBox row2 = createTableRow("CSC1001 Introduction to CS TA", "2026-03-05", "已通过", "pass", false);
-        HBox row3 = createTableRow("STA2001 Probability & Statistics TA", "2026-02-28", "未通过", "fail", false);
+        java.util.List<TAApplicationRecord> applications = recordManager.getApplicationsByStudentId(currentStudentId);
 
-        content.getChildren().addAll(row1, row2, row3);
+        java.util.Collections.sort(applications, (a1, a2) -> {
+            if (a1.getApplicationDate() != null && a2.getApplicationDate() != null) {
+                return a2.getApplicationDate().compareTo(a1.getApplicationDate());
+            }
+            return 0;
+        });
+
+        int count = 0;
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        for (TAApplicationRecord record : applications) {
+            if (count >= 3) break;
+
+            String status = getStatusDisplay(record.getStatus());
+            String statusType = getStatusType(record.getStatus());
+            boolean canWithdraw = TAApplicationRecord.STATUS_PENDING.equals(record.getStatus());
+
+            HBox row = createTableRow(
+                record.getPositionName(),
+                dateFormat.format(record.getApplicationDate()),
+                status,
+                statusType
+            );
+            content.getChildren().add(row);
+            count++;
+        }
+
+        if (content.getChildren().isEmpty()) {
+            HBox emptyRow = new HBox();
+            emptyRow.setPadding(new Insets(20, 12, 20, 12));
+            emptyRow.setAlignment(Pos.CENTER);
+            Label emptyLabel = new Label("No application records");
+            emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
+            emptyRow.getChildren().add(emptyLabel);
+            content.getChildren().add(emptyRow);
+        }
 
         return content;
     }
 
-    private HBox createTableRow(String position, String date, String status, String statusType, boolean canWithdraw) {
+    private String getStatusDisplay(String status) {
+        switch (status) {
+            case TAApplicationRecord.STATUS_PENDING:
+                return "Under Review";
+            case TAApplicationRecord.STATUS_APPROVED:
+                return "Approved";
+            case TAApplicationRecord.STATUS_REJECTED:
+                return "Rejected";
+            case TAApplicationRecord.STATUS_WITHDRAWN:
+                return "Withdrawn";
+            default:
+                return status;
+        }
+    }
+
+    private String getStatusType(String status) {
+        switch (status) {
+            case TAApplicationRecord.STATUS_PENDING:
+                return "pending";
+            case TAApplicationRecord.STATUS_APPROVED:
+                return "pass";
+            case TAApplicationRecord.STATUS_REJECTED:
+                return "fail";
+            case TAApplicationRecord.STATUS_WITHDRAWN:
+                return "withdrawn";
+            default:
+                return "default";
+        }
+    }
+
+    private HBox createTableRow(String position, String date, String status, String statusType) {
         HBox row = new HBox();
         row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
         row.setPadding(new Insets(10, 12, 10, 12));
@@ -296,26 +347,15 @@ public class DashboardView {
             case "fail":
                 statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc0000; -fx-border-color: #eeaaaa; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #fff0f0;");
                 break;
+            case "withdrawn":
+                statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
+                break;
             default:
                 statusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 10 2 10; -fx-background-color: #f5f5f5;");
                 break;
         }
 
-        HBox actionBox = new HBox();
-        actionBox.setPrefWidth(100);
-        actionBox.setAlignment(Pos.CENTER_LEFT);
-
-        if (canWithdraw) {
-            Button withdrawButton = new Button("撤回");
-            withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
-            actionBox.getChildren().add(withdrawButton);
-        } else {
-            Label noActionLabel = new Label("—");
-            noActionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888;");
-            actionBox.getChildren().add(noActionLabel);
-        }
-
-        row.getChildren().addAll(positionLabel, dateLabel, statusLabel, actionBox);
+        row.getChildren().addAll(positionLabel, dateLabel, statusLabel);
 
         return row;
     }

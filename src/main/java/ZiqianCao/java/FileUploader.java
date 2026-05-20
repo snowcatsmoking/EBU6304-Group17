@@ -56,14 +56,14 @@ public class FileUploader {
         container.setSpacing(12);
         container.setPadding(new Insets(0, 0, 0, 0));
 
-        Label titleLabel = new Label("上传附件");
+        Label titleLabel = new Label("Attachments");
         titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        Button uploadButton = new Button("选择文件");
+        Button uploadButton = new Button("Choose File");
         uploadButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #1890ff; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
         uploadButton.setOnAction(e -> openFileChooser());
 
-        Label hintLabel = new Label("支持 Word (.doc, .docx) 和 PDF (.pdf) 文件，最大10MB");
+        Label hintLabel = new Label("Supports Word (.doc, .docx) and PDF (.pdf) files, max 10MB");
         hintLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
 
         HBox uploadBox = new HBox();
@@ -82,11 +82,11 @@ public class FileUploader {
 
     private void openFileChooser() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("选择文件");
+        fileChooser.setTitle("Choose File");
         fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Word 和 PDF 文件", "*.doc", "*.docx", "*.pdf"),
-            new FileChooser.ExtensionFilter("Word 文件", "*.doc", "*.docx"),
-            new FileChooser.ExtensionFilter("PDF 文件", "*.pdf")
+            new FileChooser.ExtensionFilter("Word and PDF Files", "*.doc", "*.docx", "*.pdf"),
+            new FileChooser.ExtensionFilter("Word Files", "*.doc", "*.docx"),
+            new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
         );
 
         Stage stage = new Stage();
@@ -141,7 +141,7 @@ public class FileUploader {
         fileListContainer.getChildren().clear();
 
         if (uploadedFiles.isEmpty()) {
-            Label emptyLabel = new Label("暂无上传文件");
+            Label emptyLabel = new Label("No files uploaded");
             emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #aaaaaa; -fx-padding: 8 0 8 0;");
             fileListContainer.getChildren().add(emptyLabel);
         } else {
@@ -165,7 +165,7 @@ public class FileUploader {
         Label nameLabel = new Label(fileName);
         nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
-        Button deleteButton = new Button("删除");
+        Button deleteButton = new Button("Delete");
         deleteButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ff4d4f; -fx-background-color: transparent; -fx-cursor: hand; -fx-border-width: 0;");
         deleteButton.setOnAction(e -> deleteFile(fileName));
 

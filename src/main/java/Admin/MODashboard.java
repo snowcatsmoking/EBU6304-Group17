@@ -3,7 +3,9 @@ package Admin;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import ZiqianCao.java.TAApplicationRecord;
@@ -15,8 +17,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -27,6 +31,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class MODashboard extends javafx.application.Application {
+
+    private static final int POSITION_PAGE_SIZE = 5;
+    private static final int APPLICANT_PAGE_SIZE = 5;
+    private static final int APPLICATION_RECORD_PAGE_SIZE = 5;
 
     private static final String NAV_DEFAULT =
         "-fx-font-size: 14px; -fx-text-fill: #555555; -fx-cursor: hand;" +
@@ -40,7 +48,7 @@ public class MODashboard extends javafx.application.Application {
 
     private final String moStaffId;
     private BorderPane root;
-    private Label activeNavLabel;
+    private Node activeNavNode;
     private final JobDataManager jobManager = new JobDataManager();
     private final TAApplicationRecordManager recordManager = new TAApplicationRecordManager();
     private Stage stage;
@@ -53,18 +61,27 @@ public class MODashboard extends javafx.application.Application {
         this.moStaffId = moStaffId == null || moStaffId.trim().isEmpty() ? "MO0001" : moStaffId;
     }
 
-    @Override
-    public void start(Stage stage) {
-        this.stage = stage;
+    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
+    public void navigateTo() {
+        this.stage = core.AppNavigator.getInstance().getStage();
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f5f5f5;");
         root.setLeft(buildSidebar());
         root.setCenter(buildDashboardView());
+        core.AppNavigator.getInstance().navigateTo(
+            new Scene(root, 1180, 720), "TA Recruitment System - Module Organiser Console");
+    }
 
-        Scene scene = new Scene(root, 1180, 720);
-        stage.setTitle("TA 招聘管理系统 - 课程组织者控制台");
-        stage.setScene(scene);
-        stage.show();
+    @Override
+    public void start(Stage stage) {
+        this.stage = stage;
+        core.AppNavigator.getInstance().init(stage);
+        root = new BorderPane();
+        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setLeft(buildSidebar());
+        root.setCenter(buildDashboardView());
+        core.AppNavigator.getInstance().navigateTo(
+            new Scene(root, 1180, 720), "TA Recruitment System - Module Organiser Console");
     }
 
     private VBox buildSidebar() {
@@ -74,38 +91,40 @@ public class MODashboard extends javafx.application.Application {
         sidebar.setPadding(new Insets(24, 0, 24, 0));
         sidebar.setSpacing(0);
 
-        Label titleLabel = new Label("课程组织者控制台");
+        Label titleLabel = new Label("Module Organiser Console");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #222222;");
         titleLabel.setWrapText(true);
         titleLabel.setPadding(new Insets(0, 0, 24, 20));
 
-        Label navDashboard = buildNavItem("仪表盘");
-        Label navPublish = buildNavItem("岗位发布");
-        Label navMyPositions = buildNavItem("我的岗位");
-        Label navReviews = buildNavItem("申请审核");
+        Label navDashboard = buildNavItem("Dashboard");
+        Label navPublish = buildNavItem("Post Position");
+        HBox navMyPositions = buildNavItemWithBadge("My Positions");
+        Label navStatistics = buildNavItem("Position Statistics");
+        Label navReviews = buildNavItem("Application Review");
 
         setActive(navDashboard);
         navDashboard.setOnMouseClicked(e -> { setActive(navDashboard); root.setCenter(buildDashboardView()); });
         navPublish.setOnMouseClicked(e -> { setActive(navPublish); root.setCenter(buildPostPositionView()); });
         navMyPositions.setOnMouseClicked(e -> { setActive(navMyPositions); root.setCenter(buildMyPositionsView()); });
+        navStatistics.setOnMouseClicked(e -> { setActive(navStatistics); root.setCenter(buildPositionStatisticsView()); });
         navReviews.setOnMouseClicked(e -> { setActive(navReviews); root.setCenter(buildApplicantReviewView()); });
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        Label logoutLabel = new Label("退出登录");
+        Label logoutLabel = new Label("Log Out");
         logoutLabel.setMaxWidth(Double.MAX_VALUE);
         logoutLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #888888; -fx-cursor: hand; -fx-padding: 10 16 24 16;");
         logoutLabel.setOnMouseClicked(e -> {
-            stage.close();
             try {
-                new LoginScreen.LoginView().start(new Stage());
+                core.AppNavigator.getInstance().navigateTo(
+                    new LoginScreen.LoginView().buildLoginScene(), "TA Recruitment System - Login");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
 
-        sidebar.getChildren().addAll(titleLabel, navDashboard, navPublish, navMyPositions, navReviews, spacer, logoutLabel);
+        sidebar.getChildren().addAll(titleLabel, navDashboard, navPublish, navMyPositions, navStatistics, navReviews, spacer, logoutLabel);
         return sidebar;
     }
 
@@ -117,12 +136,55 @@ public class MODashboard extends javafx.application.Application {
         return item;
     }
 
-    private void setActive(Label target) {
-        if (activeNavLabel != null) {
-            activeNavLabel.setStyle(NAV_DEFAULT);
+    private ScrollPane wrapScrollablePage(VBox page) {
+        page.setFillWidth(true);
+        page.setMaxWidth(Double.MAX_VALUE);
+
+        ScrollPane scrollPane = new ScrollPane(page);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setPannable(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+        return scrollPane;
+    }
+
+    /** My Positions with a live pending-count badge */
+    private HBox buildNavItemWithBadge(String text) {
+        Label item = new Label(text);
+        item.setStyle(NAV_DEFAULT);
+        item.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(item, Priority.ALWAYS);
+
+        long pending = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
+
+        HBox box = new HBox();
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.setMaxWidth(Double.MAX_VALUE);
+        box.setStyle(NAV_DEFAULT);
+        box.getChildren().add(item);
+
+        if (pending > 0) {
+            Label badge = new Label(String.valueOf(pending));
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #cc0000;" +
+                " -fx-padding: 1 6 1 6; -fx-background-radius: 8;");
+            badge.setPadding(new Insets(0, 16, 0, 0));
+            box.getChildren().add(badge);
         }
+        return box;
+    }
+
+    private void setActive(Label target) {
+        if (activeNavNode != null) activeNavNode.setStyle(NAV_DEFAULT);
         target.setStyle(NAV_ACTIVE);
-        activeNavLabel = target;
+        activeNavNode = target;
+    }
+
+    private void setActive(HBox target) {
+        if (activeNavNode != null) activeNavNode.setStyle(NAV_DEFAULT);
+        target.setStyle(NAV_ACTIVE);
+        activeNavNode = target;
     }
 
     private Node buildDashboardView() {
@@ -130,7 +192,7 @@ public class MODashboard extends javafx.application.Application {
         box.setPadding(new Insets(24));
         box.setSpacing(24);
 
-        Label header = new Label("欢迎，" + moStaffId + "");
+        Label header = new Label("Welcome, " + moStaffId);
         header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
         HBox statRow = new HBox();
@@ -140,13 +202,13 @@ public class MODashboard extends javafx.application.Application {
         List<TAApplicationRecord> myApplications = recordManager.getApplicationsByMoStaffId(moStaffId);
 
         statRow.getChildren().addAll(
-            buildStatCard(myJobs.size(), "我发布的岗位"),
-            buildStatCard((int) myJobs.stream().filter(this::isJobOpen).count(), "当前可申请岗位"),
-            buildStatCard((int) myApplications.stream().filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count(), "待审核申请"),
-            buildStatCard((int) myApplications.stream().filter(r -> TAApplicationRecord.STATUS_APPROVED.equals(r.getStatus())).count(), "已通过申请")
+            buildStatCard(myJobs.size(), "My Positions"),
+            buildStatCard((int) myJobs.stream().filter(this::isJobOpen).count(), "Open Positions"),
+            buildStatCard((int) myApplications.stream().filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count(), "Pending Reviews"),
+            buildStatCard((int) myApplications.stream().filter(r -> TAApplicationRecord.STATUS_APPROVED.equals(r.getStatus())).count(), "Approved")
         );
 
-        box.getChildren().addAll(header, statRow, buildSectionCard("快速入口", buildDashboardTips()));
+        box.getChildren().addAll(header, statRow, buildSectionCard("Quick Access", buildDashboardTips()));
         return box;
     }
 
@@ -165,10 +227,10 @@ public class MODashboard extends javafx.application.Application {
     private Node buildDashboardTips() {
         VBox box = new VBox();
         box.setSpacing(12);
-        Label tip1 = new Label("• 点击“岗位发布”填写基础岗位信息并设置申请截止时间。");
-        Label tip2 = new Label("• 已发布岗位自动展示在公开岗位列表，截止后不可申请。");
-        Label tip3 = new Label("• 在“我的岗位”中查看岗位详情和本岗位的申请人档案。");
-        Label tip4 = new Label("• 在“申请审核”中审批单条申请，状态会同步至申请人记录页面。");
+        Label tip1 = new Label("• Click \"Post Position\" to fill in position details and set the application deadline.");
+        Label tip2 = new Label("• Published positions appear automatically in the public listing and close after the deadline.");
+        Label tip3 = new Label("• In \"My Positions\", view position details and applicant profiles for each posting.");
+        Label tip4 = new Label("• In \"Application Review\", approve or reject individual applications; status syncs to applicants instantly.");
         box.getChildren().addAll(tip1, tip2, tip3, tip4);
         return box;
     }
@@ -192,29 +254,29 @@ public class MODashboard extends javafx.application.Application {
         page.setPadding(new Insets(24));
         page.setSpacing(18);
 
-        Label title = new Label("发布新岗位");
+        Label title = new Label("Post New Position");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
         VBox form = new VBox();
         form.setSpacing(14);
 
-        TextField positionNameField = createTextField("岗位名称");
-        TextField courseNameField = createTextField("课程名称");
-        TextField courseCodeField = createTextField("课程代码");
-        TextField recruitmentCountField = createTextField("招聘人数");
+        TextField positionNameField = createTextField("Position Name");
+        TextField courseNameField = createTextField("Course Name");
+        TextField courseCodeField = createTextField("Course Code");
+        TextField recruitmentCountField = createTextField("Number of Openings");
         TextArea requirementsArea = new TextArea();
-        requirementsArea.setPromptText("请输入岗位要求，例如技能、经验、工作时间等。");
+        requirementsArea.setPromptText("Enter requirements, e.g. skills, experience, working hours.");
         requirementsArea.setPrefRowCount(4);
         requirementsArea.setWrapText(true);
         requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
 
         DatePicker deadlinePicker = new DatePicker();
-        deadlinePicker.setPromptText("申请截止日期");
+        deadlinePicker.setPromptText("Application Deadline");
 
         Label messageLabel = new Label();
         messageLabel.setStyle("-fx-font-size: 13px;");
 
-        Button submitButton = new Button("发布岗位");
+        Button submitButton = new Button("Publish Position");
         submitButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
         submitButton.setOnAction(e -> {
             String positionName = positionNameField.getText();
@@ -225,7 +287,7 @@ public class MODashboard extends javafx.application.Application {
             LocalDate deadline = deadlinePicker.getValue();
 
             if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
-                showMessage(messageLabel, "请填写所有必填字段，并选择申请截止日期。", false);
+                showMessage(messageLabel, "Please fill in all required fields and select a deadline.", false);
                 return;
             }
             int count;
@@ -235,12 +297,12 @@ public class MODashboard extends javafx.application.Application {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException ex) {
-                showMessage(messageLabel, "招聘人数必须为大于0的整数。", false);
+                showMessage(messageLabel, "Number of openings must be a positive integer.", false);
                 return;
             }
 
-            if (deadline.isBefore(LocalDate.now())) {
-                showMessage(messageLabel, "截止日期必须是今天或之后的日期。", false);
+            if (!deadline.isAfter(LocalDate.now())) {
+                showMessage(messageLabel, "Deadline must be at least tomorrow.", false);
                 return;
             }
 
@@ -258,7 +320,7 @@ public class MODashboard extends javafx.application.Application {
 
             try {
                 jobManager.saveJob(job);
-                showMessage(messageLabel, "岗位已发布，并已同步到公开岗位列表。", true);
+                showMessage(messageLabel, "Position published and added to the public listing.", true);
                 positionNameField.clear();
                 courseNameField.clear();
                 courseCodeField.clear();
@@ -267,7 +329,7 @@ public class MODashboard extends javafx.application.Application {
                 deadlinePicker.setValue(null);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                showMessage(messageLabel, "发布失败，请稍后重试。", false);
+                showMessage(messageLabel, "Publishing failed, please try again.", false);
             }
         });
 
@@ -276,8 +338,8 @@ public class MODashboard extends javafx.application.Application {
             courseNameField,
             courseCodeField,
             recruitmentCountField,
-            new Label("岗位要求"), requirementsArea,
-            new Label("申请截止日期"), deadlinePicker,
+            new Label("Requirements"), requirementsArea,
+            new Label("Application Deadline"), deadlinePicker,
             submitButton,
             messageLabel
         );
@@ -285,12 +347,151 @@ public class MODashboard extends javafx.application.Application {
         return page;
     }
 
-    private Node buildMyPositionsView() {
+    private Node buildEditPositionView(TAJob job) {
         VBox page = new VBox();
         page.setPadding(new Insets(24));
         page.setSpacing(18);
 
-        Label title = new Label("我的岗位");
+        Button backButton = new Button("← Back to My Positions");
+        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
+        backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+
+        Label title = new Label("Edit Published Position");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label tip = new Label("Only positions with no applicants and a valid deadline can be edited.");
+        tip.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+        Label messageLabel = new Label();
+        messageLabel.setStyle("-fx-font-size: 13px;");
+
+        if (!canEditJob(job)) {
+            showMessage(messageLabel, getEditBlockedReason(job), false);
+            page.getChildren().addAll(backButton, title, tip, messageLabel);
+            return page;
+        }
+
+        VBox form = new VBox();
+        form.setSpacing(14);
+
+        TextField positionNameField = createTextField("Position Name");
+        positionNameField.setText(job.getPositionName());
+
+        TextField courseNameField = createTextField("Course Name");
+        courseNameField.setText(job.getCourseName());
+
+        TextField courseCodeField = createTextField("Course Code");
+        courseCodeField.setText(job.getCourseCode());
+
+        TextField recruitmentCountField = createTextField("Number of Openings");
+        recruitmentCountField.setText(String.valueOf(job.getRecruitmentCount()));
+
+        TextArea requirementsArea = new TextArea();
+        requirementsArea.setPromptText("Enter requirements, e.g. skills, experience, working hours.");
+        requirementsArea.setPrefRowCount(4);
+        requirementsArea.setWrapText(true);
+        requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
+        requirementsArea.setText(job.getRequirements());
+
+        DatePicker deadlinePicker = new DatePicker();
+        deadlinePicker.setPromptText("Application Deadline");
+        if (!isBlank(job.getDeadline())) {
+            try {
+                deadlinePicker.setValue(LocalDate.parse(job.getDeadline(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            } catch (DateTimeParseException ignored) {
+            }
+        }
+
+        Button saveButton = new Button("Save Changes");
+        saveButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        saveButton.setOnAction(e -> {
+            TAJob latestJob = jobManager.getJobById(job.getJobId());
+            if (latestJob == null) {
+                showMessage(messageLabel, "This position no longer exists.", false);
+                return;
+            }
+            if (!canEditJob(latestJob)) {
+                showMessage(messageLabel, getEditBlockedReason(latestJob), false);
+                return;
+            }
+
+            String positionName = positionNameField.getText();
+            String courseName = courseNameField.getText();
+            String courseCode = courseCodeField.getText();
+            String recruitText = recruitmentCountField.getText();
+            String requirements = requirementsArea.getText();
+            LocalDate deadline = deadlinePicker.getValue();
+
+            if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
+                showMessage(messageLabel, "Please fill in all required fields and select a deadline.", false);
+                return;
+            }
+
+            int count;
+            try {
+                count = Integer.parseInt(recruitText.trim());
+                if (count <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException ex) {
+                showMessage(messageLabel, "Number of openings must be a positive integer.", false);
+                return;
+            }
+
+            if (deadline.isBefore(LocalDate.now())) {
+                showMessage(messageLabel, "Deadline cannot be earlier than today.", false);
+                return;
+            }
+
+            latestJob.setPositionName(positionName.trim());
+            latestJob.setCourseName(courseName.trim());
+            latestJob.setCourseCode(courseCode.trim());
+            latestJob.setRecruitmentCount(count);
+            latestJob.setRequirements(requirements == null ? "" : requirements.trim());
+            latestJob.setDeadline(deadline.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+            try {
+                jobManager.saveJob(latestJob);
+                root.setCenter(buildMyPositionsView());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                showMessage(messageLabel, "Failed to save changes. Please try again.", false);
+            }
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        cancelButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+
+        HBox buttonBox = new HBox();
+        buttonBox.setSpacing(10);
+        buttonBox.getChildren().addAll(saveButton, cancelButton);
+
+        form.getChildren().addAll(
+            positionNameField,
+            courseNameField,
+            courseCodeField,
+            recruitmentCountField,
+            new Label("Requirements"), requirementsArea,
+            new Label("Application Deadline"), deadlinePicker,
+            buttonBox,
+            messageLabel
+        );
+
+        page.getChildren().addAll(backButton, title, tip, form);
+        return page;
+    }
+
+    private Node buildMyPositionsView() {
+        return buildMyPositionsView(1);
+    }
+
+    private Node buildMyPositionsView(int initialPage) {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(18);
+
+        Label title = new Label("My Positions");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
         List<TAJob> jobs = jobManager.getJobsByMo(moStaffId);
@@ -300,71 +501,285 @@ public class MODashboard extends javafx.application.Application {
         list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
         list.setPadding(new Insets(16));
 
+        HBox paginationBox = createPaginationBox();
+        int[] currentPage = { initialPage };
+
+        refreshMyPositionsList(list, paginationBox, jobs, currentPage);
+
+        page.getChildren().addAll(title, list, paginationBox);
+        return wrapScrollablePage(page);
+    }
+
+    private void refreshMyPositionsList(VBox list, HBox paginationBox, List<TAJob> jobs, int[] currentPage) {
+        list.getChildren().clear();
+
         if (jobs.isEmpty()) {
-            Label empty = new Label("您尚未发布任何岗位，点击左侧“岗位发布”立即创建。");
+            Label empty = new Label("You have not published any positions yet. Click \"Post Position\" on the left to get started.");
             empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
             list.getChildren().add(empty);
-        } else {
-            for (TAJob job : jobs) {
-                HBox row = new HBox();
-                row.setSpacing(14);
-                row.setStyle("-fx-padding: 14 0 14 0; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;");
+            refreshPaginationBox(paginationBox, 1, 1, 0, POSITION_PAGE_SIZE, null, null);
+            return;
+        }
 
-                VBox textBox = new VBox();
-                textBox.setSpacing(6);
-                Label rowTitle = new Label(job.getPositionName() + "（" + job.getCourseCode() + "）");
-                rowTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-                Label rowMeta = new Label("招聘人数：" + job.getRecruitmentCount() + "，截止日期：" + (isBlank(job.getDeadline()) ? "未设置" : job.getDeadline()) + "，状态：" + getJobStatus(job));
-                rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-                Label applicants = new Label("申请人数：" + recordManager.getApplicationsByMoStaffId(moStaffId).stream().filter(r -> r.getJobId().equals(job.getJobId())).count());
-                applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
-                textBox.getChildren().addAll(rowTitle, rowMeta, applicants);
+        int totalPages = getTotalPages(jobs.size(), POSITION_PAGE_SIZE);
+        currentPage[0] = clampPage(currentPage[0], totalPages);
+        List<TAJob> pageJobs = getPageItems(jobs, currentPage[0], POSITION_PAGE_SIZE);
 
-                HBox actionBox = new HBox();
-                actionBox.setSpacing(8);
-                Button detailButton = new Button("查看详情");
-                detailButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job)));
-                Button closeButton = new Button("结束发布");
-                closeButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
-                closeButton.setOnAction(e -> {
-                    job.setActive(true);
+        for (TAJob job : pageJobs) {
+            HBox row = new HBox();
+            row.setSpacing(14);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setStyle("-fx-padding: 14 0 14 0; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;");
+
+            VBox textBox = new VBox();
+            textBox.setSpacing(6);
+
+            HBox titleRow = new HBox();
+            titleRow.setSpacing(10);
+            titleRow.setAlignment(Pos.CENTER_LEFT);
+            Label rowTitle = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
+            rowTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+            Label statusBadge = buildStatusBadge(job);
+            titleRow.getChildren().addAll(rowTitle, statusBadge);
+
+            Label rowMeta = new Label("Openings: " + job.getRecruitmentCount()
+                + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
+            rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId)
+                .stream().filter(r -> r.getJobId().equals(job.getJobId())).collect(Collectors.toList());
+            long pendingCount = jobRecords.stream()
+                .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
+
+            HBox applicantRow = new HBox();
+            applicantRow.setSpacing(8);
+            applicantRow.setAlignment(Pos.CENTER_LEFT);
+            Label applicants = new Label("Applicants: " + jobRecords.size());
+            applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            applicantRow.getChildren().add(applicants);
+            if (pendingCount > 0) {
+                Label pendingBadge = new Label(pendingCount + " pending review");
+                pendingBadge.setStyle("-fx-font-size: 11px; -fx-text-fill: #cc0000;"
+                    + " -fx-background-color: #fff0f0; -fx-border-color: #ffaaaa;"
+                    + " -fx-border-width: 1; -fx-padding: 1 8 1 8;");
+                applicantRow.getChildren().add(pendingBadge);
+            }
+            textBox.getChildren().addAll(titleRow, rowMeta, applicantRow);
+
+            HBox actionBox = new HBox();
+            actionBox.setSpacing(8);
+            actionBox.setAlignment(Pos.CENTER_LEFT);
+
+            Button editButton = new Button("Edit Position");
+            editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            editButton.setDisable(!canEditJob(job));
+            editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+            actionBox.getChildren().add(editButton);
+
+            Button detailButton = new Button("View Details");
+            detailButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job, 1)));
+            actionBox.getChildren().add(detailButton);
+
+            boolean expired = isJobExpired(job);
+            if (expired) {
+                Label expiredNote = new Label("Deadline has passed");
+                expiredNote.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999; -fx-padding: 8 0 8 0;");
+                actionBox.getChildren().add(expiredNote);
+            } else if (job.isActive()) {
+                Button reopenButton = new Button("Reopen Position");
+                reopenButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #008800; -fx-border-color: #008800; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                reopenButton.setOnAction(e -> {
+                    job.setActive(false);
                     try {
                         jobManager.saveJob(job);
-                        root.setCenter(buildMyPositionsView());
+                        root.setCenter(buildMyPositionsView(currentPage[0]));
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 });
-                actionBox.getChildren().addAll(detailButton, closeButton);
-                row.getChildren().addAll(textBox, actionBox);
-                HBox.setHgrow(textBox, Priority.ALWAYS);
-                list.getChildren().add(row);
+                actionBox.getChildren().add(reopenButton);
+            } else {
+                Button closeButton = new Button("Close Position");
+                closeButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                closeButton.setOnAction(e -> {
+                    javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Close Position");
+                    confirm.setHeaderText("Close \"" + job.getPositionName() + "\"?");
+                    confirm.setContentText("Closing this position will remove it from the public listing.\nApplicants will no longer be able to apply.\nYou can reopen it at any time.");
+                    confirm.showAndWait().ifPresent(response -> {
+                        if (response == javafx.scene.control.ButtonType.OK) {
+                            job.setActive(true);
+                            try {
+                                jobManager.saveJob(job);
+                                root.setCenter(buildMyPositionsView(currentPage[0]));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+                });
+                actionBox.getChildren().add(closeButton);
+            }
+
+            row.getChildren().addAll(textBox, actionBox);
+            HBox.setHgrow(textBox, Priority.ALWAYS);
+            list.getChildren().add(row);
+
+            if (!canEditJob(job)) {
+                Label editHint = new Label("Edit locked: " + getEditBlockedReason(job));
+                editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+                textBox.getChildren().add(editHint);
             }
         }
 
-        page.getChildren().addAll(title, list);
-        return page;
+        refreshPaginationBox(
+            paginationBox,
+            currentPage[0],
+            totalPages,
+            jobs.size(),
+            POSITION_PAGE_SIZE,
+            () -> {
+                currentPage[0]--;
+                refreshMyPositionsList(list, paginationBox, jobs, currentPage);
+            },
+            () -> {
+                currentPage[0]++;
+                refreshMyPositionsList(list, paginationBox, jobs, currentPage);
+            }
+        );
     }
 
-    private Node buildJobDetailView(TAJob job) {
+    private Node buildPositionStatisticsView() {
         VBox page = new VBox();
         page.setPadding(new Insets(24));
         page.setSpacing(18);
 
-        Button backButton = new Button("← 返回我的岗位");
+        HBox headerRow = new HBox();
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        headerRow.setSpacing(12);
+
+        VBox titleBox = new VBox();
+        titleBox.setSpacing(6);
+        Label title = new Label("Position Statistics");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        Label subtitle = new Label("Track the status of your positions together with application and approval counts.");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        titleBox.getChildren().addAll(title, subtitle);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button refreshButton = new Button("Refresh");
+        refreshButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        refreshButton.setOnAction(e -> root.setCenter(buildPositionStatisticsView()));
+
+        headerRow.getChildren().addAll(titleBox, spacer, refreshButton);
+
+        List<TAJob> jobs = jobManager.getJobsByMo(moStaffId);
+        long openCount = jobs.stream().filter(job -> "Open".equals(getPositionStatisticsStatus(job))).count();
+        long closedCount = jobs.stream().filter(job -> "Closed".equals(getPositionStatisticsStatus(job))).count();
+        long expiredCount = jobs.stream().filter(job -> "Expired".equals(getPositionStatisticsStatus(job))).count();
+        int totalApplications = jobs.stream().mapToInt(job -> countApplicationsForJob(job.getJobId())).sum();
+        int totalApproved = jobs.stream().mapToInt(job -> countApprovedApplicationsForJob(job.getJobId())).sum();
+
+        HBox topStatRow = new HBox();
+        topStatRow.setSpacing(16);
+        topStatRow.getChildren().addAll(
+            buildStatCard((int) openCount, "Open Positions"),
+            buildStatCard((int) closedCount, "Closed Positions"),
+            buildStatCard((int) expiredCount, "Expired Positions")
+        );
+
+        HBox bottomStatRow = new HBox();
+        bottomStatRow.setSpacing(16);
+        bottomStatRow.getChildren().addAll(
+            buildStatCard(totalApplications, "Total Applications"),
+            buildStatCard(totalApproved, "Total Approved")
+        );
+
+        VBox list = new VBox();
+        list.setSpacing(12);
+        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
+
+        if (jobs.isEmpty()) {
+            Label empty = new Label("You have not published any positions yet. Publish one to start tracking progress here.");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            list.getChildren().add(empty);
+        } else {
+            for (TAJob job : jobs) {
+                list.getChildren().add(buildPositionStatisticsItem(job));
+            }
+        }
+
+        page.getChildren().addAll(headerRow, topStatRow, bottomStatRow, list);
+        return wrapScrollablePage(page);
+    }
+
+    private VBox buildPositionStatisticsItem(TAJob job) {
+        VBox item = new VBox();
+        item.setSpacing(8);
+        item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
+
+        Label title = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
+        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+
+        Label status = new Label("Status: " + getPositionStatisticsStatus(job));
+        status.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+
+        Label meta = new Label(
+            "Course: " + showFallback(job.getCourseName())
+                + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline())
+                + "  Openings: " + job.getRecruitmentCount()
+        );
+        meta.setWrapText(true);
+        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        int applicationCount = countApplicationsForJob(job.getJobId());
+        int approvedCount = countApprovedApplicationsForJob(job.getJobId());
+        Label progress = new Label("Applications: " + applicationCount + "  Approved: " + approvedCount);
+        progress.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        item.getChildren().addAll(title, status, meta, progress);
+        return item;
+    }
+
+    private Node buildJobDetailView(TAJob job) {
+        return buildJobDetailView(job, 1);
+    }
+
+    private Node buildJobDetailView(TAJob job, int initialPage) {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(18);
+
+        Button backButton = new Button("← Back to My Positions");
         backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
         backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
 
-        Label title = new Label(job.getPositionName() + "（" + job.getCourseCode() + "）");
+        Label title = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
-        Label meta = new Label("招聘人数：" + job.getRecruitmentCount() + "，截止日期：" + (isBlank(job.getDeadline()) ? "未设置" : job.getDeadline()) + "，状态：" + getJobStatus(job));
+        Label meta = new Label("Openings: " + job.getRecruitmentCount() + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()) + "  Status: " + getJobStatus(job));
         meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
 
-        Label desc = new Label("岗位说明：" + (isBlank(job.getRequirements()) ? "无" : job.getRequirements()));
+        Label desc = new Label("Description: " + (isBlank(job.getRequirements()) ? "None" : job.getRequirements()));
         desc.setWrapText(true);
         desc.setStyle("-fx-font-size: 14px; -fx-text-fill: #444444;");
+
+        HBox topActionBox = new HBox();
+        topActionBox.setSpacing(10);
+
+        Button editButton = new Button("Edit Position");
+        editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        editButton.setDisable(!canEditJob(job));
+        editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+
+        Label editHint = new Label(canEditJob(job)
+            ? "This position can still be edited."
+            : "Edit locked: " + getEditBlockedReason(job));
+        editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+        topActionBox.getChildren().addAll(editButton, editHint);
 
         VBox recordBox = new VBox();
         recordBox.setSpacing(12);
@@ -374,54 +789,86 @@ public class MODashboard extends javafx.application.Application {
             .filter(r -> job.getJobId().equals(r.getJobId()))
             .collect(Collectors.toList());
 
-        Label applicantTitle = new Label("本岗位申请人（仅展示当前登录 MO 发布岗位）");
+        Label applicantTitle = new Label("Applicants for this Position (showing current MO's positions only)");
         applicantTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
+        VBox recordList = new VBox();
+        recordList.setSpacing(12);
+
+        HBox paginationBox = createPaginationBox();
+        int[] currentPage = { initialPage };
+
+        recordBox.getChildren().addAll(applicantTitle, recordList, paginationBox);
+        refreshJobDetailRecords(recordList, paginationBox, records, job, currentPage);
+
+        page.getChildren().addAll(backButton, title, meta, desc, topActionBox, recordBox);
+        return page;
+    }
+
+    private void refreshJobDetailRecords(
+        VBox recordList,
+        HBox paginationBox,
+        List<TAApplicationRecord> records,
+        TAJob job,
+        int[] currentPage
+    ) {
+        recordList.getChildren().clear();
+
         if (records.isEmpty()) {
-            Label empty = new Label("当前岗位尚无申请。请耐心等待，或在申请审核页查看所有申请。");
+            Label empty = new Label("No applications for this position yet. Check back later or view all applications in Application Review.");
             empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
-            recordBox.getChildren().addAll(applicantTitle, empty);
-        } else {
-            recordBox.getChildren().add(applicantTitle);
-            for (TAApplicationRecord record : records) {
-                VBox item = new VBox();
-                item.setSpacing(8);
-                item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 12;");
-
-                Label name = new Label("姓名：" + record.getStudentName() + "（" + record.getTaStudentId() + "）");
-                name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-                Label info = new Label("专业：" + record.getMajor() + "，电话：" + record.getPhone() + "，邮箱：" + record.getEmail());
-                info.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
-                Label applicationTime = new Label("申请时间：" + record.getApplicationDate());
-                applicationTime.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
-                Label status = new Label("当前状态：" + formatStatus(record.getStatus()));
-                status.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
-
-                HBox actionBox = new HBox();
-                actionBox.setSpacing(8);
-                if (TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
-                    Button approveButton = new Button("通过");
-                    approveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 6 14 6 14; -fx-cursor: hand;");
-                    approveButton.setOnAction(e -> {
-                        recordManager.approveApplication(record.getApplicationId());
-                        root.setCenter(buildJobDetailView(job));
-                    });
-                    Button rejectButton = new Button("未通过");
-                    rejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 6 14 6 14; -fx-cursor: hand;");
-                    rejectButton.setOnAction(e -> {
-                        recordManager.rejectApplication(record.getApplicationId());
-                        root.setCenter(buildJobDetailView(job));
-                    });
-                    actionBox.getChildren().addAll(approveButton, rejectButton);
-                }
-
-                item.getChildren().addAll(name, info, applicationTime, status, actionBox);
-                recordBox.getChildren().add(item);
-            }
+            recordList.getChildren().add(empty);
+            refreshPaginationBox(paginationBox, 1, 1, 0, APPLICATION_RECORD_PAGE_SIZE, null, null);
+            return;
         }
 
-        page.getChildren().addAll(backButton, title, meta, desc, recordBox);
-        return page;
+        int totalPages = getTotalPages(records.size(), APPLICATION_RECORD_PAGE_SIZE);
+        currentPage[0] = clampPage(currentPage[0], totalPages);
+        List<TAApplicationRecord> pageRecords = getPageItems(records, currentPage[0], APPLICATION_RECORD_PAGE_SIZE);
+
+        for (TAApplicationRecord record : pageRecords) {
+            HBox row = new HBox();
+            row.setSpacing(14);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 12;");
+
+            VBox textBox = new VBox();
+            textBox.setSpacing(5);
+            Label name = new Label(record.getStudentName() + " (" + record.getTaStudentId() + ")");
+            name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+            Label applicantMeta = new Label("Major: " + record.getMajor() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
+            applicantMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+            textBox.getChildren().addAll(name, applicantMeta);
+
+            Label statusLabel = new Label(formatStatus(record.getStatus()));
+            statusLabel.setStyle(statusBadgeStyle(record.getStatus()));
+            statusLabel.setPrefWidth(100);
+
+            Button viewBtn = new Button("View Application");
+            viewBtn.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 7 14 7 14; -fx-cursor: hand;");
+            viewBtn.setOnAction(e -> root.setCenter(
+                buildApplicationDetailView(record, () -> root.setCenter(buildJobDetailView(job, currentPage[0])))));
+
+            HBox.setHgrow(textBox, Priority.ALWAYS);
+            row.getChildren().addAll(textBox, statusLabel, viewBtn);
+            recordList.getChildren().add(row);
+        }
+
+        refreshPaginationBox(
+            paginationBox,
+            currentPage[0],
+            totalPages,
+            records.size(),
+            APPLICATION_RECORD_PAGE_SIZE,
+            () -> {
+                currentPage[0]--;
+                refreshJobDetailRecords(recordList, paginationBox, records, job, currentPage);
+            },
+            () -> {
+                currentPage[0]++;
+                refreshJobDetailRecords(recordList, paginationBox, records, job, currentPage);
+            }
+        );
     }
 
     private Node buildApplicantReviewView() {
@@ -429,83 +876,726 @@ public class MODashboard extends javafx.application.Application {
         page.setPadding(new Insets(24));
         page.setSpacing(18);
 
-        Label title = new Label("申请审核");
+        Label title = new Label("Application Review");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
 
-        List<TAApplicationRecord> records = recordManager.getApplicationsByMoStaffId(moStaffId);
+        Label subtitle = new Label("Review all applications submitted for the positions published by the current module organiser.");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+        HBox filterBox = new HBox();
+        filterBox.setSpacing(12);
+
+        TextField majorFilterField = createTextField("Filter by major");
+        TextField availableTimeFilterField = createTextField("Filter by available time");
+        TextField skillsFilterField = createTextField("Filter by skills");
+        HBox.setHgrow(majorFilterField, Priority.ALWAYS);
+        HBox.setHgrow(availableTimeFilterField, Priority.ALWAYS);
+        HBox.setHgrow(skillsFilterField, Priority.ALWAYS);
+
+        Button clearButton = new Button("Clear Filters");
+        clearButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        filterBox.getChildren().addAll(majorFilterField, availableTimeFilterField, skillsFilterField, clearButton);
+
+        HBox batchActionBox = new HBox();
+        batchActionBox.setSpacing(12);
+
+        Button selectAllButton = new Button("Select Pending On Page");
+        selectAllButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        Button clearSelectionButton = new Button("Clear Selection");
+        clearSelectionButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        Button batchApproveButton = new Button("Batch Approve");
+        batchApproveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        Button batchRejectButton = new Button("Batch Reject");
+        batchRejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        batchActionBox.getChildren().addAll(selectAllButton, clearSelectionButton, batchApproveButton, batchRejectButton);
+
+        Label summary = new Label();
+        summary.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Label selectionLabel = new Label();
+        selectionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Label feedbackLabel = new Label();
+        feedbackLabel.setStyle("-fx-font-size: 13px;");
+
         VBox list = new VBox();
         list.setSpacing(12);
         list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
 
-        if (records.isEmpty()) {
-            Label empty = new Label("当前尚无本岗位申请记录。发布岗位后，可在此审核对应申请。\n提示：请确认申请人已提交资料。" );
+        HBox paginationBox = createPaginationBox();
+        Set<String> selectedApplicationIds = new HashSet<>();
+        int[] currentPage = { 1 };
+        Runnable refreshList = () -> refreshApplicantReviewList(
+            list,
+            paginationBox,
+            summary,
+            selectionLabel,
+            feedbackLabel,
+            selectedApplicationIds,
+            currentPage,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        );
+
+        majorFilterField.textProperty().addListener((obs, oldValue, newValue) -> {
+            currentPage[0] = 1;
+            refreshList.run();
+        });
+        availableTimeFilterField.textProperty().addListener((obs, oldValue, newValue) -> {
+            currentPage[0] = 1;
+            refreshList.run();
+        });
+        skillsFilterField.textProperty().addListener((obs, oldValue, newValue) -> {
+            currentPage[0] = 1;
+            refreshList.run();
+        });
+        clearButton.setOnAction(e -> {
+            majorFilterField.clear();
+            availableTimeFilterField.clear();
+            skillsFilterField.clear();
+            currentPage[0] = 1;
+            refreshList.run();
+        });
+        selectAllButton.setOnAction(e -> {
+            List<TAApplicationRecord> filteredPendingRecords = getPageItems(
+                getFilteredApplicantRecords(
+                    majorFilterField.getText(),
+                    availableTimeFilterField.getText(),
+                    skillsFilterField.getText()
+                ),
+                currentPage[0],
+                APPLICANT_PAGE_SIZE
+            ).stream()
+                .filter(this::isPendingApplication)
+                .collect(Collectors.toList());
+
+            if (filteredPendingRecords.isEmpty()) {
+                showMessage(feedbackLabel, "No pending applications match the current filters.", false);
+                refreshList.run();
+                return;
+            }
+
+            for (TAApplicationRecord record : filteredPendingRecords) {
+                selectedApplicationIds.add(record.getApplicationId());
+            }
+            showMessage(feedbackLabel, "Selected " + filteredPendingRecords.size() + " pending applications.", true);
+            refreshList.run();
+        });
+        clearSelectionButton.setOnAction(e -> {
+            selectedApplicationIds.clear();
+            showMessage(feedbackLabel, "Selection cleared.", true);
+            refreshList.run();
+        });
+        batchApproveButton.setOnAction(e -> handleBatchReviewAction(
+            true,
+            selectedApplicationIds,
+            feedbackLabel,
+            list,
+            paginationBox,
+            summary,
+            selectionLabel,
+            currentPage,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        ));
+        batchRejectButton.setOnAction(e -> handleBatchReviewAction(
+            false,
+            selectedApplicationIds,
+            feedbackLabel,
+            list,
+            paginationBox,
+            summary,
+            selectionLabel,
+            currentPage,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        ));
+
+        refreshList.run();
+
+        page.getChildren().addAll(title, subtitle, filterBox, batchActionBox, summary, selectionLabel, feedbackLabel, list, paginationBox);
+        return wrapScrollablePage(page);
+    }
+
+    private void refreshApplicantReviewList(
+        VBox list,
+        HBox paginationBox,
+        Label summary,
+        Label selectionLabel,
+        Label feedbackLabel,
+        Set<String> selectedApplicationIds,
+        int[] currentPage,
+        TextField majorFilterField,
+        TextField availableTimeFilterField,
+        TextField skillsFilterField
+    ) {
+        list.getChildren().clear();
+
+        Set<String> pendingApplicationIds = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(this::isPendingApplication)
+            .map(TAApplicationRecord::getApplicationId)
+            .collect(Collectors.toSet());
+        selectedApplicationIds.retainAll(pendingApplicationIds);
+
+        List<TAApplicationRecord> filteredRecords = getFilteredApplicantRecords(
+            majorFilterField.getText(),
+            availableTimeFilterField.getText(),
+            skillsFilterField.getText()
+        );
+        long pendingCount = filteredRecords.stream()
+            .filter(record -> TAApplicationRecord.STATUS_PENDING.equals(record.getStatus()))
+            .count();
+
+        summary.setText("Matching applications: " + filteredRecords.size() + "  Pending review: " + pendingCount);
+        updateSelectionLabel(selectionLabel, selectedApplicationIds);
+
+        if (filteredRecords.isEmpty()) {
+            Label empty = new Label("No applications match the current filters.");
             empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
             list.getChildren().add(empty);
-        } else {
-            for (TAApplicationRecord record : records) {
-                VBox item = new VBox();
-                item.setSpacing(8);
-                item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
-
-                Label summary = new Label(record.getPositionName() + " - " + record.getStudentName() + "（" + record.getTaStudentId() + "）");
-                summary.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
-                Label applicantInfo = new Label("专业：" + record.getMajor() + "，电话：" + record.getPhone() + "，邮箱：" + record.getEmail());
-                applicantInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
-                Label applicationTime = new Label("申请时间：" + record.getApplicationDate());
-                applicationTime.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
-                Label status = new Label("当前状态：" + formatStatus(record.getStatus()));
-                status.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
-
-                HBox actionBox = new HBox();
-                actionBox.setSpacing(8);
-                if (TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
-                    Button approveButton = new Button("通过");
-                    approveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 6 14 6 14; -fx-cursor: hand;");
-                    approveButton.setOnAction(e -> {
-                        recordManager.approveApplication(record.getApplicationId());
-                        root.setCenter(buildApplicantReviewView());
-                    });
-                    Button rejectButton = new Button("未通过");
-                    rejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 6 14 6 14; -fx-cursor: hand;");
-                    rejectButton.setOnAction(e -> {
-                        recordManager.rejectApplication(record.getApplicationId());
-                        root.setCenter(buildApplicantReviewView());
-                    });
-                    actionBox.getChildren().addAll(approveButton, rejectButton);
-                }
-
-                item.getChildren().addAll(summary, applicantInfo, applicationTime, status, actionBox);
-                list.getChildren().add(item);
-            }
+            refreshPaginationBox(paginationBox, 1, 1, 0, APPLICANT_PAGE_SIZE, null, null);
+            return;
         }
 
-        page.getChildren().addAll(title, list);
+        int totalPages = getTotalPages(filteredRecords.size(), APPLICANT_PAGE_SIZE);
+        currentPage[0] = clampPage(currentPage[0], totalPages);
+        List<TAApplicationRecord> pageRecords = getPageItems(filteredRecords, currentPage[0], APPLICANT_PAGE_SIZE);
+
+        Runnable refreshAction = () -> refreshApplicantReviewList(
+            list,
+            paginationBox,
+            summary,
+            selectionLabel,
+            feedbackLabel,
+            selectedApplicationIds,
+            currentPage,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        );
+
+        for (TAApplicationRecord record : pageRecords) {
+            list.getChildren().add(buildApplicantReviewItem(record, selectedApplicationIds, selectionLabel, refreshAction));
+        }
+
+        refreshPaginationBox(
+            paginationBox,
+            currentPage[0],
+            totalPages,
+            filteredRecords.size(),
+            APPLICANT_PAGE_SIZE,
+            () -> {
+                currentPage[0]--;
+                refreshApplicantReviewList(
+                    list,
+                    paginationBox,
+                    summary,
+                    selectionLabel,
+                    feedbackLabel,
+                    selectedApplicationIds,
+                    currentPage,
+                    majorFilterField,
+                    availableTimeFilterField,
+                    skillsFilterField
+                );
+            },
+            () -> {
+                currentPage[0]++;
+                refreshApplicantReviewList(
+                    list,
+                    paginationBox,
+                    summary,
+                    selectionLabel,
+                    feedbackLabel,
+                    selectedApplicationIds,
+                    currentPage,
+                    majorFilterField,
+                    availableTimeFilterField,
+                    skillsFilterField
+                );
+            }
+        );
+    }
+
+    private VBox buildApplicantReviewItem(
+        TAApplicationRecord record,
+        Set<String> selectedApplicationIds,
+        Label selectionLabel,
+        Runnable refreshAction
+    ) {
+        VBox item = new VBox();
+        item.setSpacing(8);
+        item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
+
+        HBox summaryRow = new HBox();
+        summaryRow.setSpacing(10);
+        summaryRow.setAlignment(Pos.CENTER_LEFT);
+
+        CheckBox selectBox = new CheckBox();
+        selectBox.setStyle("-fx-cursor: hand;");
+        selectBox.setSelected(selectedApplicationIds.contains(record.getApplicationId()));
+        selectBox.setDisable(!isPendingApplication(record));
+        selectBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            if (isSelected) {
+                selectedApplicationIds.add(record.getApplicationId());
+            } else {
+                selectedApplicationIds.remove(record.getApplicationId());
+            }
+            updateSelectionLabel(selectionLabel, selectedApplicationIds);
+        });
+
+        Label summary = new Label(record.getPositionName() + " - " + record.getStudentName() + " (" + record.getTaStudentId() + ")");
+        summary.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        summaryRow.getChildren().addAll(selectBox, summary);
+
+        Label profile = new Label(
+            "Major: " + showFallback(record.getMajor())
+                + "  Available Time: " + showFallback(record.getAvailableTime())
+                + "  Skills: " + showFallback(record.getSkills())
+        );
+        profile.setWrapText(true);
+        profile.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Label meta = new Label("Applied: " + fmtDate(record.getApplicationDate()) + "  Status: " + formatStatus(record.getStatus()));
+        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        Button openButton = new Button("Open Review");
+        openButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        openButton.setOnAction(e -> root.setCenter(
+            buildApplicationDetailView(record, () -> root.setCenter(buildApplicantReviewView()))));
+
+        HBox actionBox = new HBox();
+        actionBox.setSpacing(8);
+        actionBox.getChildren().add(openButton);
+        if (isPendingApplication(record)) {
+            Button approveButton = new Button("Approve");
+            approveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            approveButton.setOnAction(e -> {
+                recordManager.approveApplication(record.getApplicationId());
+                refreshAction.run();
+            });
+
+            Button rejectButton = new Button("Reject");
+            rejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            rejectButton.setOnAction(e -> {
+                recordManager.rejectApplication(record.getApplicationId());
+                refreshAction.run();
+            });
+            actionBox.getChildren().addAll(approveButton, rejectButton);
+        }
+
+        item.getChildren().addAll(summaryRow, profile, meta, actionBox);
+        return item;
+    }
+
+    private Node buildApplicationDetailView(TAApplicationRecord record, Runnable onBack) {
+        VBox page = new VBox();
+        page.setPadding(new Insets(24));
+        page.setSpacing(20);
+
+        Button backButton = new Button("← Back");
+        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 0; -fx-cursor: hand;");
+        backButton.setOnAction(e -> onBack.run());
+
+        // 标题区
+        HBox titleRow = new HBox();
+        titleRow.setSpacing(14);
+        titleRow.setAlignment(Pos.CENTER_LEFT);
+        Label title = new Label(record.getPositionName());
+        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        Label statusBadge = new Label(formatStatus(record.getStatus()));
+        statusBadge.setStyle(statusBadgeStyle(record.getStatus()));
+        titleRow.getChildren().addAll(title, statusBadge);
+
+        Label courseInfo = new Label("Course: " + record.getCourseName() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
+        courseInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+        // 申请人信息卡片
+        VBox profileCard = buildDetailCard("Applicant Profile", buildProfileGrid(record));
+
+        // 审核操作区
+        VBox reviewCard = buildReviewCard(record, onBack);
+
+        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, reviewCard);
         return page;
+    }
+
+    private VBox buildDetailCard(String cardTitle, Node content) {
+        VBox card = new VBox();
+        card.setSpacing(14);
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+        Label label = new Label(cardTitle);
+        label.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        card.getChildren().addAll(label, content);
+        return card;
+    }
+
+    private Node buildProfileGrid(TAApplicationRecord record) {
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(24);
+        grid.setVgap(10);
+
+        String[][] fields = {
+            {"Name",           record.getStudentName()},
+            {"Student ID",     record.getTaStudentId()},
+            {"Major",          record.getMajor()},
+            {"Phone",          record.getPhone()},
+            {"Email",          record.getEmail()},
+            {"Available Time", record.getAvailableTime()},
+            {"Skills",         record.getSkills()},
+        };
+
+        for (int i = 0; i < fields.length; i++) {
+            Label key = new Label(fields[i][0]);
+            key.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 600;");
+            key.setPrefWidth(120);
+
+            Label val = new Label(fields[i][1] == null || fields[i][1].isEmpty() ? "—" : fields[i][1]);
+            val.setStyle("-fx-font-size: 13px; -fx-text-fill: #222222;");
+            val.setWrapText(true);
+
+            grid.add(key, 0, i);
+            grid.add(val, 1, i);
+        }
+        return grid;
+    }
+
+    private VBox buildReviewCard(TAApplicationRecord record, Runnable onBack) {
+        VBox card = new VBox();
+        card.setSpacing(14);
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+
+        Label cardTitle = new Label("Review Decision");
+        cardTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        card.getChildren().add(cardTitle);
+
+        if (TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
+            Label hint = new Label("This application is awaiting your decision.");
+            hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+
+            javafx.scene.control.TextArea commentField = new javafx.scene.control.TextArea();
+            commentField.setPromptText("Optional: add a review comment for your records...");
+            commentField.setPrefRowCount(3);
+            commentField.setWrapText(true);
+            commentField.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1;");
+
+            HBox buttons = new HBox();
+            buttons.setSpacing(12);
+
+            Button approveBtn = new Button("✓  Approve");
+            approveBtn.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
+            approveBtn.setOnAction(e -> {
+                recordManager.approveApplication(record.getApplicationId(), commentField.getText().trim());
+                onBack.run();
+            });
+
+            Button rejectBtn = new Button("✗  Reject");
+            rejectBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
+            rejectBtn.setOnAction(e -> {
+                recordManager.rejectApplication(record.getApplicationId(), commentField.getText().trim());
+                onBack.run();
+            });
+
+            buttons.getChildren().addAll(approveBtn, rejectBtn);
+            card.getChildren().addAll(hint, new Label("Review Comment (optional):"), commentField, buttons);
+        } else {
+            Label decided = new Label("Decision: " + formatStatus(record.getStatus()));
+            decided.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+            card.getChildren().add(decided);
+
+            if (record.getReviewComment() != null && !record.getReviewComment().isEmpty()) {
+                Label comment = new Label("Comment: " + record.getReviewComment());
+                comment.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+                comment.setWrapText(true);
+                card.getChildren().add(comment);
+            }
+
+            // Only allow undo for APPROVED / REJECTED (not WITHDRAWN — that's the TA's action)
+            if (TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()) ||
+                    TAApplicationRecord.STATUS_REJECTED.equals(record.getStatus())) {
+                Label undoHint = new Label("You can undo this decision to reopen the application for review.");
+                undoHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999;");
+
+                Button undoBtn = new Button("↩  Undo Decision");
+                undoBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #555555;" +
+                    " -fx-border-color: #aaaaaa; -fx-border-width: 1;" +
+                    " -fx-font-size: 13px; -fx-padding: 7 16 7 16; -fx-cursor: hand;");
+                undoBtn.setOnAction(e -> {
+                    javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Undo Decision");
+                    confirm.setHeaderText("Reset this application back to \"Under Review\"?");
+                    confirm.setContentText("The applicant's status will return to Pending and you can re-review it.");
+                    confirm.showAndWait().ifPresent(response -> {
+                        if (response == javafx.scene.control.ButtonType.OK) {
+                            recordManager.resetToPending(record.getApplicationId());
+                            onBack.run();
+                        }
+                    });
+                });
+                card.getChildren().addAll(undoHint, undoBtn);
+            }
+        }
+        return card;
+    }
+
+    private String statusBadgeStyle(String status) {
+        switch (status) {
+            case TAApplicationRecord.STATUS_PENDING:
+                return "-fx-font-size: 12px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
+            case TAApplicationRecord.STATUS_APPROVED:
+                return "-fx-font-size: 12px; -fx-text-fill: #008800; -fx-background-color: #efffef; -fx-border-color: #aaccaa; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
+            case TAApplicationRecord.STATUS_REJECTED:
+                return "-fx-font-size: 12px; -fx-text-fill: #cc0000; -fx-background-color: #fff0f0; -fx-border-color: #eeaaaa; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
+            default:
+                return "-fx-font-size: 12px; -fx-text-fill: #666666; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
+        }
+    }
+
+    private String fmtDate(java.util.Date date) {
+        if (date == null) return "—";
+        return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(date);
     }
 
     private String formatStatus(String status) {
         switch (status) {
             case TAApplicationRecord.STATUS_PENDING:
-                return "审核中";
+                return "Under Review";
             case TAApplicationRecord.STATUS_APPROVED:
-                return "已通过";
+                return "Approved";
             case TAApplicationRecord.STATUS_REJECTED:
-                return "未通过";
+                return "Rejected";
             case TAApplicationRecord.STATUS_WITHDRAWN:
-                return "已撤回";
+                return "Withdrawn";
             default:
                 return status;
         }
     }
 
+    private Label buildStatusBadge(TAJob job) {
+        String text;
+        String style;
+        if (job.isActive()) {
+            text = "Closed";
+            style = "-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #eeeeee; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
+        } else if (isJobExpired(job)) {
+            text = "Expired";
+            style = "-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
+        } else {
+            text = "Open";
+            style = "-fx-font-size: 11px; -fx-text-fill: #008800; -fx-background-color: #efffef; -fx-border-color: #aaccaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
+        }
+        Label badge = new Label(text);
+        badge.setStyle(style);
+        return badge;
+    }
+
     private String getJobStatus(TAJob job) {
         if (job.isActive()) {
-            return "已截止";
+            return "Closed";
         }
         if (isJobExpired(job)) {
-            return "已到期";
+            return "Expired";
         }
-        return "开放中";
+        return "Open";
+    }
+
+    private String getPositionStatisticsStatus(TAJob job) {
+        if (isJobExpired(job)) {
+            return "Expired";
+        }
+        if (job.isActive()) {
+            return "Closed";
+        }
+        return "Open";
+    }
+
+    private int countApplicationsForJob(String jobId) {
+        return (int) recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(record -> jobId.equals(record.getJobId()))
+            .count();
+    }
+
+    private int countApprovedApplicationsForJob(String jobId) {
+        return (int) recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(record -> jobId.equals(record.getJobId()))
+            .filter(record -> TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()))
+            .count();
+    }
+
+    private List<TAApplicationRecord> getFilteredApplicantRecords(
+        String majorFilter,
+        String availableTimeFilter,
+        String skillsFilter
+    ) {
+        return recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+            .filter(record -> matchesApplicantFilters(record, majorFilter, availableTimeFilter, skillsFilter))
+            .collect(Collectors.toList());
+    }
+
+    private boolean matchesApplicantFilters(
+        TAApplicationRecord record,
+        String majorFilter,
+        String availableTimeFilter,
+        String skillsFilter
+    ) {
+        return matchesKeywordFilter(record.getMajor(), majorFilter)
+            && matchesKeywordFilter(record.getAvailableTime(), availableTimeFilter)
+            && matchesKeywordFilter(record.getSkills(), skillsFilter);
+    }
+
+    private boolean matchesKeywordFilter(String value, String filterText) {
+        if (isBlank(filterText)) {
+            return true;
+        }
+
+        String normalizedValue = value == null ? "" : value.trim().toLowerCase();
+        String[] keywords = filterText.trim().toLowerCase().split("[,，\\s]+");
+        for (String keyword : keywords) {
+            if (!keyword.isEmpty() && !normalizedValue.contains(keyword)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void handleBatchReviewAction(
+        boolean approve,
+        Set<String> selectedApplicationIds,
+        Label feedbackLabel,
+        VBox list,
+        HBox paginationBox,
+        Label summary,
+        Label selectionLabel,
+        int[] currentPage,
+        TextField majorFilterField,
+        TextField availableTimeFilterField,
+        TextField skillsFilterField
+    ) {
+        if (selectedApplicationIds.isEmpty()) {
+            showMessage(feedbackLabel, "Select at least one pending application first.", false);
+            return;
+        }
+
+        int selectedCount = selectedApplicationIds.size();
+        int updatedCount = 0;
+        for (String applicationId : new HashSet<>(selectedApplicationIds)) {
+            boolean updated = approve
+                ? recordManager.approveApplication(applicationId)
+                : recordManager.rejectApplication(applicationId);
+            if (updated) {
+                updatedCount++;
+                selectedApplicationIds.remove(applicationId);
+            }
+        }
+
+        if (updatedCount == 0) {
+            showMessage(feedbackLabel, "None of the selected applications could be updated.", false);
+        } else if (updatedCount == selectedCount) {
+            showMessage(feedbackLabel, (approve ? "Approved " : "Rejected ") + updatedCount + " applications.", true);
+        } else {
+            showMessage(
+                feedbackLabel,
+                "Updated " + updatedCount + " applications. "
+                    + (selectedCount - updatedCount) + " were skipped because their status changed.",
+                true
+            );
+        }
+
+        refreshApplicantReviewList(
+            list,
+            paginationBox,
+            summary,
+            selectionLabel,
+            feedbackLabel,
+            selectedApplicationIds,
+            currentPage,
+            majorFilterField,
+            availableTimeFilterField,
+            skillsFilterField
+        );
+    }
+
+    private HBox createPaginationBox() {
+        HBox box = new HBox();
+        box.setSpacing(12);
+        box.setAlignment(Pos.CENTER_LEFT);
+        return box;
+    }
+
+    private void refreshPaginationBox(
+        HBox paginationBox,
+        int currentPage,
+        int totalPages,
+        int totalItems,
+        int pageSize,
+        Runnable previousAction,
+        Runnable nextAction
+    ) {
+        paginationBox.getChildren().clear();
+
+        Button previousButton = new Button("Previous");
+        previousButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        previousButton.setDisable(totalItems == 0 || currentPage <= 1);
+        if (previousAction != null) {
+            previousButton.setOnAction(e -> previousAction.run());
+        }
+
+        Button nextButton = new Button("Next");
+        nextButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        nextButton.setDisable(totalItems == 0 || currentPage >= totalPages);
+        if (nextAction != null) {
+            nextButton.setOnAction(e -> nextAction.run());
+        }
+
+        Label pageLabel = new Label("Page " + currentPage + " / " + totalPages);
+        pageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        int startIndex = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+        int endIndex = totalItems == 0 ? 0 : Math.min(currentPage * pageSize, totalItems);
+        Label countLabel = new Label("Showing " + startIndex + "-" + endIndex + " of " + totalItems);
+        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #777777;");
+
+        paginationBox.getChildren().addAll(previousButton, nextButton, pageLabel, countLabel);
+    }
+
+    private int getTotalPages(int totalItems, int pageSize) {
+        if (totalItems <= 0) {
+            return 1;
+        }
+        return (totalItems + pageSize - 1) / pageSize;
+    }
+
+    private int clampPage(int page, int totalPages) {
+        return Math.max(1, Math.min(page, totalPages));
+    }
+
+    private <T> List<T> getPageItems(List<T> items, int page, int pageSize) {
+        if (items.isEmpty()) {
+            return items;
+        }
+
+        int safePage = clampPage(page, getTotalPages(items.size(), pageSize));
+        int fromIndex = (safePage - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, items.size());
+        return items.subList(fromIndex, toIndex);
+    }
+
+    private boolean canEditJob(TAJob job) {
+        return !isJobExpired(job) && countApplicationsForJob(job.getJobId()) == 0;
+    }
+
+    private String getEditBlockedReason(TAJob job) {
+        if (isJobExpired(job)) {
+            return "deadline has already passed";
+        }
+        if (countApplicationsForJob(job.getJobId()) > 0) {
+            return "the position already has applicants";
+        }
+        return "this position is not eligible for editing";
     }
 
     private boolean isJobOpen(TAJob job) {
@@ -538,6 +1628,18 @@ public class MODashboard extends javafx.application.Application {
 
     private boolean isBlank(String text) {
         return text == null || text.trim().isEmpty();
+    }
+
+    private String showFallback(String text) {
+        return isBlank(text) ? "Not provided" : text.trim();
+    }
+
+    private boolean isPendingApplication(TAApplicationRecord record) {
+        return TAApplicationRecord.STATUS_PENDING.equals(record.getStatus());
+    }
+
+    private void updateSelectionLabel(Label selectionLabel, Set<String> selectedApplicationIds) {
+        selectionLabel.setText("Selected pending applications: " + selectedApplicationIds.size());
     }
 
     public static void main(String[] args) {

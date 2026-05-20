@@ -31,20 +31,27 @@ public class AdminDashboard extends Application {
         this.adminId = adminId;
     }
 
-    @Override
-    public void start(Stage stage) {
-        root = new BorderPane();
-        root.setStyle("-fx-background-color: #fafafa;");
-        root.setLeft(buildSidebar(stage));
-        showDashboard();
-
-        Scene scene = new Scene(root, 1100, 720);
-        stage.setTitle("TA 招聘管理系统 - 管理员控制台");
-        stage.setScene(scene);
-        stage.show();
+    /** Called from LoginView after login — uses the shared Stage via AppNavigator. */
+    public void navigateTo() {
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA Recruitment System - Admin Console");
     }
 
-    private VBox buildSidebar(Stage stage) {
+    @Override
+    public void start(Stage stage) {
+        core.AppNavigator.getInstance().init(stage);
+        buildUI();
+        core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA Recruitment System - Admin Console");
+    }
+
+    private void buildUI() {
+        root = new BorderPane();
+        root.setStyle("-fx-background-color: #fafafa;");
+        root.setLeft(buildSidebar());
+        showDashboard();
+    }
+
+    private VBox buildSidebar() {
         VBox sidebar = new VBox();
         sidebar.setPrefWidth(220);
         sidebar.setStyle("-fx-background-color: #ffffff;");
@@ -69,20 +76,27 @@ public class AdminDashboard extends Application {
         VBox spacer = new VBox();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        Label logoutLabel = new Label("Log out");
-        logoutLabel.setMaxWidth(Double.MAX_VALUE);
-        logoutLabel.setStyle(
-            "-fx-font-size: 14px; -fx-text-fill: #888888; -fx-cursor: hand;" +
-            "-fx-padding: 10 16 24 16;");
-        logoutLabel.setOnMouseClicked(e -> {
-            stage.close();
-            new LoginScreen.LoginView().start(new Stage());
+        javafx.scene.control.Button logoutButton = new javafx.scene.control.Button("Log out");
+        logoutButton.setMaxWidth(Double.MAX_VALUE);
+        logoutButton.setStyle(
+            "-fx-font-size: 13px; -fx-text-fill: #cc0000; -fx-background-color: transparent;" +
+            "-fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        logoutButton.setOnAction(e -> {
+            try {
+                LoginScreen.LoginView loginView = new LoginScreen.LoginView();
+                core.AppNavigator.getInstance().navigateTo(loginView.buildLoginScene(), "TA Recruitment System - Login");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
+
+        javafx.scene.layout.VBox logoutBox = new javafx.scene.layout.VBox(logoutButton);
+        logoutBox.setPadding(new Insets(0, 16, 16, 16));
 
         sidebar.getChildren().addAll(
             topSpacer,
             navDashboard, navUsers, navPositions, navLogs,
-            spacer, logoutLabel
+            spacer, logoutBox
         );
         return sidebar;
     }

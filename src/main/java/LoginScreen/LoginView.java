@@ -25,7 +25,7 @@ public class LoginView extends Application {
     private Label registerTab;
 
     public interface LoginHandler {
-        void onLogin(String account, String password, String role);
+        void onLogin(String account, String password);
         void onRegister(String account, String password, String role);
     }
 
@@ -38,11 +38,12 @@ public class LoginView extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        core.AppNavigator.getInstance().init(primaryStage);
 
         setLoginHandler(new LoginHandler() {
             @Override
-            public void onLogin(String account, String password, String role) {
-                System.out.println("登录: 账号=" + account + ", 密码=" + password + ", 身份=" + role);
+            public void onLogin(String account, String password) {
+                System.out.println("登录: 账号=" + account + ", 密码=" + password);
             }
 
             @Override
@@ -51,6 +52,10 @@ public class LoginView extends Application {
             }
         });
 
+        core.AppNavigator.getInstance().navigateTo(buildLoginScene(), "TA Recruitment System - Login");
+    }
+
+    public Scene buildLoginScene() {
         StackPane rootWrapper = new StackPane();
         rootWrapper.setStyle("-fx-background-color: #fafafa;");
         rootWrapper.setAlignment(Pos.CENTER);
@@ -62,7 +67,7 @@ public class LoginView extends Application {
         container.setPrefWidth(500);
         container.setMaxWidth(500);
 
-        Label titleLabel = new Label("TA 招聘管理系统");
+        Label titleLabel = new Label("TA Recruitment System");
         titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: 600; -fx-text-fill: #000000;");
         titleLabel.setAlignment(Pos.CENTER);
         titleLabel.setMaxWidth(Double.MAX_VALUE);
@@ -80,7 +85,6 @@ public class LoginView extends Application {
         HBox tabsBox = createTabs();
 
         StackPane contentPane = new StackPane();
-        contentPane.setPadding(new Insets(0, 0, 0, 0));
 
         loginPanel = createLoginPanel();
         registerPanel = createRegisterPanel();
@@ -99,10 +103,7 @@ public class LoginView extends Application {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        Scene scene = new Scene(scrollPane, 900, 700);
-        primaryStage.setTitle("TA招聘管理系统 - 登录");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        return new Scene(scrollPane);
     }
 
     private HBox createTabs() {
@@ -111,14 +112,14 @@ public class LoginView extends Application {
         tabsBox.setPadding(new Insets(0, 0, 0, 0));
         tabsBox.setSpacing(0);
 
-        loginTab = new Label("登录");
+        loginTab = new Label("Log In");
         loginTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000; -fx-border-width: 0 0 2 0; -fx-border-color: #000000; -fx-cursor: hand;");
         loginTab.setAlignment(Pos.CENTER);
         loginTab.setPrefWidth(250);
         loginTab.setPadding(new Insets(10, 0, 10, 0));
         loginTab.setOnMouseClicked(e -> switchToLogin());
 
-        registerTab = new Label("注册");
+        registerTab = new Label("Register");
         registerTab.setStyle("-fx-font-size: 14px; -fx-text-fill: #888888; -fx-border-width: 0 0 2 0; -fx-border-color: transparent; -fx-cursor: hand;");
         registerTab.setAlignment(Pos.CENTER);
         registerTab.setPrefWidth(250);
@@ -137,45 +138,28 @@ public class LoginView extends Application {
 
         UserManager userManager = new UserManager();
 
-        VBox accountField = createFormField("账号 (学号 / 工号)", "请输入账号", false);
-        VBox passwordField = createPasswordField("密码", "请输入密码");
-
-        VBox roleBox = new VBox();
-        roleBox.setSpacing(6);
-
-        Label roleLabel = new Label("登录身份");
-        roleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
-
-        ComboBox<String> roleCombo = new ComboBox<>();
-        roleCombo.getItems().addAll("-- 请选择登录身份 --", "应聘者 (TA Applicant)", "课程组织者 (Module Organiser)", "系统管理员 (Admin)");
-        roleCombo.getSelectionModel().select(0);
-        roleCombo.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1;");
-        roleCombo.setPrefWidth(Double.MAX_VALUE);
-
-        roleBox.getChildren().addAll(roleLabel, roleCombo);
+        VBox accountField = createFormField("Account (Student ID / Staff ID)", "Enter your account", false);
+        VBox passwordField = createPasswordField("Password", "Enter your password");
 
         Label messageLabel = new Label("");
         messageLabel.setMaxWidth(Double.MAX_VALUE);
         messageLabel.setPadding(new Insets(10, 0, 0, 0));
         messageLabel.setAlignment(Pos.CENTER);
 
-        Button loginButton = new Button("登 录");
+        Button loginButton = new Button("Log In");
         loginButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #000000; -fx-padding: 11 0 11 0; -fx-cursor: hand;");
         loginButton.setPrefWidth(Double.MAX_VALUE);
         loginButton.setOnAction(e -> {
             TextField accountInput = (TextField) accountField.getChildren().get(1);
             PasswordField passInput = (PasswordField) passwordField.getChildren().get(1);
-            String role = roleCombo.getSelectionModel().getSelectedIndex() == 0 ? "" :
-                          roleCombo.getSelectionModel().getSelectedItem().toString();
 
             String result = userManager.login(
                 accountInput.getText(),
-                passInput.getText(),
-                role
+                passInput.getText()
             );
 
             if (result.startsWith("SUCCESS:")) {
-                messageLabel.setText("登录成功！正在跳转...");
+                messageLabel.setText("Login successful! Redirecting...");
                 messageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #008800; -fx-alignment: center;");
 
                 String userRole = result.substring(8);
@@ -188,10 +172,9 @@ public class LoginView extends Application {
                         try {
                             Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
-                                primaryStage.close();
                                 ZiqianCao.java.TAPositionListUI ui = new ZiqianCao.java.TAPositionListUI();
                                 ui.setCurrentStudentId(studentId);
-                                ui.start(new Stage());
+                                ui.navigateTo();
                             });
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -203,9 +186,8 @@ public class LoginView extends Application {
                         try {
                             Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
-                                primaryStage.close();
                                 Admin.AdminDashboard dashboard = new Admin.AdminDashboard(studentId);
-                                dashboard.start(new Stage());
+                                dashboard.navigateTo();
                             });
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -217,16 +199,15 @@ public class LoginView extends Application {
                         try {
                             Thread.sleep(500);
                             javafx.application.Platform.runLater(() -> {
-                                primaryStage.close();
                                 Admin.MODashboard dashboard = new Admin.MODashboard(studentId);
-                                dashboard.start(new Stage());
+                                dashboard.navigateTo();
                             });
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     }).start();
                 } else {
-                    messageLabel.setText(userRole + " 界面开发中...");
+                    messageLabel.setText(userRole + " interface under development...");
                     messageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #008800; -fx-alignment: center;");
                 }
 
@@ -236,7 +217,7 @@ public class LoginView extends Application {
             }
         });
 
-        panel.getChildren().addAll(accountField, passwordField, roleBox, loginButton, messageLabel);
+        panel.getChildren().addAll(accountField, passwordField, loginButton, messageLabel);
 
         return panel;
     }
@@ -248,18 +229,18 @@ public class LoginView extends Application {
 
         UserManager userManager = new UserManager();
 
-        VBox accountField = createFormField("账号 (学号 / 工号)", "请输入学号或工号", false);
-        VBox passwordField = createPasswordField("密码", "请输入密码（至少6位）");
-        VBox confirmField = createPasswordField("确认密码", "请再次输入密码");
+        VBox accountField = createFormField("Account (Student ID / Staff ID)", "Enter student or staff ID", false);
+        VBox passwordField = createPasswordField("Password", "Enter password (min. 6 characters)");
+        VBox confirmField = createPasswordField("Confirm Password", "Re-enter password");
 
         VBox roleBox = new VBox();
         roleBox.setSpacing(6);
 
-        Label roleLabel = new Label("角色");
+        Label roleLabel = new Label("Role");
         roleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         ComboBox<String> roleCombo = new ComboBox<>();
-        roleCombo.getItems().addAll("-- 请选择角色 --", "应聘者 (TA Applicant)", "课程组织者 (Module Organiser)", "系统管理员 (Admin)");
+        roleCombo.getItems().addAll("-- Select Role --", "TA Applicant", "Module Organiser", "System Administrator (Admin)");
         roleCombo.getSelectionModel().select(0);
         roleCombo.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1;");
         roleCombo.setPrefWidth(Double.MAX_VALUE);
@@ -271,18 +252,18 @@ public class LoginView extends Application {
         authCodeBox.setVisible(false);
         authCodeBox.setManaged(false);
 
-        Label authCodeLabel = new Label("管理员授权码");
+        Label authCodeLabel = new Label("Admin Authorisation Code");
         authCodeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
         PasswordField authCodeInput = new PasswordField();
-        authCodeInput.setPromptText("请输入管理员授权码");
+        authCodeInput.setPromptText("Enter admin authorisation code");
         authCodeInput.setStyle("-fx-font-size: 14px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 10 12 10 12;");
         authCodeInput.setPrefWidth(Double.MAX_VALUE);
 
         authCodeBox.getChildren().addAll(authCodeLabel, authCodeInput);
 
         roleCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && newVal.contains("系统管理员")) {
+            if (newVal != null && newVal.contains("Admin")) {
                 authCodeBox.setVisible(true);
                 authCodeBox.setManaged(true);
             } else {
@@ -296,7 +277,7 @@ public class LoginView extends Application {
         messageLabel.setPadding(new Insets(10, 0, 0, 0));
         messageLabel.setAlignment(Pos.CENTER);
 
-        Button registerButton = new Button("注 册");
+        Button registerButton = new Button("Register");
         registerButton.setStyle("-fx-font-size: 14px; -fx-text-fill: #ffffff; -fx-background-color: #000000; -fx-padding: 11 0 11 0; -fx-cursor: hand;");
         registerButton.setPrefWidth(Double.MAX_VALUE);
         registerButton.setOnAction(e -> {
@@ -307,7 +288,7 @@ public class LoginView extends Application {
                           roleCombo.getSelectionModel().getSelectedItem().toString();
 
             if (!passInput.getText().equals(confirmInput.getText())) {
-                messageLabel.setText("两次密码不一致");
+                messageLabel.setText("Passwords do not match");
                 messageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #cc0000; -fx-alignment: center;");
                 return;
             }
@@ -320,7 +301,7 @@ public class LoginView extends Application {
             );
 
             if (result.equals("SUCCESS")) {
-                messageLabel.setText("注册成功！请切换到登录页面");
+                messageLabel.setText("Registration successful! Please switch to Log In");
                 messageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #008800; -fx-alignment: center;");
                 accountInput.clear();
                 passInput.clear();

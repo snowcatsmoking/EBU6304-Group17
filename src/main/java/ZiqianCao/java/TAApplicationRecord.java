@@ -25,6 +25,8 @@ public class TAApplicationRecord {
     private String email;
     private String availableTime;
     private String skills;
+    private String reviewer;
+    private String reviewComment;
 
     public TAApplicationRecord() {
         this.applicationId = UUID.randomUUID().toString();
@@ -169,5 +171,21 @@ public class TAApplicationRecord {
 
     public void setSkills(String skills) {
         this.skills = skills;
+    }
+
+    public String getReviewer() {
+        return reviewer;
+    }
+
+    public void setReviewer(String reviewer) {
+        this.reviewer = reviewer;
+    }
+
+    public String getReviewComment() {
+        return reviewComment;
+    }
+
+    public void setReviewComment(String reviewComment) {
+        this.reviewComment = reviewComment;
     }
 }
