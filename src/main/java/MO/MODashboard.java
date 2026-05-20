@@ -88,6 +88,8 @@ public class MODashboard extends javafx.application.Application {
         this.stage = core.AppNavigator.getInstance().getStage();
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
+        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
         root.setLeft(buildSidebar());
         root.setCenter(buildDashboardView());
         core.AppNavigator.getInstance().navigateTo(
@@ -100,6 +102,8 @@ public class MODashboard extends javafx.application.Application {
         core.AppNavigator.getInstance().init(stage);
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
+        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
         root.setLeft(buildSidebar());
         root.setCenter(buildDashboardView());
         core.AppNavigator.getInstance().navigateTo(
@@ -173,7 +177,10 @@ public class MODashboard extends javafx.application.Application {
             }
         });
 
-        sidebar.getChildren().addAll(titleLabel, navStack, spacer, logoutLabel);
+        VBox languageBox = new VBox(core.LanguageSwitcher.create(() -> navigateTo()));
+        languageBox.setPadding(new Insets(0, 16, 10, 16));
+
+        sidebar.getChildren().addAll(titleLabel, navStack, spacer, languageBox, logoutLabel);
         return sidebar;
     }
 
@@ -257,6 +264,7 @@ public class MODashboard extends javafx.application.Application {
     private void showWithFade(Node content) {
         content.setOpacity(0);
         root.setCenter(content);
+        core.UiText.localize(root);
         FadeTransition ft = new FadeTransition(Duration.millis(180), content);
         ft.setFromValue(0.0);
         ft.setToValue(1.0);
@@ -391,7 +399,7 @@ public class MODashboard extends javafx.application.Application {
             String skillError = SkillUtils.validateSkills(skillInput.getRawSkills());
 
             if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
-                showMessage(messageLabel, "Please fill in all required fields and select a deadline.", false);
+                showMessage(messageLabel, core.UiText.tr("Please fill in all required fields and select a deadline."), false);
                 return;
             }
             if (skillError != null) {
@@ -405,12 +413,12 @@ public class MODashboard extends javafx.application.Application {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException ex) {
-                showMessage(messageLabel, "Number of openings must be a positive integer.", false);
+                showMessage(messageLabel, core.UiText.tr("Number of openings must be a positive integer."), false);
                 return;
             }
 
             if (!deadline.isAfter(LocalDate.now())) {
-                showMessage(messageLabel, "Deadline must be at least tomorrow.", false);
+                showMessage(messageLabel, core.UiText.tr("Deadline must be at least tomorrow."), false);
                 return;
             }
 
@@ -429,7 +437,7 @@ public class MODashboard extends javafx.application.Application {
 
             try {
                 jobManager.saveJob(job);
-                showMessage(messageLabel, "Position published and added to the public listing.", true);
+                showMessage(messageLabel, core.UiText.tr("Position published and added to the public listing."), true);
                 positionNameField.clear();
                 courseNameField.clear();
                 courseCodeField.clear();
@@ -439,7 +447,7 @@ public class MODashboard extends javafx.application.Application {
                 deadlinePicker.setValue(null);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                showMessage(messageLabel, "Publishing failed, please try again.", false);
+                showMessage(messageLabel, core.UiText.tr("Publishing failed, please try again."), false);
             }
         });
 
@@ -477,7 +485,7 @@ public class MODashboard extends javafx.application.Application {
         messageLabel.setStyle("-fx-font-size: 13px;");
 
         if (!canEditJob(job)) {
-            showMessage(messageLabel, getEditBlockedReason(job), false);
+            showMessage(messageLabel, core.UiText.tr(getEditBlockedReason(job)), false);
             page.getChildren().addAll(backButton, title, tip, messageLabel);
             return page;
         }
@@ -520,11 +528,11 @@ public class MODashboard extends javafx.application.Application {
         saveButton.setOnAction(e -> {
             TAJob latestJob = jobManager.getJobById(job.getJobId());
             if (latestJob == null) {
-                showMessage(messageLabel, "This position no longer exists.", false);
+                showMessage(messageLabel, core.UiText.tr("This position no longer exists."), false);
                 return;
             }
             if (!canEditJob(latestJob)) {
-                showMessage(messageLabel, getEditBlockedReason(latestJob), false);
+                showMessage(messageLabel, core.UiText.tr(getEditBlockedReason(latestJob)), false);
                 return;
             }
 
@@ -537,7 +545,7 @@ public class MODashboard extends javafx.application.Application {
             String skillError = SkillUtils.validateSkills(skillInput.getRawSkills());
 
             if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
-                showMessage(messageLabel, "Please fill in all required fields and select a deadline.", false);
+                showMessage(messageLabel, core.UiText.tr("Please fill in all required fields and select a deadline."), false);
                 return;
             }
             if (skillError != null) {
@@ -552,12 +560,12 @@ public class MODashboard extends javafx.application.Application {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException ex) {
-                showMessage(messageLabel, "Number of openings must be a positive integer.", false);
+                showMessage(messageLabel, core.UiText.tr("Number of openings must be a positive integer."), false);
                 return;
             }
 
             if (deadline.isBefore(LocalDate.now())) {
-                showMessage(messageLabel, "Deadline cannot be earlier than today.", false);
+                showMessage(messageLabel, core.UiText.tr("Deadline cannot be earlier than today."), false);
                 return;
             }
 
@@ -573,11 +581,11 @@ public class MODashboard extends javafx.application.Application {
                 if (jobManager.saveJobForMo(latestJob, moStaffId)) {
                     root.setCenter(buildMyPositionsView());
                 } else {
-                    showMessage(messageLabel, "You do not have permission to edit this position.", false);
+                    showMessage(messageLabel, core.UiText.tr("You do not have permission to edit this position."), false);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                showMessage(messageLabel, "Failed to save changes. Please try again.", false);
+                showMessage(messageLabel, core.UiText.tr("Failed to save changes. Please try again."), false);
             }
         });
 
@@ -668,11 +676,11 @@ public class MODashboard extends javafx.application.Application {
             Label statusBadge = buildStatusBadge(job);
             titleRow.getChildren().addAll(rowTitle, statusBadge);
 
-            Label rowMeta = new Label("Openings: " + job.getRecruitmentCount()
-                + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
+            Label rowMeta = new Label(core.UiText.tr("Openings: ") + job.getRecruitmentCount()
+                + "  " + core.UiText.tr("Deadline: ") + (isBlank(job.getDeadline()) ? core.UiText.tr("Not set") : job.getDeadline()));
             rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
-            Label skillsMeta = new Label("Skill Requirements: "
-                + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
+            Label skillsMeta = new Label(core.UiText.tr("Skill Requirements: ")
+                + SkillUtils.toDisplayText(job.getRequiredSkills(), core.UiText.tr("No specific skill requirements")));
             skillsMeta.setWrapText(true);
             skillsMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
             List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId)
@@ -683,11 +691,11 @@ public class MODashboard extends javafx.application.Application {
             HBox applicantRow = new HBox();
             applicantRow.setSpacing(8);
             applicantRow.setAlignment(Pos.CENTER_LEFT);
-            Label applicants = new Label("Applicants: " + jobRecords.size());
+            Label applicants = new Label(core.UiText.tr("Applicants: ") + jobRecords.size());
             applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
             applicantRow.getChildren().add(applicants);
             if (pendingCount > 0) {
-                Label pendingBadge = new Label(pendingCount + " pending review");
+                Label pendingBadge = new Label(pendingCount + core.UiText.tr(" pending review"));
                 pendingBadge.setStyle("-fx-font-size: 11px; -fx-text-fill: #dc2626;"
                     + " -fx-background-color: #fee2e2; -fx-border-color: #fecaca;"
                     + " -fx-border-width: 1; -fx-padding: 1 8 1 8; -fx-border-radius: 4; -fx-background-radius: 4;");
@@ -764,7 +772,7 @@ public class MODashboard extends javafx.application.Application {
             list.getChildren().add(row);
 
             if (!canEditJob(job)) {
-                Label editHint = new Label("Edit locked: " + getEditBlockedReason(job));
+                Label editHint = new Label(core.UiText.tr("Edit locked: ") + core.UiText.tr(getEditBlockedReason(job)));
                 editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
                 textBox.getChildren().add(editHint);
             }
@@ -865,24 +873,24 @@ public class MODashboard extends javafx.application.Application {
         Label title = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
         title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
-        Label status = new Label("Status: " + getPositionStatisticsStatus(job));
+        Label status = new Label(core.UiText.tr("Status: ") + core.UiText.tr(getPositionStatisticsStatus(job)));
         status.setStyle("-fx-font-size: 13px; -fx-text-fill: #334155;");
 
         Label meta = new Label(
-            "Course: " + showFallback(job.getCourseName())
-                + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline())
-                + "  Openings: " + job.getRecruitmentCount()
+            core.UiText.tr("Course: ") + showFallback(job.getCourseName())
+                + "  " + core.UiText.tr("Deadline: ") + (isBlank(job.getDeadline()) ? core.UiText.tr("Not set") : job.getDeadline())
+                + "  " + core.UiText.tr("Openings: ") + job.getRecruitmentCount()
         );
         meta.setWrapText(true);
         meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         int applicationCount = countApplicationsForJob(job.getJobId());
         int approvedCount = countApprovedApplicationsForJob(job.getJobId());
-        Label progress = new Label("Applications: " + applicationCount + "  Approved: " + approvedCount);
+        Label progress = new Label(core.UiText.tr("Applications: ") + applicationCount + "  " + core.UiText.tr("Approved: ") + approvedCount);
         progress.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label skills = new Label("Skill Requirements: "
-            + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
+        Label skills = new Label(core.UiText.tr("Skill Requirements: ")
+            + SkillUtils.toDisplayText(job.getRequiredSkills(), core.UiText.tr("No specific skill requirements")));
         skills.setWrapText(true);
         skills.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
@@ -912,15 +920,15 @@ public class MODashboard extends javafx.application.Application {
         Label title = new Label(displayJob.getPositionName() + " (" + displayJob.getCourseCode() + ")");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
-        Label meta = new Label("Openings: " + displayJob.getRecruitmentCount() + "  Deadline: " + (isBlank(displayJob.getDeadline()) ? "Not set" : displayJob.getDeadline()) + "  Status: " + getJobStatus(displayJob));
+        Label meta = new Label(core.UiText.tr("Openings: ") + displayJob.getRecruitmentCount() + "  " + core.UiText.tr("Deadline: ") + (isBlank(displayJob.getDeadline()) ? core.UiText.tr("Not set") : displayJob.getDeadline()) + "  " + core.UiText.tr("Status: ") + core.UiText.tr(getJobStatus(displayJob)));
         meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label desc = new Label("Description: " + (isBlank(displayJob.getRequirements()) ? "None" : displayJob.getRequirements()));
+        Label desc = new Label(core.UiText.tr("Description: ") + (isBlank(displayJob.getRequirements()) ? core.UiText.tr("None") : displayJob.getRequirements()));
         desc.setWrapText(true);
         desc.setStyle("-fx-font-size: 14px; -fx-text-fill: #475569;");
 
-        Label skills = new Label("Skill Requirements: "
-            + SkillUtils.toDisplayText(displayJob.getRequiredSkills(), "No specific skill requirements"));
+        Label skills = new Label(core.UiText.tr("Skill Requirements: ")
+            + SkillUtils.toDisplayText(displayJob.getRequiredSkills(), core.UiText.tr("No specific skill requirements")));
         skills.setWrapText(true);
         skills.setStyle("-fx-font-size: 14px; -fx-text-fill: #475569;");
 
@@ -934,8 +942,8 @@ public class MODashboard extends javafx.application.Application {
         editButton.setOnAction(e -> root.setCenter(buildEditPositionView(displayJob)));
 
         Label editHint = new Label(canEditJob(displayJob)
-            ? "This position can still be edited."
-            : "Edit locked: " + getEditBlockedReason(displayJob));
+            ? core.UiText.tr("This position can still be edited.")
+            : core.UiText.tr("Edit locked: ") + core.UiText.tr(getEditBlockedReason(displayJob)));
         editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
         topActionBox.getChildren().addAll(editButton, editHint);
 
@@ -997,7 +1005,7 @@ public class MODashboard extends javafx.application.Application {
             textBox.setSpacing(5);
             Label name = new Label(record.getStudentName() + " (" + record.getTaStudentId() + ")");
             name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
-            Label applicantMeta = new Label("Major: " + record.getMajor() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
+            Label applicantMeta = new Label(core.UiText.tr("Major: ") + record.getMajor() + "  ·  " + core.UiText.tr("Applied: ") + fmtDate(record.getApplicationDate()));
             applicantMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
             Label matchMeta = new Label(formatMatchSummary(SkillMatcher.calculate(job, record)));
             matchMeta.setWrapText(true);
@@ -1157,7 +1165,7 @@ public class MODashboard extends javafx.application.Application {
                 .collect(Collectors.toList());
 
             if (filteredPendingRecords.isEmpty()) {
-                showMessage(feedbackLabel, "No pending applications match the current filters.", false);
+                showMessage(feedbackLabel, core.UiText.tr("No pending applications match the current filters."), false);
                 refreshList.run();
                 return;
             }
@@ -1165,12 +1173,12 @@ public class MODashboard extends javafx.application.Application {
             for (TAApplicationRecord record : filteredPendingRecords) {
                 selectedApplicationIds.add(record.getApplicationId());
             }
-            showMessage(feedbackLabel, "Selected " + filteredPendingRecords.size() + " pending applications.", true);
+            showMessage(feedbackLabel, core.UiText.tr("Selected: ") + filteredPendingRecords.size() + core.UiText.tr(" pending applications."), true);
             refreshList.run();
         });
         clearSelectionButton.setOnAction(e -> {
             selectedApplicationIds.clear();
-            showMessage(feedbackLabel, "Selection cleared.", true);
+            showMessage(feedbackLabel, core.UiText.tr("Selection cleared."), true);
             refreshList.run();
         });
         batchApproveButton.setOnAction(e -> handleBatchReviewAction(
@@ -1239,7 +1247,7 @@ public class MODashboard extends javafx.application.Application {
             .filter(record -> TAApplicationRecord.STATUS_PENDING.equals(record.getStatus()))
             .count();
 
-        summary.setText("Matching applications: " + filteredRecords.size() + "  Pending review: " + pendingCount);
+        summary.setText(core.UiText.tr("Matching applications: ") + filteredRecords.size() + core.UiText.tr("  Pending review: ") + pendingCount);
         updateSelectionLabel(selectionLabel, selectedApplicationIds);
 
         if (filteredRecords.isEmpty()) {
@@ -1346,14 +1354,14 @@ public class MODashboard extends javafx.application.Application {
         summaryRow.getChildren().addAll(selectBox, summary);
 
         Label profile = new Label(
-            "Major: " + showFallback(record.getMajor())
-                + "  Available Time: " + showFallback(record.getAvailableTime())
-                + "  Skills: " + showFallback(record.getSkills())
+            core.UiText.tr("Major: ") + showFallback(record.getMajor())
+                + "  " + core.UiText.tr("Available Time: ") + showFallback(record.getAvailableTime())
+                + "  " + core.UiText.tr("Skills: ") + showFallback(record.getSkills())
         );
         profile.setWrapText(true);
         profile.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label meta = new Label("Applied: " + fmtDate(record.getApplicationDate()) + "  Status: " + formatStatus(record.getStatus()));
+        Label meta = new Label(core.UiText.tr("Applied: ") + fmtDate(record.getApplicationDate()) + "  " + core.UiText.tr("Status: ") + core.UiText.tr(formatStatus(record.getStatus())));
         meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label matchLabel = new Label(formatMatchSummary(getSkillMatchResult(record)));
@@ -1418,7 +1426,7 @@ public class MODashboard extends javafx.application.Application {
         statusBadge.setStyle(statusBadgeStyle(record.getStatus()));
         titleRow.getChildren().addAll(title, statusBadge);
 
-        Label courseInfo = new Label("Course: " + record.getCourseName() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
+        Label courseInfo = new Label(core.UiText.tr("Course: ") + record.getCourseName() + "  ·  " + core.UiText.tr("Applied: ") + fmtDate(record.getApplicationDate()));
         courseInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         // 申请人信息卡片
@@ -1484,26 +1492,26 @@ public class MODashboard extends javafx.application.Application {
         box.setSpacing(8);
 
         Label score = new Label(result.hasRequirements()
-            ? "Match Score: " + result.getScore() + "%"
-            : "Match Score: Not available because this position has no skill requirements.");
+            ? core.UiText.tr("Match Score: ") + result.getScore() + "%"
+            : core.UiText.tr("Match Score: ") + core.UiText.tr("Not available because this position has no skill requirements."));
         score.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label explanation = new Label(result.getExplanation());
         explanation.setWrapText(true);
         explanation.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label matched = new Label("Matched Skills: "
-            + SkillUtils.toDisplayText(result.getMatchedSkills(), "None"));
+        Label matched = new Label(core.UiText.tr("Matched Skills: ")
+            + SkillUtils.toDisplayText(result.getMatchedSkills(), core.UiText.tr("None")));
         matched.setWrapText(true);
         matched.setStyle("-fx-font-size: 13px; -fx-text-fill: #16a34a;");
 
-        Label missing = new Label("Missing Skills: "
-            + SkillUtils.toDisplayText(result.getMissingSkills(), "None"));
+        Label missing = new Label(core.UiText.tr("Missing Skills: ")
+            + SkillUtils.toDisplayText(result.getMissingSkills(), core.UiText.tr("None")));
         missing.setWrapText(true);
         missing.setStyle("-fx-font-size: 13px; -fx-text-fill: #dc2626;");
 
-        Label evidence = new Label("Applicant Keywords Used: "
-            + SkillUtils.toDisplayText(result.getCandidateKeywords(), "No skills or keywords available"));
+        Label evidence = new Label(core.UiText.tr("Applicant Keywords Used: ")
+            + SkillUtils.toDisplayText(result.getCandidateKeywords(), core.UiText.tr("No skills or keywords available")));
         evidence.setWrapText(true);
         evidence.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
@@ -1527,8 +1535,8 @@ public class MODashboard extends javafx.application.Application {
         hint.setWrapText(true);
         hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label autoKeywords = new Label("Automatically Extracted: "
-            + SkillUtils.toDisplayText(record.getResumeKeywords(), "No keywords extracted"));
+        Label autoKeywords = new Label(core.UiText.tr("Automatically Extracted: ")
+            + SkillUtils.toDisplayText(record.getResumeKeywords(), core.UiText.tr("No keywords extracted")));
         autoKeywords.setWrapText(true);
         autoKeywords.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
@@ -1547,10 +1555,10 @@ public class MODashboard extends javafx.application.Application {
         saveButton.setOnAction(e -> {
             List<String> keywords = SkillUtils.parseKeywords(keywordArea.getText());
             if (recordManager.saveVerifiedKeywordsForMo(record.getApplicationId(), moStaffId, keywords)) {
-                showMessage(feedback, "Verified keywords saved.", true);
+                showMessage(feedback, core.UiText.tr("Verified keywords saved."), true);
                 root.setCenter(buildApplicationDetailView(record, onBack));
             } else {
-                showMessage(feedback, "You do not have permission to update these keywords.", false);
+                showMessage(feedback, core.UiText.tr("You do not have permission to update these keywords."), false);
             }
         });
 
@@ -1559,10 +1567,10 @@ public class MODashboard extends javafx.application.Application {
             "-fx-border-radius: 8; -fx-background-radius: 8;");
         reextractButton.setOnAction(e -> {
             if (recordManager.reextractKeywordsForMo(record.getApplicationId(), moStaffId)) {
-                showMessage(feedback, "Automatic keywords refreshed. Verified keywords were not overwritten.", true);
+                showMessage(feedback, core.UiText.tr("Automatic keywords refreshed. Verified keywords were not overwritten."), true);
                 root.setCenter(buildApplicationDetailView(record, onBack));
             } else {
-                showMessage(feedback, "You do not have permission to refresh these keywords.", false);
+                showMessage(feedback, core.UiText.tr("You do not have permission to refresh these keywords."), false);
             }
         });
 
@@ -1617,12 +1625,12 @@ public class MODashboard extends javafx.application.Application {
             buttons.getChildren().addAll(approveBtn, rejectBtn);
             card.getChildren().addAll(hint, new Label("Review Comment (optional):"), commentField, buttons);
         } else {
-            Label decided = new Label("Decision: " + formatStatus(record.getStatus()));
+            Label decided = new Label(core.UiText.tr("Decision: ") + core.UiText.tr(formatStatus(record.getStatus())));
             decided.setStyle("-fx-font-size: 14px; -fx-text-fill: #334155;");
             card.getChildren().add(decided);
 
             if (record.getReviewComment() != null && !record.getReviewComment().isEmpty()) {
-                Label comment = new Label("Comment: " + record.getReviewComment());
+                Label comment = new Label(core.UiText.tr("Comment: ") + record.getReviewComment());
                 comment.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
                 comment.setWrapText(true);
                 card.getChildren().add(comment);
@@ -1831,12 +1839,12 @@ public class MODashboard extends javafx.application.Application {
 
     private String formatMatchSummary(SkillMatchResult result) {
         if (result == null || !result.hasRequirements()) {
-            return "Skill Match: No position skill requirements set.";
+            return core.UiText.tr("Skill Match: No position skill requirements set.");
         }
-        return "Skill Match: " + result.getScore() + "%  Matched: "
-            + SkillUtils.toDisplayText(result.getMatchedSkills(), "None")
-            + "  Missing: "
-            + SkillUtils.toDisplayText(result.getMissingSkills(), "None");
+        return core.UiText.tr("Skill Match: ") + result.getScore() + "%  " + core.UiText.tr("Matched: ")
+            + SkillUtils.toDisplayText(result.getMatchedSkills(), core.UiText.tr("None"))
+            + "  " + core.UiText.tr("Missing: ")
+            + SkillUtils.toDisplayText(result.getMissingSkills(), core.UiText.tr("None"));
     }
 
     private void handleBatchReviewAction(
@@ -1854,7 +1862,7 @@ public class MODashboard extends javafx.application.Application {
         ComboBox<String> sortBox
     ) {
         if (selectedApplicationIds.isEmpty()) {
-            showMessage(feedbackLabel, "Select at least one pending application first.", false);
+            showMessage(feedbackLabel, core.UiText.tr("Select at least one pending application first."), false);
             return;
         }
 
@@ -1871,14 +1879,14 @@ public class MODashboard extends javafx.application.Application {
         }
 
         if (updatedCount == 0) {
-            showMessage(feedbackLabel, "None of the selected applications could be updated.", false);
+            showMessage(feedbackLabel, core.UiText.tr("None of the selected applications could be updated."), false);
         } else if (updatedCount == selectedCount) {
-            showMessage(feedbackLabel, (approve ? "Approved " : "Rejected ") + updatedCount + " applications.", true);
+            showMessage(feedbackLabel, core.UiText.tr(approve ? "Approved: " : "Rejected: ") + updatedCount + core.UiText.tr(" applications."), true);
         } else {
             showMessage(
                 feedbackLabel,
-                "Updated " + updatedCount + " applications. "
-                    + (selectedCount - updatedCount) + " were skipped because their status changed.",
+                core.UiText.tr("Updated: ") + updatedCount + core.UiText.tr(" applications. ")
+                    + (selectedCount - updatedCount) + core.UiText.tr(" were skipped because their status changed."),
                 true
             );
         }
@@ -1916,7 +1924,7 @@ public class MODashboard extends javafx.application.Application {
     ) {
         paginationBox.getChildren().clear();
 
-        Button previousButton = new Button("Previous");
+        Button previousButton = new Button(core.UiText.tr("Previous"));
         previousButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
             "-fx-border-radius: 8; -fx-background-radius: 8;");
         previousButton.setDisable(totalItems == 0 || currentPage <= 1);
@@ -1924,7 +1932,7 @@ public class MODashboard extends javafx.application.Application {
             previousButton.setOnAction(e -> previousAction.run());
         }
 
-        Button nextButton = new Button("Next");
+        Button nextButton = new Button(core.UiText.tr("Next"));
         nextButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
             "-fx-border-radius: 8; -fx-background-radius: 8;");
         nextButton.setDisable(totalItems == 0 || currentPage >= totalPages);
@@ -1932,12 +1940,12 @@ public class MODashboard extends javafx.application.Application {
             nextButton.setOnAction(e -> nextAction.run());
         }
 
-        Label pageLabel = new Label("Page " + currentPage + " / " + totalPages);
+        Label pageLabel = new Label(core.UiText.tr("Page ") + currentPage + " / " + totalPages);
         pageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         int startIndex = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
         int endIndex = totalItems == 0 ? 0 : Math.min(currentPage * pageSize, totalItems);
-        Label countLabel = new Label("Showing " + startIndex + "-" + endIndex + " of " + totalItems);
+        Label countLabel = new Label(core.UiText.tr("Showing ") + startIndex + "-" + endIndex + core.UiText.tr(" of ") + totalItems);
         countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8;");
 
         paginationBox.getChildren().addAll(previousButton, nextButton, pageLabel, countLabel);
@@ -2023,7 +2031,7 @@ public class MODashboard extends javafx.application.Application {
     }
 
     private String showFallback(String text) {
-        return isBlank(text) ? "Not provided" : text.trim();
+        return isBlank(text) ? core.UiText.tr("Not provided") : text.trim();
     }
 
     private boolean isPendingApplication(TAApplicationRecord record) {
@@ -2031,7 +2039,7 @@ public class MODashboard extends javafx.application.Application {
     }
 
     private void updateSelectionLabel(Label selectionLabel, Set<String> selectedApplicationIds) {
-        selectionLabel.setText("Selected pending applications: " + selectedApplicationIds.size());
+        selectionLabel.setText(core.UiText.tr("Selected pending applications: ") + selectedApplicationIds.size());
     }
 
     private static class SkillInputControl {

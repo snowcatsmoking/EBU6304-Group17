@@ -76,11 +76,11 @@ public class DashboardView {
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
-                currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
+                currentUser = new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
+            currentUser = new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
         }
     }
 
@@ -89,13 +89,13 @@ public class DashboardView {
         headerBox.setAlignment(Pos.CENTER_RIGHT);
         headerBox.setPadding(new Insets(0, 0, 10, 0));
 
-        Label welcomeLabel = new Label("Welcome back, ");
+        Label welcomeLabel = new Label(core.UiText.tr("Welcome back, "));
         welcomeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
-        Label nameLabel = new Label(currentUser != null ? currentUser.getName() : "Unknown User");
+        Label nameLabel = new Label(currentUser != null ? currentUser.getName() : core.UiText.tr("Unknown User"));
         nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
-        Label roleLabel = new Label("(TA)");
+        Label roleLabel = new Label(core.UiText.tr("(TA)"));
         roleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1; -fx-background-color: #f1f5f9; -fx-padding: 2 8 2 8; -fx-border-radius: 4; -fx-background-radius: 4;");
 
         Label idLabel = new Label(currentUser != null ? currentUser.getTAId() : "");
@@ -126,10 +126,10 @@ public class DashboardView {
             .filter(r -> TAApplicationRecord.STATUS_PENDING.equals(r.getStatus())).count();
         long available = new data.JobDataManager().getActiveJobs().size();
 
-        VBox stat1 = createStatBox(String.valueOf(submitted), "Applications Submitted");
-        VBox stat2 = createStatBox(String.valueOf(approved),  "Approved");
-        VBox stat3 = createStatBox(String.valueOf(pending),   "Under Review");
-        VBox stat4 = createStatBox(String.valueOf(available), "Available Positions");
+        VBox stat1 = createStatBox(String.valueOf(submitted), core.UiText.tr("Applications Submitted"));
+        VBox stat2 = createStatBox(String.valueOf(approved),  core.UiText.tr("Approved"));
+        VBox stat3 = createStatBox(String.valueOf(pending),   core.UiText.tr("Under Review"));
+        VBox stat4 = createStatBox(String.valueOf(available), core.UiText.tr("Available Positions"));
 
         statsBox.getChildren().addAll(stat1, stat2, stat3, stat4);
 
@@ -165,10 +165,10 @@ public class DashboardView {
         titleBox.setAlignment(Pos.CENTER_LEFT);
         titleBox.setSpacing(16);
 
-        Label titleLabel = new Label("Profile Summary");
+        Label titleLabel = new Label(core.UiText.tr("Profile Summary"));
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
-        Button editButton = new Button("Edit Profile");
+        Button editButton = new Button(core.UiText.tr("Edit Profile"));
         editButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-underline: true; -fx-background-color: transparent; -fx-border-width: 0; -fx-cursor: hand;");
         editButton.setOnAction(e -> {
             if (navigationListener != null) {
@@ -199,7 +199,7 @@ public class DashboardView {
         itemBox.setSpacing(20);
         itemBox.setAlignment(Pos.CENTER_LEFT);
 
-        Label labelLabel = new Label(label);
+        Label labelLabel = new Label(core.UiText.tr(label));
         labelLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         labelLabel.setPrefWidth(100);
 
@@ -216,7 +216,7 @@ public class DashboardView {
         applicationsBox.setPadding(new Insets(24, 24, 24, 24));
         applicationsBox.setSpacing(16);
 
-        Label titleLabel = new Label("Recent Applications");
+        Label titleLabel = new Label(core.UiText.tr("Recent Applications"));
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         HBox tableHeader = createTableHeader();
@@ -234,15 +234,15 @@ public class DashboardView {
         header.setSpacing(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label header1 = new Label("Position");
+        Label header1 = new Label(core.UiText.tr("Position"));
         header1.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header1.setPrefWidth(300);
 
-        Label header2 = new Label("Applied On");
+        Label header2 = new Label(core.UiText.tr("Applied On"));
         header2.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header2.setPrefWidth(120);
 
-        Label header3 = new Label("Status");
+        Label header3 = new Label(core.UiText.tr("Status"));
         header3.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         header3.setPrefWidth(100);
 
@@ -287,7 +287,7 @@ public class DashboardView {
             HBox emptyRow = new HBox();
             emptyRow.setPadding(new Insets(20, 12, 20, 12));
             emptyRow.setAlignment(Pos.CENTER);
-            Label emptyLabel = new Label("No application records");
+            Label emptyLabel = new Label(core.UiText.tr("No application records"));
             emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
             emptyRow.getChildren().add(emptyLabel);
             content.getChildren().add(emptyRow);
@@ -299,13 +299,13 @@ public class DashboardView {
     private String getStatusDisplay(String status) {
         switch (status) {
             case TAApplicationRecord.STATUS_PENDING:
-                return "Under Review";
+                return core.UiText.tr("Under Review");
             case TAApplicationRecord.STATUS_APPROVED:
-                return "Approved";
+                return core.UiText.tr("Approved");
             case TAApplicationRecord.STATUS_REJECTED:
-                return "Rejected";
+                return core.UiText.tr("Rejected");
             case TAApplicationRecord.STATUS_WITHDRAWN:
-                return "Withdrawn";
+                return core.UiText.tr("Withdrawn");
             default:
                 return status;
         }

@@ -37,16 +37,16 @@ public class TAApplicationManager {
     private void validateRequiredFields(TAApplication app) throws ValidationException {
         List<String> missingFields = new ArrayList<>();
 
-        if (isBlank(app.getName())) missingFields.add("姓名");
-        if (isBlank(app.getTAId())) missingFields.add("学号");
-        if (isBlank(app.getMajor())) missingFields.add("所属专业");
-        if (isBlank(app.getPhone())) missingFields.add("联系电话");
-        if (isBlank(app.getEmail())) missingFields.add("邮箱");
-        if (isBlank(app.getAvailableTime())) missingFields.add("可任职时间段");
-        if (isBlank(app.getSkill())) missingFields.add("个人基础技能");
+        if (isBlank(app.getName())) missingFields.add("Name");
+        if (isBlank(app.getTAId())) missingFields.add("Student ID");
+        if (isBlank(app.getMajor())) missingFields.add("Major");
+        if (isBlank(app.getPhone())) missingFields.add("Phone");
+        if (isBlank(app.getEmail())) missingFields.add("Email");
+        if (isBlank(app.getAvailableTime())) missingFields.add("Available Time");
+        if (isBlank(app.getSkill())) missingFields.add("Skills");
 
         if (!missingFields.isEmpty()) {
-            throw new ValidationException("以下必填字段为空：" + String.join("、", missingFields));
+            throw new ValidationException("The following required fields are empty: " + String.join(", ", missingFields));
         }
     }
 
@@ -56,7 +56,7 @@ public class TAApplicationManager {
     private void validateStudentIdUnique(String studentId) throws ValidationException {
         File studentFile = new File(STORAGE_DIR + studentId + ".json");
         if (studentFile.exists()) {
-            throw new ValidationException("学号 " + studentId + " 已存在申请档案，不可重复创建");
+            throw new ValidationException("Duplicate profile: " + studentId + " already has an application profile.");
         }
     }
 

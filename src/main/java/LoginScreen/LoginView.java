@@ -404,12 +404,12 @@ public class LoginView extends Application {
         setLoginHandler(new LoginHandler() {
             @Override
             public void onLogin(String account, String password) {
-                System.out.println("登录: 账号=" + account + ", 密码=" + password);
+                System.out.println("Login: account=" + account + ", password=" + password);
             }
 
             @Override
             public void onRegister(String account, String password, String role) {
-                System.out.println("注册: 账号=" + account + ", 密码=" + password + ", 角色=" + role);
+                System.out.println("Register: account=" + account + ", password=" + password + ", role=" + role);
             }
         });
 
@@ -417,6 +417,9 @@ public class LoginView extends Application {
     }
 
     public Scene buildLoginScene() {
+        isLoginActive = true;
+        passwordVisible = false;
+
         // ===== Root: HBox split layout =====
         HBox root = new HBox();
         root.getStyleClass().add("login-root");
@@ -428,11 +431,11 @@ public class LoginView extends Application {
         HBox.setHgrow(leftSide, Priority.ALWAYS);
 
         // Text header (top-left overlay)
-        Label mainTitle = new Label("BUPT Recruitment System");
+        Label mainTitle = new Label(core.UiText.tr("BUPT Recruitment System"));
         mainTitle.getStyleClass().add("main-title");
         mainTitle.setWrapText(true);
 
-        Label subTitle = new Label("Focus on efficient work");
+        Label subTitle = new Label(core.UiText.tr("Focus on efficient work"));
         subTitle.getStyleClass().add("sub-title");
 
         VBox textHeader = new VBox(12, mainTitle, subTitle);
@@ -499,12 +502,12 @@ public class LoginView extends Application {
         container.setPrefWidth(480);
         container.setMaxWidth(480);
 
-        Label titleLabel = new Label("TA Recruitment System");
+        Label titleLabel = new Label(core.UiText.tr("TA Recruitment System"));
         titleLabel.getStyleClass().add("login-title");
         titleLabel.setAlignment(Pos.CENTER);
         titleLabel.setMaxWidth(Double.MAX_VALUE);
 
-        Label subtitleLabel = new Label("Teaching Assistant Recruitment System");
+        Label subtitleLabel = new Label(core.UiText.tr("Teaching Assistant Recruitment System"));
         subtitleLabel.getStyleClass().add("login-subtitle");
         subtitleLabel.setAlignment(Pos.CENTER);
         subtitleLabel.setMaxWidth(Double.MAX_VALUE);
@@ -541,7 +544,8 @@ public class LoginView extends Application {
         formScroll.setMinViewportHeight(420);
 
         container.getChildren().addAll(titleBox, tabsBox, formScroll);
-        rightSide.getChildren().add(container);
+        rightSide.getChildren().addAll(core.LanguageSwitcher.create(() ->
+            core.AppNavigator.getInstance().navigateTo(buildLoginScene(), "TA Recruitment System - Login")), container);
 
         root.getChildren().addAll(leftSide, rightSide);
 
@@ -569,13 +573,13 @@ public class LoginView extends Application {
         HBox tabsBox = new HBox();
         tabsBox.setSpacing(0);
 
-        loginTab = new Label("Log In");
+        loginTab = new Label(core.UiText.tr("Log In"));
         loginTab.getStyleClass().addAll("tab-label", "tab-active");
         loginTab.setAlignment(Pos.CENTER);
         loginTab.setPrefWidth(204);
         loginTab.setOnMouseClicked(e -> switchToLogin());
 
-        registerTab = new Label("Register");
+        registerTab = new Label(core.UiText.tr("Register"));
         registerTab.getStyleClass().addAll("tab-label", "tab-inactive");
         registerTab.setAlignment(Pos.CENTER);
         registerTab.setPrefWidth(204);
@@ -605,10 +609,10 @@ public class LoginView extends Application {
 
         // Account field
         VBox accountBox = new VBox(8);
-        Label accountLabel = new Label("Account (Student ID / Staff ID)");
+        Label accountLabel = new Label(core.UiText.tr("Account (Student ID / Staff ID)"));
         accountLabel.getStyleClass().add("form-label");
         loginAccountField = new TextField();
-        loginAccountField.setPromptText("Enter your account");
+        loginAccountField.setPromptText(core.UiText.tr("Enter your account"));
         loginAccountField.getStyleClass().add("form-input");
         loginAccountField.setPrefWidth(Double.MAX_VALUE);
         loginAccountField.setOnKeyPressed(e -> {
@@ -620,17 +624,17 @@ public class LoginView extends Application {
 
         // Password field with visibility toggle
         VBox passwordBox = new VBox(8);
-        Label passwordLabel = new Label("Password");
+        Label passwordLabel = new Label(core.UiText.tr("Password"));
         passwordLabel.getStyleClass().add("form-label");
 
         loginPasswordWrapper = new StackPane();
         loginPasswordField = new PasswordField();
-        loginPasswordField.setPromptText("Enter your password");
+        loginPasswordField.setPromptText(core.UiText.tr("Enter your password"));
         loginPasswordField.getStyleClass().add("form-input");
         loginPasswordField.setPrefWidth(Double.MAX_VALUE);
 
         loginPasswordVisibleField = new TextField();
-        loginPasswordVisibleField.setPromptText("Enter your password");
+        loginPasswordVisibleField.setPromptText(core.UiText.tr("Enter your password"));
         loginPasswordVisibleField.getStyleClass().add("form-input");
         loginPasswordVisibleField.setPrefWidth(Double.MAX_VALUE);
         loginPasswordVisibleField.setVisible(false);
@@ -655,7 +659,7 @@ public class LoginView extends Application {
         messageLabel.getStyleClass().add("message-label");
 
         // Login button
-        Button loginButton = new Button("Log In");
+        Button loginButton = new Button(core.UiText.tr("Log In"));
         loginButton.setPrefWidth(Double.MAX_VALUE);
         loginButton.getStyleClass().add("btn-primary");
         loginButton.setOnAction(e -> {
@@ -667,7 +671,7 @@ public class LoginView extends Application {
             if (result.startsWith("SUCCESS:")) {
                 messageLabel.getStyleClass().removeAll("message-error");
                 messageLabel.getStyleClass().add("message-success");
-                messageLabel.setText("Login successful! Redirecting...");
+                messageLabel.setText(core.UiText.tr("Login successful! Redirecting..."));
 
                 String userRole = result.substring(8);
                 String studentId = loginAccountField.getText();
@@ -704,14 +708,14 @@ public class LoginView extends Application {
                         } catch (Exception ex) { ex.printStackTrace(); }
                     }).start();
                 } else {
-                    messageLabel.setText(userRole + " interface under development...");
+                    messageLabel.setText(core.UiText.tr(userRole + " interface under development..."));
                     messageLabel.getStyleClass().removeAll("message-error");
                     messageLabel.getStyleClass().add("message-success");
                 }
             } else {
                 messageLabel.getStyleClass().removeAll("message-success");
                 messageLabel.getStyleClass().add("message-error");
-                messageLabel.setText(result);
+                messageLabel.setText(core.UiText.tr(result));
             }
         });
 
@@ -743,10 +747,15 @@ public class LoginView extends Application {
 
         // Role combo (placed first)
         VBox roleBox = new VBox(6);
-        Label roleLabel = new Label("Role");
+        Label roleLabel = new Label(core.UiText.tr("Role"));
         roleLabel.getStyleClass().add("form-label");
         ComboBox<String> roleCombo = new ComboBox<>();
-        roleCombo.getItems().addAll("-- Select Role --", "TA Applicant", "Module Organiser", "System Administrator (Admin)");
+        roleCombo.getItems().addAll(
+            core.UiText.tr("-- Select Role --"),
+            core.UiText.tr("TA Applicant"),
+            core.UiText.tr("Module Organiser"),
+            core.UiText.tr("System Administrator (Admin)")
+        );
         roleCombo.getSelectionModel().select(0);
         roleCombo.getStyleClass().add("form-combo");
         roleCombo.setPrefWidth(Double.MAX_VALUE);
@@ -754,30 +763,30 @@ public class LoginView extends Application {
 
         // Account field
         VBox accountBox = new VBox(8);
-        Label accountLabel = new Label("Account ID (auto-prefixed by role)");
+        Label accountLabel = new Label(core.UiText.tr("Account ID (auto-prefixed by role)"));
         accountLabel.getStyleClass().add("form-label");
         regAccountField = new TextField();
-        regAccountField.setPromptText("Select role first, then enter numbers");
+        regAccountField.setPromptText(core.UiText.tr("Select role first, then enter numbers"));
         regAccountField.getStyleClass().add("form-input");
         regAccountField.setPrefWidth(Double.MAX_VALUE);
         accountBox.getChildren().addAll(accountLabel, regAccountField);
 
         // Password field
         VBox passwordBox = new VBox(8);
-        Label passwordLabel = new Label("Password");
+        Label passwordLabel = new Label(core.UiText.tr("Password"));
         passwordLabel.getStyleClass().add("form-label");
         regPasswordField = new PasswordField();
-        regPasswordField.setPromptText("Enter password (min. 6 characters)");
+        regPasswordField.setPromptText(core.UiText.tr("Enter password (min. 6 characters)"));
         regPasswordField.getStyleClass().add("form-input");
         regPasswordField.setPrefWidth(Double.MAX_VALUE);
         passwordBox.getChildren().addAll(passwordLabel, regPasswordField);
 
         // Confirm password field
         VBox confirmBox = new VBox(8);
-        Label confirmLabel = new Label("Confirm Password");
+        Label confirmLabel = new Label(core.UiText.tr("Confirm Password"));
         confirmLabel.getStyleClass().add("form-label");
         PasswordField confirmField = new PasswordField();
-        confirmField.setPromptText("Re-enter password");
+        confirmField.setPromptText(core.UiText.tr("Re-enter password"));
         confirmField.getStyleClass().add("form-input");
         confirmField.setPrefWidth(Double.MAX_VALUE);
         confirmBox.getChildren().addAll(confirmLabel, confirmField);
@@ -786,21 +795,22 @@ public class LoginView extends Application {
         VBox authCodeBox = new VBox(6);
         authCodeBox.setVisible(false);
         authCodeBox.setManaged(false);
-        Label authCodeLabel = new Label("Admin Authorisation Code");
+        Label authCodeLabel = new Label(core.UiText.tr("Admin Authorisation Code"));
         authCodeLabel.getStyleClass().add("form-label");
         PasswordField authCodeInput = new PasswordField();
-        authCodeInput.setPromptText("Enter admin authorisation code");
+        authCodeInput.setPromptText(core.UiText.tr("Enter admin authorisation code"));
         authCodeInput.getStyleClass().add("form-input");
         authCodeInput.setPrefWidth(Double.MAX_VALUE);
         authCodeBox.getChildren().addAll(authCodeLabel, authCodeInput);
 
-        roleCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            boolean isAdmin = newVal != null && newVal.contains("Admin");
+        roleCombo.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
+            int roleIndex = newVal == null ? 0 : newVal.intValue();
+            boolean isAdmin = roleIndex == 3;
             authCodeBox.setVisible(isAdmin);
             authCodeBox.setManaged(isAdmin);
             regAccountField.clear();
-            if (newVal != null && !newVal.equals("-- Select Role --")) {
-                String prefix = newVal.contains("TA") ? "ta" : (newVal.contains("Module") ? "mo" : "ad");
+            if (roleIndex > 0) {
+                String prefix = roleIndex == 1 ? "ta" : (roleIndex == 2 ? "mo" : "ad");
                 regAccountField.setText(prefix);
             }
         });
@@ -808,13 +818,13 @@ public class LoginView extends Application {
         regAccountField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null || newValue.isEmpty()) return;
 
-            String role = roleCombo.getSelectionModel().getSelectedItem();
-            if (role == null || role.equals("-- Select Role --")) {
+            int roleIndex = roleCombo.getSelectionModel().getSelectedIndex();
+            if (roleIndex <= 0) {
                 regAccountField.setText("");
                 return;
             }
 
-            String expectedPrefix = role.contains("TA") ? "ta" : (role.contains("Module") ? "mo" : "ad");
+            String expectedPrefix = roleIndex == 1 ? "ta" : (roleIndex == 2 ? "mo" : "ad");
 
             if (!newValue.equals(expectedPrefix) && !newValue.startsWith(expectedPrefix)) {
                 regAccountField.setText(expectedPrefix);
@@ -840,18 +850,17 @@ public class LoginView extends Application {
         messageLabel.getStyleClass().add("message-label");
 
         // Register button
-        Button registerButton = new Button("Register");
+        Button registerButton = new Button(core.UiText.tr("Register"));
         registerButton.setPrefWidth(Double.MAX_VALUE);
         registerButton.getStyleClass().add("btn-primary");
         registerButton.setOnAction(e -> {
             if (!regPasswordField.getText().equals(confirmField.getText())) {
                 messageLabel.getStyleClass().removeAll("message-success");
                 messageLabel.getStyleClass().add("message-error");
-                messageLabel.setText("Passwords do not match");
+                messageLabel.setText(core.UiText.tr("Passwords do not match"));
                 return;
             }
-            String role = roleCombo.getSelectionModel().getSelectedIndex() == 0 ? "" :
-                    roleCombo.getSelectionModel().getSelectedItem().toString();
+            String role = getCanonicalRole(roleCombo.getSelectionModel().getSelectedIndex());
 
             String result = userManager.register(
                     regAccountField.getText(), regPasswordField.getText(),
@@ -872,7 +881,7 @@ public class LoginView extends Application {
                 } else {
                     messageLabel.getStyleClass().removeAll("message-success");
                     messageLabel.getStyleClass().add("message-error");
-                    messageLabel.setText(result);
+                    messageLabel.setText(core.UiText.tr(result));
                 }
             }
         });
@@ -890,6 +899,19 @@ public class LoginView extends Application {
         addFocusListeners(regAccountField, regPasswordField);
 
         return panel;
+    }
+
+    private String getCanonicalRole(int roleIndex) {
+        switch (roleIndex) {
+            case 1:
+                return "TA Applicant";
+            case 2:
+                return "Module Organiser";
+            case 3:
+                return "System Administrator (Admin)";
+            default:
+                return "";
+        }
     }
 
     private void switchToLogin() {
@@ -1001,7 +1023,7 @@ public class LoginView extends Application {
         dialog.initOwner(primaryStage);
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initStyle(StageStyle.TRANSPARENT);
-        dialog.setTitle(title);
+        dialog.setTitle(core.UiText.tr(title));
 
         boolean success = title.toLowerCase().contains("successful");
         boolean invalid = title.toLowerCase().contains("invalid");
@@ -1079,6 +1101,7 @@ public class LoginView extends Application {
 
         card.getChildren().addAll(creatureDots, iconBadge, titleLabel, messageBox, closeButton);
         shell.getChildren().add(card);
+        core.UiText.localize(shell);
 
         Scene scene = new Scene(shell, 510, success ? 360 : 320);
         scene.setFill(Color.TRANSPARENT);
@@ -1121,7 +1144,7 @@ public class LoginView extends Application {
 
         if (success && message.contains("Account ID:") && message.contains("Role:")) {
             String[] lines = message.split("\\n");
-            Label lead = new Label(lines[0]);
+            Label lead = new Label(core.UiText.tr(lines[0]));
             lead.setWrapText(true);
             lead.setAlignment(Pos.CENTER);
             lead.setMaxWidth(370);
@@ -1140,7 +1163,13 @@ public class LoginView extends Application {
 
             for (String line : lines) {
                 if (line.startsWith("Account ID:") || line.startsWith("Role:")) {
-                    Label item = new Label(line);
+                    String itemText = line;
+                    if (line.startsWith("Account ID:")) {
+                        itemText = core.UiText.tr("Account ID:") + line.substring("Account ID:".length());
+                    } else if (line.startsWith("Role:")) {
+                        itemText = core.UiText.tr("Role:") + core.UiText.tr(line.substring("Role:".length()).trim());
+                    }
+                    Label item = new Label(itemText);
                     item.setAlignment(Pos.CENTER);
                     item.setMaxWidth(Double.MAX_VALUE);
                     item.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: " + accent + ";");
@@ -1156,7 +1185,7 @@ public class LoginView extends Application {
 
             messageBox.getChildren().addAll(lead, infoBox, hint);
         } else {
-            Label body = new Label(message);
+            Label body = new Label(core.UiText.tr(message));
             body.setWrapText(true);
             body.setAlignment(Pos.CENTER);
             body.setMaxWidth(370);

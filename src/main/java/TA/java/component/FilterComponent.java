@@ -42,30 +42,30 @@ public class FilterComponent {
 
         VBox courseBox = new VBox();
         courseBox.setSpacing(4);
-        Label courseLabel = new Label("Course Name:");
+        Label courseLabel = new Label(core.UiText.tr("Course Name:"));
         courseLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
         courseNameField = new TextField();
-        courseNameField.setPromptText("Enter course name");
+        courseNameField.setPromptText(core.UiText.tr("Enter course name"));
         courseNameField.setStyle("-fx-font-size: 14px; -fx-padding: 8 12 8 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8;");
         courseNameField.setPrefWidth(200);
         courseBox.getChildren().addAll(courseLabel, courseNameField);
 
         VBox timeBox = new VBox();
         timeBox.setSpacing(4);
-        Label timeLabel = new Label("Available Time:");
+        Label timeLabel = new Label(core.UiText.tr("Available Time:"));
         timeLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
         availableTimeField = new DatePicker();
-        availableTimeField.setPromptText("Select date");
+        availableTimeField.setPromptText(core.UiText.tr("Select date"));
         availableTimeField.getStyleClass().add("ta-date-picker");
         availableTimeField.setPrefWidth(200);
         timeBox.getChildren().addAll(timeLabel, availableTimeField);
 
         VBox countBox = new VBox();
         countBox.setSpacing(4);
-        Label countLabel = new Label("Openings:");
+        Label countLabel = new Label(core.UiText.tr("Openings:"));
         countLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151;");
         recruitmentCountField = new TextField();
-        recruitmentCountField.setPromptText("Enter number");
+        recruitmentCountField.setPromptText(core.UiText.tr("Enter number"));
         recruitmentCountField.setStyle("-fx-font-size: 14px; -fx-padding: 8 12 8 12; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8;");
         recruitmentCountField.setPrefWidth(120);
         countBox.getChildren().addAll(countLabel, recruitmentCountField);
@@ -76,7 +76,7 @@ public class FilterComponent {
         buttonRow.setSpacing(12);
         buttonRow.setAlignment(Pos.CENTER_RIGHT);
 
-        Button filterButton = new Button("Filter");
+        Button filterButton = new Button(core.UiText.tr("Filter"));
         filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         filterButton.setOnMouseEntered(e ->
                 filterButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
@@ -86,7 +86,7 @@ public class FilterComponent {
         );
         filterButton.setOnAction(e -> applyFilter());
 
-        Button resetButton = new Button("Reset");
+        Button resetButton = new Button(core.UiText.tr("Reset"));
         resetButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         resetButton.setOnAction(e -> resetFilter());
 

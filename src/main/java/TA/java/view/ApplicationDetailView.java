@@ -29,7 +29,7 @@ public class ApplicationDetailView {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(primaryStage);
-        dialogStage.setTitle("Application Details");
+        dialogStage.setTitle(core.UiText.tr("Application Details"));
 
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
@@ -213,6 +213,7 @@ public class ApplicationDetailView {
         scrollPane.setContent(content);
         root.setCenter(scrollPane);
 
+        core.UiText.localize(root);
         Scene scene = new Scene(root, 600, 700);
         dialogStage.setScene(scene);
         dialogStage.setOnShown(e -> Platform.runLater(() -> scrollPane.setVvalue(0)));

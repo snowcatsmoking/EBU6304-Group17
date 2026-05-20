@@ -39,7 +39,7 @@ public class TAApplicationUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
+        return new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
     }
 }
 

@@ -100,7 +100,7 @@ public class FileUploader {
 
         if (selectedFile != null) {
             if (selectedFile.length() > MAX_FILE_SIZE) {
-                System.out.println("文件大小不能超过10MB");
+                System.out.println("File size cannot exceed 10MB");
                 return;
             }
 
@@ -110,7 +110,7 @@ public class FileUploader {
             if (fileExt.equals("doc") || fileExt.equals("docx") || fileExt.equals("pdf")) {
                 saveFile(selectedFile);
             } else {
-                System.out.println("不支持的文件格式");
+                System.out.println("Unsupported file format");
             }
         }
     }
@@ -125,11 +125,11 @@ public class FileUploader {
             }
 
             refreshFileList();
-            System.out.println("文件上传成功: " + sourceFile.getName());
+            System.out.println("File uploaded successfully: " + sourceFile.getName());
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("文件上传失败: " + e.getMessage());
+            System.out.println("File upload failed: " + e.getMessage());
         }
     }
 
@@ -140,14 +140,14 @@ public class FileUploader {
         }
         uploadedFiles.remove(fileName);
         refreshFileList();
-        System.out.println("文件已删除: " + fileName);
+        System.out.println("File deleted: " + fileName);
     }
 
     private void refreshFileList() {
         fileListContainer.getChildren().clear();
 
         if (uploadedFiles.isEmpty()) {
-            Label emptyLabel = new Label("No files uploaded");
+            Label emptyLabel = new Label(core.UiText.tr("No files uploaded"));
             emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-padding: 8 0 8 0;");
             fileListContainer.getChildren().add(emptyLabel);
         } else {
@@ -171,7 +171,7 @@ public class FileUploader {
         Label nameLabel = new Label(fileName);
         nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
 
-        Button deleteButton = new Button("Delete");
+        Button deleteButton = new Button(core.UiText.tr("Delete"));
         deleteButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ff4d4f; -fx-background-color: transparent; -fx-cursor: hand; -fx-border-width: 0;");
         deleteButton.setOnAction(e -> deleteFile(fileName));
 

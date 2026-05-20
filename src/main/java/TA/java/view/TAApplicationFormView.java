@@ -65,17 +65,17 @@ public class TAApplicationFormView {
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
-                currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
+                currentUser = new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
+            currentUser = new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
         }
     }
 
     public void showDialog(Stage ownerStage) {
         dialogStage = new Stage();
-        dialogStage.setTitle("Apply for Position");
+        dialogStage.setTitle(core.UiText.tr("Apply for Position"));
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.initOwner(ownerStage);
 
@@ -101,6 +101,7 @@ public class TAApplicationFormView {
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         root.setCenter(scrollPane);
 
+        core.UiText.localize(root);
         Scene scene = new Scene(root, 700, 750);
         dialogStage.setScene(scene);
         dialogStage.setResizable(false);
@@ -402,14 +403,14 @@ public class TAApplicationFormView {
     }
 
     private void submitApplication() {
-        System.out.println("=== 开始申请流程 ===");
-        System.out.println("学生ID: " + currentUser.getTAId());
-        System.out.println("岗位ID: " + currentJob.getJobId());
+        System.out.println("=== Starting application process ===");
+        System.out.println("Student ID: " + currentUser.getTAId());
+        System.out.println("Position ID: " + currentJob.getJobId());
 
         data.JobDataManager jobDataManager = new data.JobDataManager();
         TAJob latestJob = jobDataManager.getJobById(currentJob.getJobId());
         if (!jobDataManager.isJobOpen(latestJob)) {
-            System.out.println("岗位已截止或已下架，已阻止申请");
+            System.out.println("Position expired or closed, application blocked");
             showAlert("Position Closed", "This position is no longer open for new applications.\n\nExisting applications can still be reviewed by the module organiser.");
             return;
         }
@@ -420,13 +421,13 @@ public class TAApplicationFormView {
             || currentUser.getPhone() == null || currentUser.getPhone().trim().isEmpty()
             || currentUser.getAvailableTime() == null || currentUser.getAvailableTime().trim().isEmpty()
             || currentUser.getSkill() == null || currentUser.getSkill().trim().isEmpty()) {
-            System.out.println("检测到档案不完整，已阻止");
+            System.out.println("Incomplete profile detected, blocked");
             showAlert("Application Rejected", "Your profile is incomplete.\n\nPlease fill in your Name, Major, Phone, Available Time, and Skills before applying.");
             return;
         }
 
         if (recordManager.hasDuplicateApplication(currentUser.getTAId(), currentJob.getJobId())) {
-            System.out.println("检测到重复申请，已阻止");
+            System.out.println("Duplicate application detected, blocked");
             showAlert("Duplicate Application", "You have already applied for this position.");
             return;
         }
@@ -449,12 +450,12 @@ public class TAApplicationFormView {
         record.setResumeText(resumeText);
         record.setResumeKeywords(ResumeKeywordExtractor.extractKeywords(resumeText, currentUser.getSkill(), currentJob));
 
-        System.out.println("申请ID: " + record.getApplicationId());
-        System.out.println("申请状态: " + record.getStatus());
-        System.out.println("提取关键词: " + SkillUtils.toDisplayText(record.getResumeKeywords(), "None"));
+        System.out.println("Application ID: " + record.getApplicationId());
+        System.out.println("Application status: " + record.getStatus());
+        System.out.println("Extracted keywords: " + SkillUtils.toDisplayText(record.getResumeKeywords(), "None"));
         
         recordManager.saveApplication(record);
-        System.out.println("申请记录已保存！");
+        System.out.println("Application record saved!");
 
         if (dialogStage != null) {
             dialogStage.close();
@@ -471,10 +472,10 @@ public class TAApplicationFormView {
     }
 
     private void showAlert(String title, String message) {
-        System.out.println("显示警告弹窗: " + title + " - " + message);
+        System.out.println("Showing alert dialog: " + title + " - " + message);
 
         Stage alertStage = new Stage();
-        alertStage.setTitle("Notice");
+        alertStage.setTitle(core.UiText.tr("Notice"));
         alertStage.initModality(Modality.WINDOW_MODAL);
         if (dialogStage != null) {
             alertStage.initOwner(dialogStage);
@@ -503,6 +504,7 @@ public class TAApplicationFormView {
 
         alertBox.getChildren().addAll(iconLabel, titleLabel, messageLabel, closeButton);
 
+        core.UiText.localize(alertBox);
         Scene alertScene = new Scene(alertBox, 400, 300);
         alertStage.setScene(alertScene);
         alertStage.setResizable(false);
@@ -511,7 +513,7 @@ public class TAApplicationFormView {
 
     private void showSuccess(String title, String message) {
         Stage alertStage = new Stage();
-        alertStage.setTitle("Success");
+        alertStage.setTitle(core.UiText.tr("Success"));
         alertStage.initModality(Modality.WINDOW_MODAL);
         if (dialogStage != null) {
             alertStage.initOwner(dialogStage);
@@ -540,6 +542,7 @@ public class TAApplicationFormView {
 
         alertBox.getChildren().addAll(iconLabel, titleLabel, messageLabel, closeButton);
 
+        core.UiText.localize(alertBox);
         Scene alertScene = new Scene(alertBox, 400, 300);
         alertStage.setScene(alertScene);
         alertStage.setResizable(false);

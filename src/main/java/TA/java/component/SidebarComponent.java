@@ -23,6 +23,7 @@ public class SidebarComponent {
 
     private Navigable navigable;
     private LogoutListener logoutListener;
+    private Runnable languageChangeListener;
 
     private Label navItem1;
     private Label navItem2;
@@ -42,6 +43,10 @@ public class SidebarComponent {
 
     public void setLogoutListener(LogoutListener listener) {
         this.logoutListener = listener;
+    }
+
+    public void setLanguageChangeListener(Runnable listener) {
+        this.languageChangeListener = listener;
     }
 
     public VBox createSidebar() {
@@ -118,7 +123,16 @@ public class SidebarComponent {
         VBox logoutBox = new VBox(logoutButton);
         logoutBox.setPadding(new Insets(0, 16, 16, 16));
 
-        sidebar.getChildren().addAll(titleLabel, navStack, spacer, logoutBox);
+        VBox languageBox = new VBox(core.LanguageSwitcher.create(() -> {
+            if (languageChangeListener != null) {
+                languageChangeListener.run();
+            }
+        }));
+        languageBox.setPadding(new Insets(0, 16, 10, 16));
+
+        sidebar.getChildren().addAll(titleLabel, navStack, spacer, languageBox, logoutBox);
+
+        core.UiText.localize(sidebar);
 
         return sidebar;
     }

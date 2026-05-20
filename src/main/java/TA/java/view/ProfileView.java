@@ -67,11 +67,11 @@ public class ProfileView {
             if (file.exists()) {
                 currentUser = objectMapper.readValue(file, TAApplication.class);
             } else {
-                currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
+                currentUser = new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            currentUser = new TAApplication("Unknown User", studentId, "Unknown Major", "", "", "", "");
+            currentUser = new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
         }
         checkActiveApplication(studentId);
     }
@@ -99,7 +99,7 @@ public class ProfileView {
         titleBox.setAlignment(Pos.CENTER_LEFT);
         titleBox.setSpacing(16);
 
-        Label titleLabel = new Label("My Profile");
+        Label titleLabel = new Label(core.UiText.tr("My Profile"));
         titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
         titleBox.getChildren().add(titleLabel);
@@ -112,13 +112,13 @@ public class ProfileView {
         if (hasActiveApplication) {
             statusBox.setStyle("-fx-background-color: #fef3c7; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;");
             Label statusIcon = new Label("⚠️");
-            Label statusText = new Label("You have an active TA application under review. Personal information is locked. Only email can still be updated.");
+            Label statusText = new Label(core.UiText.tr("You have an active TA application under review. Personal information is locked. Only email can still be updated."));
             statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #b45309;");
             statusBox.getChildren().addAll(statusIcon, statusText);
         } else {
             statusBox.setStyle("-fx-background-color: #dcfce7; -fx-border-color: #86efac; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;");
             Label statusIcon = new Label("✓");
-            Label statusText = new Label("No active applications. You can freely edit all profile information.");
+            Label statusText = new Label(core.UiText.tr("No active applications. You can freely edit all profile information."));
             statusText.setStyle("-fx-font-size: 12px; -fx-text-fill: #15803d;");
             statusBox.getChildren().addAll(statusIcon, statusText);
         }
@@ -139,7 +139,7 @@ public class ProfileView {
         buttonBox.setSpacing(12);
         buttonBox.setPadding(new Insets(8, 0, 0, 0));
 
-        Button saveButton = new Button("Save");
+        Button saveButton = new Button(core.UiText.tr("Save"));
         saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         saveButton.setOnMouseEntered(e ->
                 saveButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;")
@@ -149,11 +149,11 @@ public class ProfileView {
         );
         saveButton.setOnAction(e -> saveProfile());
 
-        Button cancelButton = new Button("Cancel");
+        Button cancelButton = new Button(core.UiText.tr("Cancel"));
         cancelButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         cancelButton.setOnAction(e -> loadUserData(currentStudentId));
 
-        Button exportButton = new Button("Export Profile");
+        Button exportButton = new Button(core.UiText.tr("Export Profile"));
         exportButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #007bff; -fx-border-color: #007bff; -fx-border-width: 1; -fx-padding: 8 24 8 24; -fx-cursor: hand;");
         exportButton.setOnAction(e -> exportProfileToJson());
 
@@ -172,7 +172,7 @@ public class ProfileView {
         labelBox.setAlignment(Pos.CENTER_LEFT);
         labelBox.setSpacing(8);
 
-        Label labelLabel = new Label(label);
+        Label labelLabel = new Label(core.UiText.tr(label));
         labelLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #374151; -fx-font-weight: 500;");
 
         boolean isLocked = false;
@@ -185,10 +185,10 @@ public class ProfileView {
                 case "skill":
                 case "phone":
                     isLocked = true;
-                    lockHint = " (Under review, cannot be modified)";
+                    lockHint = core.UiText.tr(" (Under review, cannot be modified)");
                     break;
                 case "email":
-                    lockHint = " (Can be modified)";
+                    lockHint = core.UiText.tr(" (Can be modified)");
                     break;
             }
         }
@@ -302,7 +302,7 @@ public class ProfileView {
         try {
             String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
             objectMapper.writeValue(new File(fileName), currentUser);
-            System.out.println("个人档案已保存！");
+            System.out.println("Profile saved successfully.");
             TAAlertDialog.showSuccess(null, "Save Successful", "Your profile changes have been saved.");
         } catch (IOException e) {
             e.printStackTrace();
