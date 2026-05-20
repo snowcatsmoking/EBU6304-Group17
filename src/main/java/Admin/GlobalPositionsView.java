@@ -27,10 +27,10 @@ public class GlobalPositionsView {
     public ScrollPane build() {
         VBox page = new VBox(24);
         page.setPadding(new Insets(32));
-        page.setStyle("-fx-background-color: #fafafa;");
+        page.setStyle("-fx-background-color: #f8fafc;");
 
         Label pageTitle = new Label("Global Positions");
-        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         // Pre-compute per-job application counts
         List<TAApplicationRecord> allApps = appRecordManager.getAllApplications();
@@ -47,17 +47,19 @@ public class GlobalPositionsView {
         List<TAJob> jobs = jobDataManager.getAllJobs();
 
         Label countLabel = new Label(jobs.size() + " position(s)");
-        countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+        countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
 
         // Card
         VBox card = new VBox(0);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         card.getChildren().add(buildHeaderRow());
 
         if (jobs.isEmpty()) {
             Label empty = new Label("No positions published yet.");
-            empty.setStyle("-fx-font-size: 13px; -fx-text-fill: #aaaaaa; -fx-padding: 24 20 24 20;");
+            empty.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-padding: 24 20 24 20;");
             card.getChildren().add(empty);
         } else {
             for (TAJob job : jobs) {
@@ -71,7 +73,7 @@ public class GlobalPositionsView {
 
         ScrollPane scroll = new ScrollPane(page);
         scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: #fafafa; -fx-background: #fafafa;");
+        scroll.setStyle("-fx-background-color: #f8fafc; -fx-background: #f8fafc;");
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -79,7 +81,7 @@ public class GlobalPositionsView {
     private HBox buildHeaderRow() {
         HBox row = new HBox();
         row.setPadding(new Insets(10, 20, 10, 20));
-        row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         row.getChildren().addAll(
             headerCell("Position",           240),
             headerCell("Posted By",          120),
@@ -95,34 +97,34 @@ public class GlobalPositionsView {
         HBox row = new HBox();
         row.setPadding(new Insets(13, 20, 13, 20));
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
 
         // Position name + course
         VBox posBox = new VBox(2);
         posBox.setPrefWidth(240);
         Label posName = new Label(job.getPositionName() != null ? job.getPositionName() : "—");
-        posName.setStyle("-fx-font-size: 13px; -fx-text-fill: #222222;");
+        posName.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
         Label courseName = new Label(job.getCourseName() != null ? job.getCourseName() : "");
-        courseName.setStyle("-fx-font-size: 11px; -fx-text-fill: #999999;");
+        courseName.setStyle("-fx-font-size: 11px; -fx-text-fill: #94a3b8;");
         posBox.getChildren().addAll(posName, courseName);
 
-        Label lPublisher = cell(job.getPublisher() != null ? job.getPublisher() : "—", 120, "#555555");
+        Label lPublisher = cell(job.getPublisher() != null ? job.getPublisher() : "—", 120, "#64748b");
 
         String openings = job.getRecruitmentCount() + " / " + accepted;
-        Label lOpenings = cell(openings, 160, "#333333");
+        Label lOpenings = cell(openings, 160, "#334155");
 
-        Label lApps = cell(String.valueOf(totalApps), 110, "#333333");
+        Label lApps = cell(String.valueOf(totalApps), 110, "#334155");
 
-        Label lDeadline = cell(job.getDeadline() != null ? job.getDeadline() : "—", 120, "#555555");
+        Label lDeadline = cell(job.getDeadline() != null ? job.getDeadline() : "—", 120, "#64748b");
 
         // Status badge
         boolean isOpen = !job.isActive();
         Label statusBadge = new Label(isOpen ? "Open" : "Closed");
         statusBadge.setStyle(isOpen
-            ? "-fx-font-size: 11px; -fx-text-fill: #006600; -fx-background-color: #eeffee;" +
-              "-fx-border-color: #aaddaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;"
-            : "-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #f0f0f0;" +
-              "-fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
+            ? "-fx-font-size: 11px; -fx-text-fill: #16a34a; -fx-background-color: #f0fdf4;" +
+              "-fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-padding: 2 8 2 8;"
+            : "-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f8fafc;" +
+              "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
         HBox statusWrap = new HBox(statusBadge);
         statusWrap.setPrefWidth(80);
         statusWrap.setAlignment(Pos.CENTER_LEFT);
@@ -133,7 +135,7 @@ public class GlobalPositionsView {
 
     private Label headerCell(String text, double width) {
         Label lbl = new Label(text);
-        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         lbl.setPrefWidth(width);
         return lbl;
     }

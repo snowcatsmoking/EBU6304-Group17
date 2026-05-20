@@ -15,13 +15,13 @@ public class AdminDashboard extends Application {
     private Label activeNavLabel;
 
     private static final String NAV_DEFAULT =
-        "-fx-font-size: 14px; -fx-text-fill: #555555; -fx-cursor: hand;" +
+        "-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-cursor: hand;" +
         "-fx-padding: 10 16 10 16; -fx-alignment: CENTER_LEFT;" +
         "-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0 0 0 3;";
     private static final String NAV_ACTIVE =
-        "-fx-font-size: 14px; -fx-text-fill: #000000; -fx-font-weight: 600; -fx-cursor: hand;" +
+        "-fx-font-size: 14px; -fx-text-fill: #6366f1; -fx-font-weight: 600; -fx-cursor: hand;" +
         "-fx-padding: 10 16 10 16; -fx-alignment: CENTER_LEFT;" +
-        "-fx-background-color: #f0f0f0; -fx-border-color: #000000; -fx-border-width: 0 0 0 3;";
+        "-fx-background-color: #eef2ff; -fx-border-color: #6366f1; -fx-border-width: 0 0 0 3;";
 
     public AdminDashboard() {
         this.adminId = "admin";
@@ -46,7 +46,7 @@ public class AdminDashboard extends Application {
 
     private void buildUI() {
         root = new BorderPane();
-        root.setStyle("-fx-background-color: #fafafa;");
+        root.setStyle("-fx-background-color: #f8fafc;");
         root.setLeft(buildSidebar());
         showDashboard();
     }
@@ -54,7 +54,7 @@ public class AdminDashboard extends Application {
     private VBox buildSidebar() {
         VBox sidebar = new VBox();
         sidebar.setPrefWidth(220);
-        sidebar.setStyle("-fx-background-color: #ffffff;");
+        sidebar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 0 0;");
 
         // Top padding spacer
         Label topSpacer = new Label();
@@ -87,8 +87,8 @@ public class AdminDashboard extends Application {
         javafx.scene.control.Button logoutButton = new javafx.scene.control.Button("Log out");
         logoutButton.setMaxWidth(Double.MAX_VALUE);
         logoutButton.setStyle(
-            "-fx-font-size: 13px; -fx-text-fill: #cc0000; -fx-background-color: transparent;" +
-            "-fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            "-fx-font-size: 13px; -fx-text-fill: #ef4444; -fx-background-color: transparent;" +
+            "-fx-border-color: #ef4444; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand; -fx-border-radius: 6; -fx-background-radius: 6;");
         logoutButton.setOnAction(e -> {
             try {
                 LoginScreen.LoginView loginView = new LoginScreen.LoginView();

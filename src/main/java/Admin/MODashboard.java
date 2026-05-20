@@ -49,14 +49,14 @@ public class MODashboard extends javafx.application.Application {
     private static final String SORT_NAME = "Name / Student ID";
 
     private static final String NAV_DEFAULT =
-        "-fx-font-size: 14px; -fx-text-fill: #555555; -fx-cursor: hand;" +
+        "-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-cursor: hand;" +
         "-fx-padding: 10 16 10 16; -fx-alignment: CENTER_LEFT;" +
         "-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0 0 0 3;";
 
     private static final String NAV_ACTIVE =
-        "-fx-font-size: 14px; -fx-text-fill: #000000; -fx-font-weight: 600; -fx-cursor: hand;" +
+        "-fx-font-size: 14px; -fx-text-fill: #6366f1; -fx-font-weight: 600; -fx-cursor: hand;" +
         "-fx-padding: 10 16 10 16; -fx-alignment: CENTER_LEFT;" +
-        "-fx-background-color: #f0f0f0; -fx-border-color: #000000; -fx-border-width: 0 0 0 3;";
+        "-fx-background-color: #eef2ff; -fx-border-color: #6366f1; -fx-border-width: 0 0 0 3;";
 
     private final String moStaffId;
     private BorderPane root;
@@ -77,7 +77,7 @@ public class MODashboard extends javafx.application.Application {
     public void navigateTo() {
         this.stage = core.AppNavigator.getInstance().getStage();
         root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setStyle("-fx-background-color: #f8fafc;");
         root.setLeft(buildSidebar());
         root.setCenter(buildDashboardView());
         core.AppNavigator.getInstance().navigateTo(
@@ -89,7 +89,7 @@ public class MODashboard extends javafx.application.Application {
         this.stage = stage;
         core.AppNavigator.getInstance().init(stage);
         root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f5f5;");
+        root.setStyle("-fx-background-color: #f8fafc;");
         root.setLeft(buildSidebar());
         root.setCenter(buildDashboardView());
         core.AppNavigator.getInstance().navigateTo(
@@ -99,12 +99,12 @@ public class MODashboard extends javafx.application.Application {
     private VBox buildSidebar() {
         VBox sidebar = new VBox();
         sidebar.setPrefWidth(240);
-        sidebar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 1 0 0;");
+        sidebar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 0 0;");
         sidebar.setPadding(new Insets(24, 0, 24, 0));
         sidebar.setSpacing(0);
 
         Label titleLabel = new Label("Module Organiser Console");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         titleLabel.setWrapText(true);
         titleLabel.setPadding(new Insets(0, 0, 24, 20));
 
@@ -126,7 +126,7 @@ public class MODashboard extends javafx.application.Application {
 
         Label logoutLabel = new Label("Log Out");
         logoutLabel.setMaxWidth(Double.MAX_VALUE);
-        logoutLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #888888; -fx-cursor: hand; -fx-padding: 10 16 24 16;");
+        logoutLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-cursor: hand; -fx-padding: 10 16 24 16;");
         logoutLabel.setOnMouseClicked(e -> {
             try {
                 core.AppNavigator.getInstance().navigateTo(
@@ -179,7 +179,7 @@ public class MODashboard extends javafx.application.Application {
 
         if (pending > 0) {
             Label badge = new Label(String.valueOf(pending));
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #cc0000;" +
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1;" +
                 " -fx-padding: 1 6 1 6; -fx-background-radius: 8;");
             badge.setPadding(new Insets(0, 16, 0, 0));
             box.getChildren().add(badge);
@@ -205,7 +205,7 @@ public class MODashboard extends javafx.application.Application {
         box.setSpacing(24);
 
         Label header = new Label("Welcome, " + moStaffId);
-        header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         HBox statRow = new HBox();
         statRow.setSpacing(16);
@@ -227,10 +227,12 @@ public class MODashboard extends javafx.application.Application {
     private Node buildSectionCard(String title, Node content) {
         VBox section = new VBox();
         section.setSpacing(12);
-        section.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 18;");
+        section.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 18;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         Label label = new Label(title);
-        label.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        label.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         section.getChildren().addAll(label, content);
         return section;
@@ -242,14 +244,15 @@ public class MODashboard extends javafx.application.Application {
         page.setSpacing(16);
 
         Label title = new Label("Access Denied");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label body = new Label(message);
         body.setWrapText(true);
-        body.setStyle("-fx-font-size: 14px; -fx-text-fill: #cc0000;");
+        body.setStyle("-fx-font-size: 14px; -fx-text-fill: #dc2626;");
 
         Button backButton = new Button("Back to My Positions");
-        backButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        backButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
 
         page.getChildren().addAll(title, body, backButton);
@@ -269,14 +272,16 @@ public class MODashboard extends javafx.application.Application {
 
     private VBox buildStatCard(int value, String title) {
         VBox card = new VBox();
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 18; -fx-spacing: 8;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 18; -fx-spacing: 8;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         card.setPrefWidth(240);
 
         Label num = new Label(String.valueOf(value));
-        num.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        num.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #6366f1;");
 
         Label desc = new Label(title);
-        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        desc.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         card.getChildren().addAll(num, desc);
         return card;
     }
@@ -287,7 +292,7 @@ public class MODashboard extends javafx.application.Application {
         page.setSpacing(18);
 
         Label title = new Label("Post New Position");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         VBox form = new VBox();
         form.setSpacing(14);
@@ -300,7 +305,7 @@ public class MODashboard extends javafx.application.Application {
         requirementsArea.setPromptText("Enter requirements, e.g. skills, experience, working hours.");
         requirementsArea.setPrefRowCount(4);
         requirementsArea.setWrapText(true);
-        requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
+        requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-color: #ffffff;");
         SkillInputControl skillInput = createSkillInputControl(null);
 
         DatePicker deadlinePicker = new DatePicker();
@@ -310,7 +315,8 @@ public class MODashboard extends javafx.application.Application {
         messageLabel.setStyle("-fx-font-size: 13px;");
 
         Button submitButton = new Button("Publish Position");
-        submitButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        submitButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         submitButton.setOnAction(e -> {
             String positionName = positionNameField.getText();
             String courseName = courseNameField.getText();
@@ -394,14 +400,14 @@ public class MODashboard extends javafx.application.Application {
         page.setSpacing(18);
 
         Button backButton = new Button("← Back to My Positions");
-        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
+        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
         backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
 
         Label title = new Label("Edit Published Position");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label tip = new Label("Only positions with no applicants and a valid deadline can be edited.");
-        tip.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        tip.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label messageLabel = new Label();
         messageLabel.setStyle("-fx-font-size: 13px;");
@@ -431,7 +437,7 @@ public class MODashboard extends javafx.application.Application {
         requirementsArea.setPromptText("Enter requirements, e.g. skills, experience, working hours.");
         requirementsArea.setPrefRowCount(4);
         requirementsArea.setWrapText(true);
-        requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff;");
+        requirementsArea.setStyle("-fx-font-size: 13px; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-color: #ffffff;");
         requirementsArea.setText(job.getRequirements());
         SkillInputControl skillInput = createSkillInputControl(job.getRequiredSkills());
 
@@ -445,7 +451,8 @@ public class MODashboard extends javafx.application.Application {
         }
 
         Button saveButton = new Button("Save Changes");
-        saveButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        saveButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         saveButton.setOnAction(e -> {
             TAJob latestJob = jobManager.getJobById(job.getJobId());
             if (latestJob == null) {
@@ -511,7 +518,8 @@ public class MODashboard extends javafx.application.Application {
         });
 
         Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 20 10 20; -fx-cursor: hand;");
+        cancelButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 10 20 10 20; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         cancelButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
 
         HBox buttonBox = new HBox();
@@ -544,13 +552,15 @@ public class MODashboard extends javafx.application.Application {
         page.setSpacing(18);
 
         Label title = new Label("My Positions");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         List<TAJob> jobs = jobManager.getJobsByMo(moStaffId);
 
         VBox list = new VBox();
         list.setSpacing(12);
-        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         list.setPadding(new Insets(16));
 
         HBox paginationBox = createPaginationBox();
@@ -567,7 +577,7 @@ public class MODashboard extends javafx.application.Application {
 
         if (jobs.isEmpty()) {
             Label empty = new Label("You have not published any positions yet. Click \"Post Position\" on the left to get started.");
-            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8;");
             list.getChildren().add(empty);
             refreshPaginationBox(paginationBox, 1, 1, 0, POSITION_PAGE_SIZE, null, null);
             return;
@@ -581,7 +591,7 @@ public class MODashboard extends javafx.application.Application {
             HBox row = new HBox();
             row.setSpacing(14);
             row.setAlignment(Pos.CENTER_LEFT);
-            row.setStyle("-fx-padding: 14 0 14 0; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;");
+            row.setStyle("-fx-padding: 14 0 14 0; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
 
             VBox textBox = new VBox();
             textBox.setSpacing(6);
@@ -590,17 +600,17 @@ public class MODashboard extends javafx.application.Application {
             titleRow.setSpacing(10);
             titleRow.setAlignment(Pos.CENTER_LEFT);
             Label rowTitle = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
-            rowTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+            rowTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
             Label statusBadge = buildStatusBadge(job);
             titleRow.getChildren().addAll(rowTitle, statusBadge);
 
             Label rowMeta = new Label("Openings: " + job.getRecruitmentCount()
                 + "  Deadline: " + (isBlank(job.getDeadline()) ? "Not set" : job.getDeadline()));
-            rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            rowMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
             Label skillsMeta = new Label("Skill Requirements: "
                 + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
             skillsMeta.setWrapText(true);
-            skillsMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            skillsMeta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
             List<TAApplicationRecord> jobRecords = recordManager.getApplicationsByMoStaffId(moStaffId)
                 .stream().filter(r -> r.getJobId().equals(job.getJobId())).collect(Collectors.toList());
             long pendingCount = jobRecords.stream()
@@ -610,13 +620,13 @@ public class MODashboard extends javafx.application.Application {
             applicantRow.setSpacing(8);
             applicantRow.setAlignment(Pos.CENTER_LEFT);
             Label applicants = new Label("Applicants: " + jobRecords.size());
-            applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            applicants.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
             applicantRow.getChildren().add(applicants);
             if (pendingCount > 0) {
                 Label pendingBadge = new Label(pendingCount + " pending review");
-                pendingBadge.setStyle("-fx-font-size: 11px; -fx-text-fill: #cc0000;"
-                    + " -fx-background-color: #fff0f0; -fx-border-color: #ffaaaa;"
-                    + " -fx-border-width: 1; -fx-padding: 1 8 1 8;");
+                pendingBadge.setStyle("-fx-font-size: 11px; -fx-text-fill: #dc2626;"
+                    + " -fx-background-color: #fee2e2; -fx-border-color: #fecaca;"
+                    + " -fx-border-width: 1; -fx-padding: 1 8 1 8; -fx-border-radius: 4; -fx-background-radius: 4;");
                 applicantRow.getChildren().add(pendingBadge);
             }
             textBox.getChildren().addAll(titleRow, rowMeta, skillsMeta, applicantRow);
@@ -626,24 +636,27 @@ public class MODashboard extends javafx.application.Application {
             actionBox.setAlignment(Pos.CENTER_LEFT);
 
             Button editButton = new Button("Edit Position");
-            editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             editButton.setDisable(!canEditJob(job));
             editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
             actionBox.getChildren().add(editButton);
 
             Button detailButton = new Button("View Details");
-            detailButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            detailButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job, 1)));
             actionBox.getChildren().add(detailButton);
 
             boolean expired = isJobExpired(job);
             if (expired) {
                 Label expiredNote = new Label("Deadline has passed");
-                expiredNote.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999; -fx-padding: 8 0 8 0;");
+                expiredNote.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8; -fx-padding: 8 0 8 0;");
                 actionBox.getChildren().add(expiredNote);
             } else if (job.isActive()) {
                 Button reopenButton = new Button("Reopen Position");
-                reopenButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #008800; -fx-border-color: #008800; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                reopenButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #16a34a; -fx-border-color: #86efac; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+                    "-fx-border-radius: 8; -fx-background-radius: 8;");
                 reopenButton.setOnAction(e -> {
                     TAJob latestJob = jobManager.getJobById(job.getJobId());
                     if (latestJob == null || !jobManager.canManageJob(latestJob.getJobId(), moStaffId)) {
@@ -660,7 +673,8 @@ public class MODashboard extends javafx.application.Application {
                 actionBox.getChildren().add(reopenButton);
             } else {
                 Button closeButton = new Button("Close Position");
-                closeButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+                closeButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #dc2626; -fx-border-color: #fecaca; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+                    "-fx-border-radius: 8; -fx-background-radius: 8;");
                 closeButton.setOnAction(e -> {
                     javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.CONFIRMATION);
@@ -687,7 +701,7 @@ public class MODashboard extends javafx.application.Application {
 
             if (!canEditJob(job)) {
                 Label editHint = new Label("Edit locked: " + getEditBlockedReason(job));
-                editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+                editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
                 textBox.getChildren().add(editHint);
             }
         }
@@ -721,16 +735,17 @@ public class MODashboard extends javafx.application.Application {
         VBox titleBox = new VBox();
         titleBox.setSpacing(6);
         Label title = new Label("Position Statistics");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         Label subtitle = new Label("Track the status of your positions together with application and approval counts.");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         titleBox.getChildren().addAll(title, subtitle);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button refreshButton = new Button("Refresh");
-        refreshButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        refreshButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 10 18 10 18; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         refreshButton.setOnAction(e -> root.setCenter(buildPositionStatisticsView()));
 
         headerRow.getChildren().addAll(titleBox, spacer, refreshButton);
@@ -759,11 +774,13 @@ public class MODashboard extends javafx.application.Application {
 
         VBox list = new VBox();
         list.setSpacing(12);
-        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
+        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 16;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         if (jobs.isEmpty()) {
             Label empty = new Label("You have not published any positions yet. Publish one to start tracking progress here.");
-            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8;");
             list.getChildren().add(empty);
         } else {
             for (TAJob job : jobs) {
@@ -778,13 +795,14 @@ public class MODashboard extends javafx.application.Application {
     private VBox buildPositionStatisticsItem(TAJob job) {
         VBox item = new VBox();
         item.setSpacing(8);
-        item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
+        item.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 14;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
 
         Label title = new Label(job.getPositionName() + " (" + job.getCourseCode() + ")");
-        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label status = new Label("Status: " + getPositionStatisticsStatus(job));
-        status.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        status.setStyle("-fx-font-size: 13px; -fx-text-fill: #334155;");
 
         Label meta = new Label(
             "Course: " + showFallback(job.getCourseName())
@@ -792,17 +810,17 @@ public class MODashboard extends javafx.application.Application {
                 + "  Openings: " + job.getRecruitmentCount()
         );
         meta.setWrapText(true);
-        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         int applicationCount = countApplicationsForJob(job.getJobId());
         int approvedCount = countApprovedApplicationsForJob(job.getJobId());
         Label progress = new Label("Applications: " + applicationCount + "  Approved: " + approvedCount);
-        progress.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        progress.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label skills = new Label("Skill Requirements: "
             + SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements"));
         skills.setWrapText(true);
-        skills.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        skills.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         item.getChildren().addAll(title, status, meta, skills, progress);
         return item;
@@ -824,48 +842,51 @@ public class MODashboard extends javafx.application.Application {
         page.setSpacing(18);
 
         Button backButton = new Button("← Back to My Positions");
-        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
+        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
         backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
 
         Label title = new Label(displayJob.getPositionName() + " (" + displayJob.getCourseCode() + ")");
-        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label meta = new Label("Openings: " + displayJob.getRecruitmentCount() + "  Deadline: " + (isBlank(displayJob.getDeadline()) ? "Not set" : displayJob.getDeadline()) + "  Status: " + getJobStatus(displayJob));
-        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label desc = new Label("Description: " + (isBlank(displayJob.getRequirements()) ? "None" : displayJob.getRequirements()));
         desc.setWrapText(true);
-        desc.setStyle("-fx-font-size: 14px; -fx-text-fill: #444444;");
+        desc.setStyle("-fx-font-size: 14px; -fx-text-fill: #475569;");
 
         Label skills = new Label("Skill Requirements: "
             + SkillUtils.toDisplayText(displayJob.getRequiredSkills(), "No specific skill requirements"));
         skills.setWrapText(true);
-        skills.setStyle("-fx-font-size: 14px; -fx-text-fill: #444444;");
+        skills.setStyle("-fx-font-size: 14px; -fx-text-fill: #475569;");
 
         HBox topActionBox = new HBox();
         topActionBox.setSpacing(10);
 
         Button editButton = new Button("Edit Position");
-        editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         editButton.setDisable(!canEditJob(displayJob));
         editButton.setOnAction(e -> root.setCenter(buildEditPositionView(displayJob)));
 
         Label editHint = new Label(canEditJob(displayJob)
             ? "This position can still be edited."
             : "Edit locked: " + getEditBlockedReason(displayJob));
-        editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+        editHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
         topActionBox.getChildren().addAll(editButton, editHint);
 
         VBox recordBox = new VBox();
         recordBox.setSpacing(12);
-        recordBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
+        recordBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 16;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         List<TAApplicationRecord> records = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
             .filter(r -> displayJob.getJobId().equals(r.getJobId()))
             .collect(Collectors.toList());
 
         Label applicantTitle = new Label("Applicants for this Position (showing current MO's positions only)");
-        applicantTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        applicantTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         VBox recordList = new VBox();
         recordList.setSpacing(12);
@@ -891,7 +912,7 @@ public class MODashboard extends javafx.application.Application {
 
         if (records.isEmpty()) {
             Label empty = new Label("No applications for this position yet. Check back later or view all applications in Application Review.");
-            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8;");
             recordList.getChildren().add(empty);
             refreshPaginationBox(paginationBox, 1, 1, 0, APPLICATION_RECORD_PAGE_SIZE, null, null);
             return;
@@ -905,17 +926,18 @@ public class MODashboard extends javafx.application.Application {
             HBox row = new HBox();
             row.setSpacing(14);
             row.setAlignment(Pos.CENTER_LEFT);
-            row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 12;");
+            row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 12;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
 
             VBox textBox = new VBox();
             textBox.setSpacing(5);
             Label name = new Label(record.getStudentName() + " (" + record.getTaStudentId() + ")");
-            name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+            name.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
             Label applicantMeta = new Label("Major: " + record.getMajor() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
-            applicantMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #777777;");
+            applicantMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
             Label matchMeta = new Label(formatMatchSummary(SkillMatcher.calculate(job, record)));
             matchMeta.setWrapText(true);
-            matchMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #555555;");
+            matchMeta.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
             textBox.getChildren().addAll(name, applicantMeta, matchMeta);
 
             Label statusLabel = new Label(formatStatus(record.getStatus()));
@@ -923,7 +945,8 @@ public class MODashboard extends javafx.application.Application {
             statusLabel.setPrefWidth(100);
 
             Button viewBtn = new Button("View Application");
-            viewBtn.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 7 14 7 14; -fx-cursor: hand;");
+            viewBtn.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 7 14 7 14; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             viewBtn.setOnAction(e -> root.setCenter(
                 buildApplicationDetailView(record, () -> root.setCenter(buildJobDetailView(job, currentPage[0])))));
 
@@ -955,10 +978,10 @@ public class MODashboard extends javafx.application.Application {
         page.setSpacing(18);
 
         Label title = new Label("Application Review");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label subtitle = new Label("Review all applications submitted for the positions published by the current module organiser.");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         HBox filterBox = new HBox();
         filterBox.setSpacing(12);
@@ -974,37 +997,45 @@ public class MODashboard extends javafx.application.Application {
         sortBox.getItems().addAll(SORT_MATCH, SORT_DATE, SORT_STATUS, SORT_NAME);
         sortBox.setValue(SORT_MATCH);
         sortBox.setPrefWidth(180);
-        sortBox.setStyle("-fx-font-size: 13px; -fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        sortBox.setStyle("-fx-font-size: 13px; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
 
         Button clearButton = new Button("Clear Filters");
-        clearButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        clearButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 10 18 10 18; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         filterBox.getChildren().addAll(majorFilterField, availableTimeFilterField, skillsFilterField, sortBox, clearButton);
 
         HBox batchActionBox = new HBox();
         batchActionBox.setSpacing(12);
 
         Button selectAllButton = new Button("Select Pending On Page");
-        selectAllButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        selectAllButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 10 18 10 18; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         Button clearSelectionButton = new Button("Clear Selection");
-        clearSelectionButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        clearSelectionButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 10 18 10 18; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         Button batchApproveButton = new Button("Batch Approve");
-        batchApproveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        batchApproveButton.setStyle("-fx-background-color: #16a34a; -fx-text-fill: #ffffff; -fx-padding: 10 18 10 18; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         Button batchRejectButton = new Button("Batch Reject");
-        batchRejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 10 18 10 18; -fx-cursor: hand;");
+        batchRejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #dc2626; -fx-border-color: #fecaca; -fx-padding: 10 18 10 18; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         batchActionBox.getChildren().addAll(selectAllButton, clearSelectionButton, batchApproveButton, batchRejectButton);
 
         Label summary = new Label();
-        summary.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        summary.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label selectionLabel = new Label();
-        selectionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        selectionLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label feedbackLabel = new Label();
         feedbackLabel.setStyle("-fx-font-size: 13px;");
 
         VBox list = new VBox();
         list.setSpacing(12);
-        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 16;");
+        list.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 16;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         HBox paginationBox = createPaginationBox();
         Set<String> selectedApplicationIds = new HashSet<>();
@@ -1149,7 +1180,7 @@ public class MODashboard extends javafx.application.Application {
 
         if (filteredRecords.isEmpty()) {
             Label empty = new Label("No applications match the current filters.");
-            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #666666;");
+            empty.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8;");
             list.getChildren().add(empty);
             refreshPaginationBox(paginationBox, 1, 1, 0, APPLICANT_PAGE_SIZE, null, null);
             return;
@@ -1226,7 +1257,8 @@ public class MODashboard extends javafx.application.Application {
     ) {
         VBox item = new VBox();
         item.setSpacing(8);
-        item.setStyle("-fx-background-color: #fafafa; -fx-border-color: #ededed; -fx-border-width: 1; -fx-padding: 14;");
+        item.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 14;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
 
         HBox summaryRow = new HBox();
         summaryRow.setSpacing(10);
@@ -1246,7 +1278,7 @@ public class MODashboard extends javafx.application.Application {
         });
 
         Label summary = new Label(record.getPositionName() + " - " + record.getStudentName() + " (" + record.getTaStudentId() + ")");
-        summary.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        summary.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         summaryRow.getChildren().addAll(selectBox, summary);
 
         Label profile = new Label(
@@ -1255,17 +1287,19 @@ public class MODashboard extends javafx.application.Application {
                 + "  Skills: " + showFallback(record.getSkills())
         );
         profile.setWrapText(true);
-        profile.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        profile.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label meta = new Label("Applied: " + fmtDate(record.getApplicationDate()) + "  Status: " + formatStatus(record.getStatus()));
-        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        meta.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label matchLabel = new Label(formatMatchSummary(getSkillMatchResult(record)));
         matchLabel.setWrapText(true);
-        matchLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333; -fx-background-color: #f2f7ff; -fx-border-color: #c7d7f0; -fx-border-width: 1; -fx-padding: 6 8 6 8;");
+        matchLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #334155; -fx-background-color: #eef2ff; -fx-border-color: #c7d2fe; -fx-border-width: 1; -fx-padding: 6 8 6 8;" +
+            "-fx-border-radius: 6; -fx-background-radius: 6;");
 
         Button openButton = new Button("Open Review");
-        openButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        openButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         openButton.setOnAction(e -> root.setCenter(
             buildApplicationDetailView(record, () -> root.setCenter(buildApplicantReviewView()))));
 
@@ -1274,14 +1308,16 @@ public class MODashboard extends javafx.application.Application {
         actionBox.getChildren().add(openButton);
         if (isPendingApplication(record)) {
             Button approveButton = new Button("Approve");
-            approveButton.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            approveButton.setStyle("-fx-background-color: #16a34a; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             approveButton.setOnAction(e -> {
                 recordManager.approveApplicationForMo(record.getApplicationId(), moStaffId);
                 refreshAction.run();
             });
 
             Button rejectButton = new Button("Reject");
-            rejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+            rejectButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #dc2626; -fx-border-color: #fecaca; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             rejectButton.setOnAction(e -> {
                 recordManager.rejectApplicationForMo(record.getApplicationId(), moStaffId);
                 refreshAction.run();
@@ -1305,7 +1341,7 @@ public class MODashboard extends javafx.application.Application {
         page.setSpacing(20);
 
         Button backButton = new Button("← Back");
-        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #333333; -fx-padding: 6 12 6 0; -fx-cursor: hand;");
+        backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-padding: 6 12 6 0; -fx-cursor: hand;");
         backButton.setOnAction(e -> onBack.run());
 
         // 标题区
@@ -1313,13 +1349,13 @@ public class MODashboard extends javafx.application.Application {
         titleRow.setSpacing(14);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         Label title = new Label(record.getPositionName());
-        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         Label statusBadge = new Label(formatStatus(record.getStatus()));
         statusBadge.setStyle(statusBadgeStyle(record.getStatus()));
         titleRow.getChildren().addAll(title, statusBadge);
 
         Label courseInfo = new Label("Course: " + record.getCourseName() + "  ·  Applied: " + fmtDate(record.getApplicationDate()));
-        courseInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        courseInfo.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         // 申请人信息卡片
         VBox profileCard = buildDetailCard("Applicant Profile", buildProfileGrid(record));
@@ -1337,9 +1373,11 @@ public class MODashboard extends javafx.application.Application {
     private VBox buildDetailCard(String cardTitle, Node content) {
         VBox card = new VBox();
         card.setSpacing(14);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 20;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         Label label = new Label(cardTitle);
-        label.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        label.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         card.getChildren().addAll(label, content);
         return card;
     }
@@ -1363,11 +1401,11 @@ public class MODashboard extends javafx.application.Application {
 
         for (int i = 0; i < fields.length; i++) {
             Label key = new Label(fields[i][0]);
-            key.setStyle("-fx-font-size: 13px; -fx-text-fill: #888888; -fx-font-weight: 600;");
+            key.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b; -fx-font-weight: 600;");
             key.setPrefWidth(120);
 
             Label val = new Label(fields[i][1] == null || fields[i][1].isEmpty() ? "—" : fields[i][1]);
-            val.setStyle("-fx-font-size: 13px; -fx-text-fill: #222222;");
+            val.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
             val.setWrapText(true);
 
             grid.add(key, 0, i);
@@ -1384,26 +1422,26 @@ public class MODashboard extends javafx.application.Application {
         Label score = new Label(result.hasRequirements()
             ? "Match Score: " + result.getScore() + "%"
             : "Match Score: Not available because this position has no skill requirements.");
-        score.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        score.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label explanation = new Label(result.getExplanation());
         explanation.setWrapText(true);
-        explanation.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        explanation.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label matched = new Label("Matched Skills: "
             + SkillUtils.toDisplayText(result.getMatchedSkills(), "None"));
         matched.setWrapText(true);
-        matched.setStyle("-fx-font-size: 13px; -fx-text-fill: #008800;");
+        matched.setStyle("-fx-font-size: 13px; -fx-text-fill: #16a34a;");
 
         Label missing = new Label("Missing Skills: "
             + SkillUtils.toDisplayText(result.getMissingSkills(), "None"));
         missing.setWrapText(true);
-        missing.setStyle("-fx-font-size: 13px; -fx-text-fill: #cc0000;");
+        missing.setStyle("-fx-font-size: 13px; -fx-text-fill: #dc2626;");
 
         Label evidence = new Label("Applicant Keywords Used: "
             + SkillUtils.toDisplayText(result.getCandidateKeywords(), "No skills or keywords available"));
         evidence.setWrapText(true);
-        evidence.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        evidence.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         box.getChildren().addAll(score, explanation, matched, missing, evidence);
         return box;
@@ -1412,33 +1450,36 @@ public class MODashboard extends javafx.application.Application {
     private VBox buildKeywordReviewCard(TAApplicationRecord record, Runnable onBack) {
         VBox card = new VBox();
         card.setSpacing(14);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 20;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         Label title = new Label("Resume Keywords");
-        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label hint = new Label(record.isKeywordsVerified()
             ? "These keywords have been manually verified. Re-extraction will update the automatic keywords but keep this verified list."
             : "Automatic keywords are shown below. You can confirm, remove incorrect keywords, or add missing ones.");
         hint.setWrapText(true);
-        hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+        hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         Label autoKeywords = new Label("Automatically Extracted: "
             + SkillUtils.toDisplayText(record.getResumeKeywords(), "No keywords extracted"));
         autoKeywords.setWrapText(true);
-        autoKeywords.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        autoKeywords.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         TextArea keywordArea = new TextArea(SkillUtils.toEditableText(record.getEffectiveKeywords()));
         keywordArea.setPromptText("Comma-separated keywords, max 20 labels");
         keywordArea.setPrefRowCount(3);
         keywordArea.setWrapText(true);
-        keywordArea.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        keywordArea.setStyle("-fx-font-size: 13px; -fx-border-color: #e2e8f0; -fx-border-width: 1;");
 
         Label feedback = new Label();
         feedback.setStyle("-fx-font-size: 13px;");
 
         Button saveButton = new Button("Save Verified Keywords");
-        saveButton.setStyle("-fx-background-color: #000000; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        saveButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         saveButton.setOnAction(e -> {
             List<String> keywords = SkillUtils.parseKeywords(keywordArea.getText());
             if (recordManager.saveVerifiedKeywordsForMo(record.getApplicationId(), moStaffId, keywords)) {
@@ -1450,7 +1491,8 @@ public class MODashboard extends javafx.application.Application {
         });
 
         Button reextractButton = new Button("Re-extract Automatically");
-        reextractButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        reextractButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         reextractButton.setOnAction(e -> {
             if (recordManager.reextractKeywordsForMo(record.getApplicationId(), moStaffId)) {
                 showMessage(feedback, "Automatic keywords refreshed. Verified keywords were not overwritten.", true);
@@ -1471,34 +1513,38 @@ public class MODashboard extends javafx.application.Application {
     private VBox buildReviewCard(TAApplicationRecord record, Runnable onBack) {
         VBox card = new VBox();
         card.setSpacing(14);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 20;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 20;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         Label cardTitle = new Label("Review Decision");
-        cardTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        cardTitle.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         card.getChildren().add(cardTitle);
 
         if (TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
             Label hint = new Label("This application is awaiting your decision.");
-            hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #666666;");
+            hint.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
             javafx.scene.control.TextArea commentField = new javafx.scene.control.TextArea();
             commentField.setPromptText("Optional: add a review comment for your records...");
             commentField.setPrefRowCount(3);
             commentField.setWrapText(true);
-            commentField.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1;");
+            commentField.setStyle("-fx-font-size: 13px; -fx-border-color: #e2e8f0; -fx-border-width: 1;");
 
             HBox buttons = new HBox();
             buttons.setSpacing(12);
 
             Button approveBtn = new Button("✓  Approve");
-            approveBtn.setStyle("-fx-background-color: #008800; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
+            approveBtn.setStyle("-fx-background-color: #16a34a; -fx-text-fill: #ffffff; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             approveBtn.setOnAction(e -> {
                 recordManager.approveApplicationForMo(record.getApplicationId(), moStaffId, commentField.getText().trim());
                 onBack.run();
             });
 
             Button rejectBtn = new Button("✗  Reject");
-            rejectBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #cc0000; -fx-border-color: #cc0000; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;");
+            rejectBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #dc2626; -fx-border-color: #fecaca; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 9 20 9 20; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             rejectBtn.setOnAction(e -> {
                 recordManager.rejectApplicationForMo(record.getApplicationId(), moStaffId, commentField.getText().trim());
                 onBack.run();
@@ -1508,12 +1554,12 @@ public class MODashboard extends javafx.application.Application {
             card.getChildren().addAll(hint, new Label("Review Comment (optional):"), commentField, buttons);
         } else {
             Label decided = new Label("Decision: " + formatStatus(record.getStatus()));
-            decided.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+            decided.setStyle("-fx-font-size: 14px; -fx-text-fill: #334155;");
             card.getChildren().add(decided);
 
             if (record.getReviewComment() != null && !record.getReviewComment().isEmpty()) {
                 Label comment = new Label("Comment: " + record.getReviewComment());
-                comment.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+                comment.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
                 comment.setWrapText(true);
                 card.getChildren().add(comment);
             }
@@ -1522,12 +1568,13 @@ public class MODashboard extends javafx.application.Application {
             if (TAApplicationRecord.STATUS_APPROVED.equals(record.getStatus()) ||
                     TAApplicationRecord.STATUS_REJECTED.equals(record.getStatus())) {
                 Label undoHint = new Label("You can undo this decision to reopen the application for review.");
-                undoHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #999999;");
+                undoHint.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
 
                 Button undoBtn = new Button("↩  Undo Decision");
-                undoBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #555555;" +
-                    " -fx-border-color: #aaaaaa; -fx-border-width: 1;" +
-                    " -fx-font-size: 13px; -fx-padding: 7 16 7 16; -fx-cursor: hand;");
+                undoBtn.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b;" +
+                    " -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+                    " -fx-font-size: 13px; -fx-padding: 7 16 7 16; -fx-cursor: hand;" +
+                    " -fx-border-radius: 8; -fx-background-radius: 8;");
                 undoBtn.setOnAction(e -> {
                     javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.CONFIRMATION);
@@ -1552,11 +1599,11 @@ public class MODashboard extends javafx.application.Application {
             case TAApplicationRecord.STATUS_PENDING:
                 return "-fx-font-size: 12px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
             case TAApplicationRecord.STATUS_APPROVED:
-                return "-fx-font-size: 12px; -fx-text-fill: #008800; -fx-background-color: #efffef; -fx-border-color: #aaccaa; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
+                return "-fx-font-size: 12px; -fx-text-fill: #16a34a; -fx-background-color: #f0fdf4; -fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
             case TAApplicationRecord.STATUS_REJECTED:
-                return "-fx-font-size: 12px; -fx-text-fill: #cc0000; -fx-background-color: #fff0f0; -fx-border-color: #eeaaaa; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
+                return "-fx-font-size: 12px; -fx-text-fill: #dc2626; -fx-background-color: #fee2e2; -fx-border-color: #fecaca; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
             default:
-                return "-fx-font-size: 12px; -fx-text-fill: #666666; -fx-background-color: #f5f5f5; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
+                return "-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 3 10 3 10;";
         }
     }
 
@@ -1585,13 +1632,13 @@ public class MODashboard extends javafx.application.Application {
         String style;
         if (job.isActive()) {
             text = "Closed";
-            style = "-fx-font-size: 11px; -fx-text-fill: #666666; -fx-background-color: #eeeeee; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
+            style = "-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
         } else if (isJobExpired(job)) {
             text = "Expired";
-            style = "-fx-font-size: 11px; -fx-text-fill: #b08800; -fx-background-color: #fffbe6; -fx-border-color: #e0c860; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
+            style = "-fx-font-size: 11px; -fx-text-fill: #d97706; -fx-background-color: #fffbeb; -fx-border-color: #fde68a; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
         } else {
             text = "Open";
-            style = "-fx-font-size: 11px; -fx-text-fill: #008800; -fx-background-color: #efffef; -fx-border-color: #aaccaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
+            style = "-fx-font-size: 11px; -fx-text-fill: #16a34a; -fx-background-color: #f0fdf4; -fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-padding: 2 8 2 8;";
         }
         Label badge = new Label(text);
         badge.setStyle(style);
@@ -1806,26 +1853,28 @@ public class MODashboard extends javafx.application.Application {
         paginationBox.getChildren().clear();
 
         Button previousButton = new Button("Previous");
-        previousButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        previousButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         previousButton.setDisable(totalItems == 0 || currentPage <= 1);
         if (previousAction != null) {
             previousButton.setOnAction(e -> previousAction.run());
         }
 
         Button nextButton = new Button("Next");
-        nextButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #333333; -fx-border-color: #cccccc; -fx-padding: 8 16 8 16; -fx-cursor: hand;");
+        nextButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         nextButton.setDisable(totalItems == 0 || currentPage >= totalPages);
         if (nextAction != null) {
             nextButton.setOnAction(e -> nextAction.run());
         }
 
         Label pageLabel = new Label("Page " + currentPage + " / " + totalPages);
-        pageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        pageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         int startIndex = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
         int endIndex = totalItems == 0 ? 0 : Math.min(currentPage * pageSize, totalItems);
         Label countLabel = new Label("Showing " + startIndex + "-" + endIndex + " of " + totalItems);
-        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #777777;");
+        countLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8;");
 
         paginationBox.getChildren().addAll(previousButton, nextButton, pageLabel, countLabel);
     }
@@ -1891,7 +1940,8 @@ public class MODashboard extends javafx.application.Application {
     private TextField createTextField(String prompt) {
         TextField field = new TextField();
         field.setPromptText(prompt);
-        field.setStyle("-fx-font-size: 14px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 10 12 10 12;");
+        field.setStyle("-fx-font-size: 14px; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 10 12 10 12;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
         return field;
     }
 
@@ -1901,7 +1951,7 @@ public class MODashboard extends javafx.application.Application {
 
     private void showMessage(Label label, String message, boolean success) {
         label.setText(message);
-        label.setStyle("-fx-font-size: 13px; -fx-text-fill: " + (success ? "#008800" : "#cc0000") + ";");
+        label.setStyle("-fx-font-size: 13px; -fx-text-fill: " + (success ? "#16a34a" : "#ef4444") + ";");
     }
 
     private boolean isBlank(String text) {
@@ -1930,25 +1980,27 @@ public class MODashboard extends javafx.application.Application {
             List<String> defaultSkills = SkillUtils.getDefaultSkills();
 
             view.setSpacing(10);
-            view.setStyle("-fx-background-color: #ffffff; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 12;");
+            view.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 12;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
 
             Label hint = new Label("Select preset skills or enter custom skills separated by commas. Max 10 skills, 20 characters each.");
             hint.setWrapText(true);
-            hint.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+            hint.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
 
             FlowPane presetPane = new FlowPane();
             presetPane.setHgap(10);
             presetPane.setVgap(8);
             for (String skill : defaultSkills) {
                 CheckBox box = new CheckBox(skill);
-                box.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333;");
+                box.setStyle("-fx-font-size: 12px; -fx-text-fill: #334155;");
                 box.setSelected(normalizedInitial.stream().anyMatch(existing -> SkillUtils.looselyMatches(skill, existing)));
                 presetBoxes.add(box);
                 presetPane.getChildren().add(box);
             }
 
             customField.setPromptText("Custom skills, e.g. Data Mining, Mentoring");
-            customField.setStyle("-fx-font-size: 13px; -fx-border-color: #cccccc; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 8 10 8 10;");
+            customField.setStyle("-fx-font-size: 13px; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-background-color: #ffffff; -fx-padding: 8 10 8 10;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
             customField.setText(toCustomSkillText(normalizedInitial, defaultSkills));
 
             view.getChildren().addAll(hint, presetPane, customField);

@@ -27,13 +27,13 @@ public class WorkloadView {
     public ScrollPane build() {
         VBox page = new VBox(24);
         page.setPadding(new Insets(32));
-        page.setStyle("-fx-background-color: #fafafa;");
+        page.setStyle("-fx-background-color: #f8fafc;");
 
         Label pageTitle = new Label("Workload Alert");
-        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Label subtitle = new Label("Set the maximum number of approved positions per TA per semester and monitor overloads.");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #777777;");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
 
         // Threshold card (holds a ref to the table card so we can refresh it)
         VBox[] tableCardHolder = new VBox[1];
@@ -49,7 +49,7 @@ public class WorkloadView {
 
         ScrollPane scroll = new ScrollPane(page);
         scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: #fafafa; -fx-background: #fafafa;");
+        scroll.setStyle("-fx-background-color: #f8fafc; -fx-background: #f8fafc;");
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -64,18 +64,20 @@ public class WorkloadView {
         body.setAlignment(Pos.CENTER_LEFT);
 
         Label label = new Label("Max approved positions per semester:");
-        label.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
+        label.setStyle("-fx-font-size: 13px; -fx-text-fill: #334155;");
 
         TextField field = new TextField(String.valueOf(configManager.getThreshold()));
         field.setPrefWidth(70);
         field.setStyle(
             "-fx-font-size: 13px; -fx-background-color: #ffffff;" +
-            "-fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 6 10 6 10;");
+            "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 6 10 6 10;" +
+            "-fx-border-radius: 6; -fx-background-radius: 6;");
 
         Button saveBtn = new Button("Save");
         saveBtn.setStyle(
-            "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #111111;" +
-            "-fx-border-color: #111111; -fx-border-width: 1; -fx-padding: 6 18 6 18; -fx-cursor: hand;");
+            "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1;" +
+            "-fx-border-color: #6366f1; -fx-border-width: 1; -fx-padding: 6 18 6 18; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;");
 
         Label feedback = new Label();
         feedback.setStyle("-fx-font-size: 12px;");
@@ -88,12 +90,12 @@ public class WorkloadView {
                 if (value < 1) throw new NumberFormatException();
             } catch (NumberFormatException ex) {
                 feedback.setText("Please enter a positive integer.");
-                feedback.setStyle("-fx-font-size: 12px; -fx-text-fill: #cc3300;");
+                feedback.setStyle("-fx-font-size: 12px; -fx-text-fill: #ef4444;");
                 return;
             }
             configManager.saveThreshold(value);
             feedback.setText("Saved.");
-            feedback.setStyle("-fx-font-size: 12px; -fx-text-fill: #006600;");
+            feedback.setStyle("-fx-font-size: 12px; -fx-text-fill: #16a34a;");
 
             // Refresh the workload table with the new threshold
             Map<String, Integer> counts = buildApprovedCountMap();
@@ -128,7 +130,7 @@ public class WorkloadView {
             HBox empty = new HBox(new Label("No TAs registered yet."));
             empty.setPadding(new Insets(20));
             ((Label) empty.getChildren().get(0))
-                .setStyle("-fx-font-size: 13px; -fx-text-fill: #aaaaaa;");
+                .setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8;");
             table.getChildren().add(empty);
         } else {
             // Sort: overload first, then warning, then normal
@@ -147,7 +149,7 @@ public class WorkloadView {
     private HBox buildHeaderRow() {
         HBox row = new HBox();
         row.setPadding(new Insets(10, 20, 10, 20));
-        row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         row.getChildren().addAll(
             headerCell("Student ID",          150),
             headerCell("Name",                150),
@@ -167,20 +169,20 @@ public class WorkloadView {
         if (count > threshold)      rowBg = "#fff5f5";
         else if (count == threshold) rowBg = "#fffbf0";
         else                         rowBg = "#ffffff";
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-background-color: " + rowBg + ";");
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0; -fx-background-color: " + rowBg + ";");
 
-        Label lId    = cell(nvl(ta.getTAId()),   150, "#222222");
-        Label lName  = cell(nvl(ta.getName()),   150, "#222222");
-        Label lMajor = cell(nvl(ta.getMajor()),  200, "#555555");
-        Label lCount = cell(String.valueOf(count), 160, "#333333");
+        Label lId    = cell(nvl(ta.getTAId()),   150, "#1e293b");
+        Label lName  = cell(nvl(ta.getName()),   150, "#1e293b");
+        Label lMajor = cell(nvl(ta.getMajor()),  200, "#64748b");
+        Label lCount = cell(String.valueOf(count), 160, "#334155");
 
         Label statusLabel;
         if (count > threshold) {
-            statusLabel = statusBadge("Overloaded", "#cc0000", "#fff0f0", "#ffaaaa");
+            statusLabel = statusBadge("Overloaded", "#dc2626", "#fee2e2", "#fecaca");
         } else if (count == threshold) {
-            statusLabel = statusBadge("At Limit", "#996600", "#fffbee", "#ffdd88");
+            statusLabel = statusBadge("At Limit", "#d97706", "#fffbeb", "#fde68a");
         } else {
-            statusLabel = statusBadge("Normal", "#006600", "#eeffee", "#aaddaa");
+            statusLabel = statusBadge("Normal", "#16a34a", "#f0fdf4", "#bbf7d0");
         }
 
         HBox statusWrap = new HBox(statusLabel);
@@ -207,12 +209,14 @@ public class WorkloadView {
 
     private VBox buildCard(String title) {
         VBox card = new VBox(0);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
         HBox header = new HBox();
         header.setPadding(new Insets(16, 20, 14, 20));
-        header.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        header.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #222222;");
+        titleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         header.getChildren().add(titleLabel);
         card.getChildren().add(header);
         return card;
@@ -220,7 +224,7 @@ public class WorkloadView {
 
     private Label headerCell(String text, double width) {
         Label lbl = new Label(text);
-        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         lbl.setPrefWidth(width);
         return lbl;
     }
