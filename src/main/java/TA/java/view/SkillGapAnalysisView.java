@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -184,7 +185,11 @@ public class SkillGapAnalysisView {
         contentBox.getChildren().addAll(summaryBox, gapBox, suggestionBox);
         root.getChildren().addAll(titleLabel, contentBox, closeButton);
 
-        Scene scene = new Scene(root, 550, 600);
+        ScrollPane scrollPane = new ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+
+        Scene scene = new Scene(scrollPane, 550, 600);
         scene.getStylesheets().add("data:text/css,");
         stage.setScene(scene);
         stage.setResizable(false);
