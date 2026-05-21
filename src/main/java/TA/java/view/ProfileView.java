@@ -201,6 +201,27 @@ public class ProfileView {
             labelBox.getChildren().add(labelLabel);
         }
 
+        if (fieldName.equals("skill")) {
+            javafx.scene.control.TextArea valueArea = new javafx.scene.control.TextArea(value);
+            valueArea.setWrapText(true);
+            valueArea.setPrefRowCount(4);
+            valueArea.setPrefWidth(400);
+            valueArea.setMinHeight(Region.USE_PREF_SIZE);
+            valueArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 12px;");
+
+            if (isLocked) {
+                valueArea.setDisable(true);
+                valueArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 12px;");
+            }
+
+            valueArea.textProperty().addListener((observable, oldValue, newValue) -> {
+                updateUserField(fieldName, newValue);
+            });
+
+            fieldBox.getChildren().addAll(labelBox, valueArea);
+            return fieldBox;
+        }
+
         TextField valueField = new TextField(value);
         valueField.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 10px 16px;");
         valueField.setPrefWidth(400);
