@@ -1,5 +1,9 @@
 package MO;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -8,6 +12,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,6 +57,7 @@ public class MODashboard extends javafx.application.Application {
     private static final String SORT_DATE = "Application Date";
     private static final String SORT_STATUS = "Review Status";
     private static final String SORT_NAME = "Name / Student ID";
+    private static final Path TA_UPLOAD_BASE_DIR = Path.of("resources", "Data", "Uploads");
 
     private static final String NAV_DEFAULT =
         "-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-cursor: hand;" +
@@ -1475,6 +1481,7 @@ public class MODashboard extends javafx.application.Application {
 
         // 申请人信息卡片
         VBox profileCard = buildDetailCard("Applicant Profile", buildProfileGrid(record));
+        VBox attachmentCard = buildDetailCard("Resume Attachments", buildAttachmentList(record));
 
         VBox matchCard = buildDetailCard("Skill Match", buildMatchDetail(record));
         VBox keywordCard = buildKeywordReviewCard(record, onBack);
@@ -1482,8 +1489,8 @@ public class MODashboard extends javafx.application.Application {
         // 审核操作区
         VBox reviewCard = buildReviewCard(record, onBack);
 
-        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, matchCard, keywordCard, reviewCard);
-        return page;
+        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, attachmentCard, matchCard, keywordCard, reviewCard);
+        return wrapScrollablePage(page);
     }
 
     private VBox buildDetailCard(String cardTitle, Node content) {
@@ -1492,10 +1499,97 @@ public class MODashboard extends javafx.application.Application {
         card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 20;" +
             "-fx-border-radius: 12; -fx-background-radius: 12;" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
-        Label label = new Label(cardTitle);
+        Label label = new Label(core.UiText.tr(cardTitle));
         label.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         card.getChildren().addAll(label, content);
         return card;
+    }
+
+    private Node buildAttachmentList(TAApplicationRecord record) {
+        VBox box = new VBox();
+        box.setSpacing(10);
+
+        List<Path> attachments = getUploadedResumeAttachments(record);
+        if (attachments.isEmpty()) {
+            Label empty = new Label(core.UiText.tr("No resume attachments uploaded"));
+            empty.setWrapText(true);
+            empty.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-padding: 4 0 4 0;");
+            box.getChildren().add(empty);
+            return box;
+        }
+
+        Label feedback = new Label();
+        feedback.setStyle("-fx-font-size: 13px;");
+
+        for (Path attachment : attachments) {
+            HBox row = new HBox();
+            row.setSpacing(12);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setPadding(new Insets(8, 12, 8, 12));
+            row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
+
+            Label name = new Label(attachment.getFileName().toString());
+            name.setWrapText(true);
+            name.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
+            HBox.setHgrow(name, Priority.ALWAYS);
+
+            Button openButton = new Button(core.UiText.tr("Open Attachment"));
+            openButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1;" +
+                "-fx-background-radius: 8; -fx-padding: 6 14 6 14; -fx-cursor: hand;");
+            openButton.setOnAction(e -> openAttachment(attachment, feedback));
+
+            row.getChildren().addAll(name, openButton);
+            box.getChildren().add(row);
+        }
+
+        box.getChildren().add(feedback);
+        return box;
+    }
+
+    private List<Path> getUploadedResumeAttachments(TAApplicationRecord record) {
+        if (record == null || isBlank(record.getTaStudentId())) {
+            return List.of();
+        }
+
+        Path baseDir = TA_UPLOAD_BASE_DIR.toAbsolutePath().normalize();
+        Path studentDir = baseDir.resolve(record.getTaStudentId().trim()).normalize();
+        if (!studentDir.startsWith(baseDir) || !Files.isDirectory(studentDir)) {
+            return List.of();
+        }
+
+        try (var paths = Files.list(studentDir)) {
+            return paths
+                .filter(Files::isRegularFile)
+                .filter(this::isSupportedResumeAttachment)
+                .sorted(Comparator.comparing(path -> path.getFileName().toString().toLowerCase(Locale.ROOT)))
+                .toList();
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+
+    private boolean isSupportedResumeAttachment(Path path) {
+        String fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        return fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx");
+    }
+
+    private void openAttachment(Path attachment, Label feedback) {
+        try {
+            Path normalized = attachment.toAbsolutePath().normalize();
+            if (!Files.isRegularFile(normalized)) {
+                showMessage(feedback, core.UiText.tr("Attachment file is no longer available."), false);
+                return;
+            }
+            if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                showMessage(feedback, core.UiText.tr("This device cannot open attachments automatically."), false);
+                return;
+            }
+            Desktop.getDesktop().open(normalized.toFile());
+            showMessage(feedback, core.UiText.tr("Attachment opened."), true);
+        } catch (IOException | RuntimeException e) {
+            showMessage(feedback, core.UiText.tr("Unable to open attachment."), false);
+        }
     }
 
     private Node buildProfileGrid(TAApplicationRecord record) {
