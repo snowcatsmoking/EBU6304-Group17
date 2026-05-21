@@ -164,7 +164,7 @@ public final class TAAlertDialog {
     }
 
     private static Label createTitle(String title) {
-        Label titleLabel = new Label(title);
+        Label titleLabel = new Label(translateDialogText(title));
         titleLabel.setWrapText(true);
         titleLabel.setAlignment(Pos.CENTER);
         titleLabel.setMaxWidth(400);
@@ -178,7 +178,7 @@ public final class TAAlertDialog {
         area.setMaxWidth(410);
 
         if (header != null && !header.isBlank()) {
-            Label headerLabel = new Label(header);
+            Label headerLabel = new Label(translateDialogText(header));
             headerLabel.setWrapText(true);
             headerLabel.setAlignment(Pos.CENTER);
             headerLabel.setMaxWidth(390);
@@ -186,7 +186,7 @@ public final class TAAlertDialog {
             area.getChildren().add(headerLabel);
         }
 
-        Label messageLabel = new Label(message);
+        Label messageLabel = new Label(translateDialogText(message));
         messageLabel.setWrapText(true);
         messageLabel.setAlignment(Pos.CENTER);
         messageLabel.setMaxWidth(390);
@@ -223,7 +223,7 @@ public final class TAAlertDialog {
     }
 
     private static Button createPrimaryButton(String text, String accent, Stage dialog, boolean[] primaryChosen) {
-        Button button = new Button(text);
+        Button button = new Button(translateDialogText(text));
         button.setDefaultButton(true);
         button.setMinWidth(150);
         button.setStyle(buttonStyle(accent));
@@ -237,7 +237,7 @@ public final class TAAlertDialog {
     }
 
     private static Button createSecondaryButton(String text, Stage dialog) {
-        Button button = new Button(text);
+        Button button = new Button(translateDialogText(text));
         button.setCancelButton(true);
         button.setMinWidth(120);
         button.setStyle(
@@ -300,6 +300,35 @@ public final class TAAlertDialog {
             height += 18;
         }
         return height;
+    }
+
+    private static String translateDialogText(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+
+        String translated = core.UiText.tr(text);
+        if (!translated.equals(text) || !text.contains("\n")) {
+            return translated;
+        }
+
+        StringBuilder result = new StringBuilder();
+        int start = 0;
+        while (start < text.length()) {
+            int newline = text.indexOf('\n', start);
+            boolean hasNewline = newline >= 0;
+            String segment = hasNewline ? text.substring(start, newline + 1) : text.substring(start);
+            String translatedSegment = core.UiText.tr(segment);
+            if (translatedSegment.equals(segment) && hasNewline) {
+                translatedSegment = core.UiText.tr(segment.substring(0, segment.length() - 1)) + "\n";
+            }
+            result.append(translatedSegment);
+            if (!hasNewline) {
+                break;
+            }
+            start = newline + 1;
+        }
+        return result.toString();
     }
 
     private static final class Palette {
