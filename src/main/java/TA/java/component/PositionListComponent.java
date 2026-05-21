@@ -121,7 +121,8 @@ public class PositionListComponent {
 
         Label requirementLabel = new Label(core.UiText.tr("Requirements: ") + job.getRequirements());
         requirementLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
-        requirementLabel.setWrapText(true);
+        requirementLabel.setMaxWidth(300);
+        requirementLabel.setTextOverrun(javafx.scene.control.OverrunStyle.ELLIPSIS);
 
         String skillText = SkillUtils.toDisplayText(job.getRequiredSkills(), "No specific skill requirements");
         Label requiredSkillsLabel = new Label(core.UiText.tr("Required Skills: ") + core.UiText.tr(skillText));
