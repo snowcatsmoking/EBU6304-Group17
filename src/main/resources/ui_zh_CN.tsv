@@ -1,0 +1,618 @@
+# English UI text	Chinese UI text
+Log In	登录
+Register	注册
+BUPT Recruitment System	北邮招聘系统
+Focus on efficient work	专注高效工作
+TA Recruitment System	助教招聘系统
+TA Application System	TA 申请系统
+TA Recruitment System - Login	助教招聘系统 - 登录
+TA Recruitment System - Admin Console	助教招聘系统 - 管理员控制台
+TA Recruitment System - Module Organiser Console	助教招聘系统 - 课程组织者控制台
+Teaching Assistant Recruitment System	教学助理招聘系统
+Account (Student ID / Staff ID)	账号（学号 / 工号）
+Enter your account	请输入账号
+Password	密码
+Enter your password	请输入密码
+Login successful! Redirecting...	登录成功！正在跳转...
+Role	角色
+-- Select Role --	-- 请选择角色 --
+TA Applicant	助教申请者
+Module Organiser	课程组织者
+System Administrator	系统管理员
+System Administrator (Admin)	系统管理员（Admin）
+Account ID (auto-prefixed by role)	账号 ID（根据角色自动添加前缀）
+Select role first, then enter numbers	请先选择角色，再输入数字
+Enter password (min. 6 characters)	请输入密码（至少 6 位）
+Confirm Password	确认密码
+Re-enter password	请再次输入密码
+Admin Authorisation Code	管理员授权码
+Enter admin authorisation code	请输入管理员授权码
+Passwords do not match	两次输入的密码不一致
+The blue one is cheering for your first login.	蓝色小伙伴正在为你的首次登录加油。
+Invalid ID Format	ID 格式无效
+Please select a role first to determine the ID prefix (ta/mo/ad).	请先选择角色，以确定 ID 前缀（ta/mo/ad）。
+Invalid Characters	字符无效
+ID can only contain numbers after the prefix.	前缀后只能输入数字。
+Registration Successful	注册成功
+Your account has been created successfully!	你的账号已创建成功！
+Account ID:	账号 ID：
+Role:	角色：
+Please sign in with your new account.	请使用新账号登录。
+Registration Failed	注册失败
+This account is already registered. Please choose a different ID.	该账号已注册，请选择其他 ID。
+Sign In Now	立即登录
+Got It	知道了
+Please enter your account	请输入账号
+Please enter your password	请输入密码
+Password must be at least 6 characters	密码至少需要 6 位
+Please select a role	请选择角色
+Incorrect admin authorisation code	管理员授权码错误
+This account is already registered	该账号已注册
+Registration failed:	注册失败：
+Incorrect password, please try again	密码错误，请重试
+Login failed:	登录失败：
+Account not found, please register first	未找到账号，请先注册
+Language	语言
+Dashboard	仪表盘
+Positions	岗位列表
+My Applications	我的申请
+My Favorites	我的收藏
+AI Assistant	AI 助手
+Profile	个人资料
+TA System	TA 系统
+Log Out	退出登录
+Log out	退出登录
+Course Name:	课程名称：
+Enter course name	请输入课程名称
+Available Time:	可任职时间：
+Select date	选择日期
+Openings:	招聘人数：
+Enter number	请输入人数
+Filter	筛选
+Reset	重置
+Previous	上一页
+Next	下一页
+Page 	第 
+ of 	 / 
+Closed	已关闭
+Not Apply	不可申请
+Expiring Soon	即将截止
+Course/Activity: 	课程 / 活动：
+Course/Activity:	课程 / 活动：
+Openings: 	招聘人数：
+Requirements: 	要求：
+Requirements:	要求：
+Required Skills: 	技能要求：
+Required Skills:	技能要求：
+Deadline: 	截止时间：
+Deadline:	截止时间：
+Posted By: 	发布人：
+Posted By:	发布人：
+Closed by Organiser	组织者已关闭
+Deadline Passed	已过截止时间
+Applied	已申请
+Complete Profile	完善资料
+Apply Now	立即申请
+Apply	申请
+AI Match	AI 匹配
+Matching...	匹配中...
+Match failed	匹配失败
+Match:	匹配：
+Details	详情
+Re-match	重新匹配
+Re-matching...	重新匹配中...
+Re-match failed	重新匹配失败
+Retry	重试
+Match Details - 	匹配详情 - 
+AI Match Analysis	AI 匹配分析
+Analysis	分析
+No summary provided	暂无摘要
+No detailed analysis available.	暂无详细分析。
+How to Improve	如何提升
+No improvement suggestions available.	暂无提升建议。
+Position: 	岗位：
+Course: 	课程：
+Attachments	附件
+Choose File	选择文件
+Supports Word (.doc, .docx) and PDF (.pdf) files, max 10MB	支持 Word（.doc、.docx）和 PDF（.pdf）文件，最大 10MB
+No files uploaded	尚未上传文件
+Delete	删除
+No skill requirements have been set for this position.	该岗位尚未设置技能要求。
+No specific skill requirements	暂无具体技能要求
+None	无
+No keywords extracted	未提取到关键词
+No resume text provided	未提供简历文本
+Unknown User	未知用户
+Unknown Major	未知专业
+Name	姓名
+Student ID	学号
+Major	专业
+Phone	电话
+Email	邮箱
+Skills	技能
+Applications Submitted	已提交申请
+Available Positions	可申请岗位
+Available Time	可任职时间
+Approved	已通过
+Under Review	审核中
+Pending	待审核
+Rejected	已拒绝
+Withdrawn	已撤回
+ (Under review, cannot be modified)	（审核中，无法修改）
+ (Can be modified)	（可修改）
+Invalid Email Format	邮箱格式无效
+Email format is incorrect	邮箱格式不正确
+Invalid email format. Email must follow standard format:\n	邮箱格式无效。邮箱必须符合标准格式：\n
+- Contains '@' symbol in correct position\n	- 在正确位置包含“@”符号\n
+- Local part before '@' cannot start or end with '.'\n	- “@”前的本地部分不能以“.”开头或结尾\n
+- Domain part after '@' must have at least one '.' (like .com, .org)\n	- “@”后的域名部分至少包含一个“.”（如 .com、.org）\n
+- No consecutive '.' in local part\n	- 本地部分不能包含连续的“.”\n
+- No '.' immediately before or after '@'	- “@”前后不能紧邻“.”
+No reason provided	暂无原因
+Could not parse AI response	无法解析 AI 响应
+AI service returned empty response	AI 服务返回空响应
+Position not found	未找到岗位
+Congratulations!	恭喜！
+Application Status	申请状态
+Application Status Update	申请状态更新
+Your application has been 	你的申请已
+Review Comment:	审核评语：
+Close	关闭
+Application Details	申请详情
+Position Information	岗位信息
+Position Name:	岗位名称：
+Course:	课程：
+Module Code:	模块代码：
+Application Information	申请信息
+Application Time:	申请时间：
+Application Status:	申请状态：
+Review Information	审核信息
+Reviewer:	审核人：
+Review Comments:	审核评语：
+Personal Information	个人信息
+Name:	姓名：
+Major:	专业：
+Phone:	电话：
+Email:	邮箱：
+Skills:	技能：
+Keywords:	关键词：
+Resume Text:	简历文本：
+Welcome back, 	欢迎回来，
+(TA)	（TA）
+Profile Summary	资料概览
+Edit Profile	编辑资料
+Recent Applications	最近申请
+Position	岗位
+Applied On	申请日期
+Status	状态
+No application records	暂无申请记录
+My Favorite Positions	我的收藏岗位
+No favorites yet. Click the star icon on positions to add them here.	暂无收藏。点击岗位上的星标即可添加到这里。
+Expired	已过期
+No matching applications	没有匹配的申请
+Actions	操作
+Withdraw	撤回
+My Profile	我的资料
+You have an active TA application under review. Personal information is locked. Only email can still be updated.	你有正在审核中的 TA 申请，个人信息已锁定，仅邮箱仍可更新。
+No active applications. You can freely edit all profile information.	当前没有进行中的申请，你可以自由编辑所有资料。
+Save	保存
+Saved	已保存
+Save Successful	保存成功
+Save Failed	保存失败
+Failed to save profile	保存资料失败
+Your profile changes have been saved.	你的资料修改已保存。
+Please try again or check whether the profile file is writable.	请重试，或检查资料文件是否可写。
+Export Successful	导出成功
+Export ready	导出已就绪
+File saved to:\n	文件已保存至：\n
+Export Failed	导出失败
+An error occurred while exporting. Please try again.	导出时发生错误，请重试。
+Try Again	重试
+Done	完成
+Saved	已保存
+Cancel	取消
+Export Profile	导出资料
+Skill Gap Analysis	技能差距分析
+Application Summary	申请摘要
+Match Rate: 	匹配率：
+Matched Skills: 	已匹配技能：
+Skills to Improve	待提升技能
+Great job! You meet all the skill requirements for this position.	很好！你已满足该岗位的所有技能要求。
+The following skills are required but not found in your profile:	以下技能为岗位要求，但未在你的资料中找到：
+Improvement Suggestions	提升建议
+You are well-prepared for this position! Continue to maintain and improve your skills.	你已经为该岗位做好准备！请继续保持并提升技能。
+Got It	知道了
+Apply for Position	申请岗位
+Position Details	岗位详情
+Position:	岗位：
+Personal Details	个人详情
+Student ID:	学号：
+Availability:	可任职时间：
+Resume / Supporting Statement	简历 / 补充说明
+Paste key resume content, TA experience, projects, courses, or skills here. The system will extract keywords automatically for the organiser.	请在此粘贴简历重点、TA 经历、项目、课程或技能。系统会自动为组织者提取关键词。
+Example: Python project experience, machine learning coursework, previous TA work, lab support, grading experience...	例如：Python 项目经历、机器学习课程、过往 TA 工作、实验室支持、批改经验……
+Optional: leaving this empty will not block your application.	可选：留空不会影响提交申请。
+Submit Application	提交申请
+Notice	提示
+Incomplete Profile	资料不完整
+Application Rejected	申请被拒绝
+Your profile is incomplete.\n\nPlease fill in your Name, Major, Phone, Available Time, and Skills before applying.	你的资料不完整。\n\n申请前请填写姓名、专业、电话、可任职时间和技能。
+Duplicate Application	重复申请
+You have already applied for this position.	你已经申请过该岗位。
+Position Closed	岗位已关闭
+This position is no longer open for new applications.\n\nExisting applications can still be reviewed by the module organiser.	该岗位已不再开放新申请。\n\n已有申请仍可由课程组织者审核。
+Please complete your profile before applying	申请前请先完善个人资料
+Required fields:\n- Name\n- Major\n- Phone\n- Available Time\n- Skills\n\nOpen the Profile page to complete your details.	必填字段：\n- 姓名\n- 专业\n- 电话\n- 可任职时间\n- 技能\n\n请打开个人资料页面补全信息。
+Position Unavailable	岗位不可申请
+This position is no longer open	该岗位已不再开放
+The deadline has passed or the module organiser has closed this position. Existing applications are not affected.	该岗位已过截止时间，或已被课程组织者关闭。已有申请不会受影响。
+OK	确定
+Success	成功
+Module Organiser Console	课程组织者控制台
+Welcome, 	欢迎，
+Access Denied	访问被拒绝
+Back to My Positions	返回我的岗位
+Quick Access	快速入口
+• Click "Post Position" to fill in position details and set the application deadline.	• 点击“发布岗位”填写岗位详情并设置申请截止时间。
+• Published positions appear automatically in the public listing and close after the deadline.	• 已发布岗位会自动出现在公开列表中，并在截止后关闭。
+• In "My Positions", view position details and applicant profiles for each posting.	• 在“我的岗位”中查看每个岗位的详情和申请人资料。
+• In "Application Review", approve or reject individual applications; status syncs to applicants instantly.	• 在“申请审核”中通过或拒绝申请，状态会即时同步给申请者。
+Post Position	发布岗位
+Post New Position	发布新岗位
+Position Name	岗位名称
+Course Name	课程名称
+Course Code	课程代码
+Number of Openings	招聘人数
+Enter requirements, e.g. skills, experience, working hours.	请输入要求，例如技能、经验、工作时间。
+Application Deadline	申请截止时间
+Publish Position	发布岗位
+Requirements	要求
+Skill Requirements	技能要求
+← Back to My Positions	← 返回我的岗位
+Edit Published Position	编辑已发布岗位
+Only positions with no applicants and a valid deadline can be edited.	只有尚无申请人且截止时间有效的岗位可以编辑。
+Save Changes	保存修改
+My Positions	我的岗位
+You have not published any positions yet. Click "Post Position" on the left to get started.	你还没有发布任何岗位。点击左侧“发布岗位”开始。
+Skill Requirements: 	技能要求：
+Applicants: 	申请人数：
+Edit Position	编辑岗位
+View Details	查看详情
+Deadline has passed	截止时间已过
+Reopen Position	重新开放岗位
+Close Position	关闭岗位
+Closing this position will remove it from the public listing.\nApplicants will no longer be able to apply.\nYou can reopen it at any time.	关闭该岗位会将其从公开列表中移除。\n申请者将无法继续申请。\n你可以随时重新开放。
+Edit locked: 	编辑已锁定：
+Position Statistics	岗位统计
+Track the status of your positions together with application and approval counts.	跟踪你的岗位状态、申请数量和通过数量。
+Refresh	刷新
+You have not published any positions yet. Publish one to start tracking progress here.	你还没有发布岗位。发布一个岗位后即可在这里跟踪进度。
+Status: 	状态：
+Applications: 	申请数：
+Description: 	描述：
+Applicants for this Position (showing current MO's positions only)	该岗位申请人（仅显示当前 MO 的岗位）
+No applications for this position yet. Check back later or view all applications in Application Review.	该岗位暂无申请。请稍后查看，或在“申请审核”中查看全部申请。
+Major: 	专业：
+View Application	查看申请
+Application Review	申请审核
+Review all applications submitted for the positions published by the current module organiser.	审核当前课程组织者发布岗位收到的所有申请。
+Clear Filters	清除筛选
+Select Pending On Page	选择本页待审核
+Clear Selection	清除选择
+Batch Approve	批量通过
+Batch Reject	批量拒绝
+Matching applications: 	匹配申请数：
+No applications match the current filters.	没有申请符合当前筛选条件。
+Applied: 	申请时间：
+Open Review	打开审核
+Approve	通过
+Reject	拒绝
+← Back	← 返回
+Missing Skills: 	缺失技能：
+Applicant Keywords Used: 	使用的申请人关键词：
+Resume Keywords	简历关键词
+Automatically Extracted: 	自动提取：
+Comma-separated keywords, max 20 labels	用逗号分隔关键词，最多 20 个标签
+Save Verified Keywords	保存确认后的关键词
+Re-extract Automatically	重新自动提取
+Verified Keywords	已确认关键词
+Review Decision	审核决定
+This application is awaiting your decision.	该申请正在等待你的决定。
+Optional: add a review comment for your records...	可选：添加审核评语以便记录……
+✓  Approve	✓  通过
+✗  Reject	✗  拒绝
+Review Comment (optional):	审核评语（可选）：
+Decision: 	决定：
+Comment: 	评语：
+You can undo this decision to reopen the application for review.	你可以撤销该决定，让申请回到待审核状态。
+↩  Undo Decision	↩  撤销决定
+Undo Decision	撤销决定
+Reset this application back to "Under Review"?	将该申请重置为“审核中”？
+The applicant's status will return to Pending and you can re-review it.	申请人的状态将回到待审核，你可以重新审核。
+Showing 	显示 
+Selected pending applications: 	已选择待审核申请：
+Select preset skills or enter custom skills separated by commas. Max 10 skills, 20 characters each.	选择预设技能，或输入用逗号分隔的自定义技能。最多 10 个技能，每个不超过 20 个字符。
+Custom skills, e.g. Data Mining, Mentoring	自定义技能，例如 Data Mining, Mentoring
+Admin Console	管理员控制台
+User Management	用户管理
+Global Positions	全局岗位
+Operation Logs	操作日志
+Recruitment Stats	招聘统计
+Recruitment Statistics	招聘统计
+Real-time overview of recruitment progress across all positions and organisers.	全局岗位和组织者招聘进度实时概览。
+Workload Alert	工作负荷预警
+Data Export	数据导出
+Backup / Restore	备份 / 恢复
+Backup & Restore	备份与恢复
+Protect your data by creating backups and restoring from previous snapshots.	通过创建备份并从历史快照恢复来保护数据。
+Export all system data (users, jobs, application records, logs) as a single ZIP file.\n	将所有系统数据（用户、岗位、申请记录、日志）导出为一个 ZIP 文件。\n
+Backup Now	立即备份
+Select a backup ZIP file to restore. All current data will be overwritten with the\n	选择一个备份 ZIP 文件进行恢复。当前所有数据将被覆盖为该备份中的\n
+⚠  Restoring will permanently overwrite existing data.	⚠  恢复操作会永久覆盖现有数据。
+Restore from Backup	从备份恢复
+Save Backup File	保存备份文件
+Select Backup File	选择备份文件
+Confirm Restore	确认恢复
+Overwrite current data?	覆盖当前数据？
+All current system data will be replaced with the contents of:\n	当前所有系统数据将被替换为以下文件中的内容：\n
+No users registered yet.	暂无注册用户。
+No operation records yet.	暂无操作记录。
+Export system data to CSV files for offline analysis.	将系统数据导出为 CSV 文件以便离线分析。
+CSV	CSV
+Export CSV	导出 CSV
+Save CSV File	保存 CSV 文件
+No positions published yet.	暂无已发布岗位。
+Reset Password	重置密码
+Applicant	申请者
+Reset password for: 	重置密码：
+New password (min 6 chars)	新密码（至少 6 位）
+Confirm new password	确认新密码
+New password:	新密码：
+Confirm password:	确认密码：
+Delete Account	删除账号
+Delete account: 	删除账号：
+This action cannot be undone.	此操作无法撤销。
+Warning	警告
+Done	完成
+Set the maximum number of approved positions per TA per semester and monitor overloads.	设置每名 TA 每学期最多通过岗位数，并监控超负荷情况。
+Max approved positions per semester:	每学期最多通过岗位数：
+Please enter a positive integer.	请输入正整数。
+Saved.	已保存。
+No TAs registered yet.	暂无注册 TA。
+AI	AI
+Ask about TA applications, requirements, matching, and uploaded documents.	询问 TA 申请、岗位要求、匹配和上传文档相关问题。
+TA guidance only	仅限 TA 指导
+Ask a TA application question...	请输入 TA 申请相关问题……
+No file attached	未附加文件
+Choose a file to upload	选择要上传的文件
+Reasoning	推理过程
+Answer	回答
+Enter your API key to use the AI assistant	输入 API key 以使用 AI 助手
+Enter API key	输入 API key
+Open AI Assistant	打开 AI 助手
+Please enter a valid API key.	请输入有效的 API key。
+Verified. Opening assistant...	验证成功，正在打开助手……
+Clear saved API key	清除已保存的 API key
+API key cleared.	API key 已清除。
+Please keep skill requirements to: 	技能要求请控制在：
+Skill too long: 	技能过长：
+Not provided	未提供
+Please configure an API key first.	请先配置 API key。
+File processing failed: 	文件处理失败：
+Matched: 	匹配：
+The following required fields are empty: 	以下必填字段为空：
+Duplicate profile: 	重复档案：
+ already has an application profile.	 已存在申请档案。
+Skill limit exceeded	超过技能数量限制
+Skill label too long	技能标签过长
+File attached: 	文件已附加：
+Send a message and I will analyze it with your question.	发送消息，我将结合您的问题进行分析。
+File upload failed: 	文件上传失败：
+Sorry, something went wrong: 	抱歉，出了点问题：
+API key error. Please check that your API key is correct.	API key 错误。请检查您的 API key 是否正确。
+File upload is unavailable because the main window is not ready.	文件上传不可用，主窗口尚未准备就绪。
+Uploading 	正在上传
+Attached: 	已附加：
+Open Positions	开放岗位
+Pending Reviews	待审核
+Closed Positions	已关闭岗位
+Expired Positions	已过期岗位
+Total Applications	总申请数
+Total Approved	总通过数
+Quick Access	快速入口
+My Positions	我的岗位
+Open Review	打开审核
+Batch Approve	批量通过
+Batch Reject	批量拒绝
+Match Score	匹配分数
+Application Date	申请日期
+Review Status	审核状态
+Name / Student ID	姓名 / 学号
+Filter by major	按专业筛选
+Filter by available time	按可任职时间筛选
+Filter by skills or keywords	按技能或关键词筛选
+No pending applications match the current filters.	当前筛选条件下没有待审核的申请。
+Applicant Profile	申请人资料
+Skill Match	技能匹配
+Not set	未设置
+ pending review	 待审核
+Open	开放
+Applied: 	申请时间：
+Course: 	课程：
+Applications: 	申请数：
+  Approved: 	 已通过：
+No skills or keywords available	无可用技能或关键词
+Applicants: 	申请人数：
+Edit locked: 	编辑已锁定：
+This position can still be edited.	该岗位仍可编辑。
+ applications.	 个申请。
+Approved: 	已通过：
+Rejected: 	已拒绝：
+Updated: 	已更新：
+ were skipped because their status changed.	 因状态已变更被跳过。
+Matching applications: 	匹配申请数：
+  Pending review: 	 待审核：
+Selected pending applications: 	已选择待审核申请：
+Selection cleared.	已清除选择。
+Select at least one pending application first.	请先选择至少一个待审核申请。
+None of the selected applications could be updated.	所选申请均无法更新。
+Selected: 	已选择：
+ pending applications.	 个待审核申请。
+Position Statistics	岗位统计
+Track the status of your positions together with application and approval counts.	跟踪岗位状态、申请数量和通过数量。
+Applicants for this Position (showing current MO's positions only)	该岗位申请人（仅显示当前 MO 的岗位）
+No applications for this position yet. Check back later or view all applications in Application Review.	该岗位暂无申请。请稍后查看，或在申请审核中查看全部申请。
+← Back to Positions	← 返回岗位列表
+Application Review	申请审核
+Review all applications submitted for the positions published by the current module organiser.	审核当前课程组织者发布岗位收到的所有申请。
+You have not published any positions yet. Publish one to start tracking progress here.	你还没有发布岗位。发布一个岗位后即可在这里跟踪进度。
+Refresh	刷新
+Post New Position	发布新岗位
+Post Position	发布岗位
+My Positions	我的岗位
+Edit Published Position	编辑已发布岗位
+Publish Position	发布岗位
+Application Deadline	申请截止时间
+Number of Openings	招聘人数
+Course Code	课程代码
+Save Changes	保存修改
+Reopen Position	重新开放岗位
+Close Position	关闭岗位
+Closing this position will remove it from the public listing.	关闭该岗位会将其从公开列表中移除。
+Applicants will no longer be able to apply.	申请者将无法继续申请。
+You can reopen it at any time.	你可以随时重新开放。
+This position is no longer open for new applications.	该岗位已不再开放新申请。
+Existing applications can still be reviewed by the module organiser.	已有申请仍可由课程组织者审核。
+Backup & Restore	备份与恢复
+Operation Logs	操作日志
+Global Positions	全局岗位
+User Management	用户管理
+Recruitment Statistics	招聘统计
+Admin Console	管理员控制台
+Data Export	数据导出
+Workload Alert	工作负荷预警
+Real-time overview of recruitment progress across all positions and organisers.	全局岗位和组织者招聘进度实时概览。
+Export all system data (users, jobs, application records, logs) as a single ZIP file.	将所有系统数据导出为 ZIP 文件。
+Backup Now	立即备份
+Restore from Backup	从备份恢复
+CSV Export	CSV 导出
+No users registered yet.	暂无注册用户。
+No operation records yet.	暂无操作记录。
+No positions published yet.	暂无已发布岗位。
+Reset Password	重置密码
+Delete Account	删除账号
+Account ID:	账号 ID：
+Department / Major	院系 / 专业
+Pending	待审核
+Withdrawn	已撤回
+Module Code	模块代码
+Review Comments	审核评语
+Reviewer	审核人
+Personal Information	个人信息
+Resume Keywords	简历关键词
+Automatically Extracted	自动提取
+Verified Keywords	已确认关键词
+Review Decision	审核决定
+Submit	提交
+Confirm	确认
+Warning	警告
+Success	成功
+Error	错误
+Info	信息
+Close	关闭
+Save	保存
+Cancel	取消
+Back	返回
+No records found.	没有找到记录。
+File saved to:	文件已保存至：
+An error occurred while exporting. Please try again.	导出时发生错误，请重试。
+Export Successful	导出成功
+Export Failed	导出失败
+Select a backup ZIP file to restore.	选择备份 ZIP 文件进行恢复。
+All current data will be overwritten.	当前所有数据将被覆盖。
+This action cannot be undone.	此操作无法撤销。
+Confirm Restore	确认恢复
+Overwrite current data?	覆盖当前数据？
+Applicants	申请人数
+Position Name	岗位名称
+Course Name	课程名称
+Only positions with no applicants and a valid deadline can be edited.	只有无申请者且截止时间未过的岗位才能编辑。
+Export CSV	导出 CSV
+Save CSV File	保存 CSV 文件
+Save Backup File	保存备份文件
+Select Backup File	选择备份文件
+No applications match the current filters.	没有申请符合当前筛选条件。
+Applicant	申请者
+Review Comment	审核评语
+Application Time	申请时间
+Application Status	申请状态
+Application Information	申请信息
+Position Details	岗位详情
+Personal Details	个人详情
+Paste key resume content, TA experience, projects, courses, or skills here.	请在此粘贴简历重点、TA 经历、项目、课程或技能。
+The system will extract keywords automatically for the organiser.	系统会自动为组织者提取关键词。
+Send	发送
+Type your message...	请输入消息……
+Upload File	上传文件
+Welcome	欢迎
+Module Organiser	课程组织者
+System Administrator	系统管理员
+TA Applicant	助教申请者
+Log In	登录
+Register	注册
+Account	账号
+Password	密码
+Position	岗位
+Status	状态
+Actions	操作
+Details	详情
+Edit	编辑
+Delete	删除
+Name	姓名
+Student ID	学号
+Major	专业
+Phone	电话
+Email	邮箱
+Available Time	可任职时间
+Skills	技能
+Attachments	附件
+Choose File	选择文件
+Supports Word (.doc, .docx) and PDF (.pdf) files, max 10MB	支持 Word (.doc, .docx) 和 PDF (.pdf) 文件，最大 10MB
+No files uploaded	尚未上传文件
+All pending applications have been processed.	所有待审核申请已处理完毕。
+Next	下一页
+Previous	上一页
+Page 	第
+ of 	 /
+Showing 	显示
+ position	个岗位
+ positions	个岗位
+No application records	暂无申请记录
+Applications Submitted	已提交申请
+Approved	已通过
+Pending	待审核
+Rejected	已拒绝
+Withdrawn	已撤回
+Under Review	审核中
+Available Positions	可申请岗位
+Profile Summary	资料概览
+Recent Applications	最近申请
+Edit Profile	编辑资料
+Welcome back, 	欢迎回来，
+Log Out	退出登录
+TA System	TA 系统
+Dashboard	仪表盘
+Profile	个人资料
+Match Score: 	匹配分数：
+Not available because this position has no skill requirements.	无法计算，因为该岗位未设置技能要求。
+Skill Match: No position skill requirements set.	技能匹配：该岗位未设置技能要求。
+Skill Match: 	技能匹配：
+Missing: 	缺失：
+Attachments	附件
+Choose File	选择文件
+Supports Word (.doc, .docx) and PDF (.pdf) files, max 10MB	支持 Word（.doc、.docx）和 PDF（.pdf）文件，最大 10MB
+No files uploaded	尚未上传文件
+Delete	删除
+Word and PDF Files	Word 和 PDF 文件
+Word Files	Word 文件
+PDF Files	PDF 文件

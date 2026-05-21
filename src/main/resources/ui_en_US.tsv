@@ -1,0 +1,44 @@
+# Chinese UI text	English UI text
+个人档案已保存！	Profile saved successfully.
+成功撤回申请: 	Application withdrawn successfully: 
+撤回失败: 	Withdrawal failed: 
+文件大小不能超过10MB	File size cannot exceed 10MB
+不支持的文件格式	Unsupported file format
+文件上传成功: 	File uploaded successfully: 
+文件上传失败: 	File upload failed: 
+文件已删除: 	File deleted: 
+姓名	Name
+学号	Student ID
+学号 	Student ID 
+所属专业	Major
+联系电话	Phone
+邮箱	Email
+可任职时间段	Available Time
+个人基础技能	Skills
+以下必填字段为空：	The following required fields are empty: 
+已存在申请档案，不可重复创建	 already has an application profile and cannot be created again
+岗位已截止或已下架，已阻止申请	This position is expired or closed, so the application was blocked.
+技能要求请控制在：	Please keep skill requirements to:
+技能过长：	Skill too long:
+未提供	Not provided
+请先配置 API key。	Please configure an API key first.
+文件处理失败：	File processing failed:
+匹配：	Match:
+以下必填字段为空：	The following required fields are empty:
+重复档案：	Duplicate profile:
+已存在申请档案。	 already has an application profile.
+超过技能数量限制	Skill limit exceeded
+技能标签过长	Skill label too long
+文件已附加：	File attached:
+发送消息，我将结合您的问题进行分析。	Send a message and I will analyze it with your question.
+文件上传失败：	File upload failed:
+抱歉，出了点问题：	Sorry, something went wrong:
+API key 错误。请检查您的 API key 是否正确。	API key error. Please check that your API key is correct.
+文件上传不可用，主窗口尚未准备就绪。	File upload is unavailable because the main window is not ready.
+正在上传	Uploading
+已附加：	Attached:
+匹配分数：	Match Score:
+无法计算，因为该岗位未设置技能要求。	Not available because this position has no skill requirements.
+技能匹配：该岗位未设置技能要求。	Skill Match: No position skill requirements set.
+技能匹配：	Skill Match:
+缺失：	Missing:

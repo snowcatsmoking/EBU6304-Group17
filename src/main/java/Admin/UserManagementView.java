@@ -1,6 +1,6 @@
 package Admin;
 
-import ZiqianCao.java.TAApplication;
+import TA.java.TAApplication;
 import LoginScreen.User;
 import data.LogManager;
 import data.UserDataManager;
@@ -41,21 +41,23 @@ public class UserManagementView {
     public ScrollPane build() {
         VBox page = new VBox(24);
         page.setPadding(new Insets(32));
-        page.setStyle("-fx-background-color: #fafafa;");
+        page.setStyle("-fx-background-color: #f8fafc;");
 
         // ── Page title ───────────────────────────────────────────────
         Label pageTitle = new Label("User Management");
-        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111111;");
+        pageTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         // ── Build row data ───────────────────────────────────────────
         List<UserRow> rows = buildRows();
 
         Label countLabel = new Label(rows.size() + " account(s)");
-        countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
+        countLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b;");
 
         // ── Table card ───────────────────────────────────────────────
         VBox card = new VBox(0);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+            "-fx-border-radius: 12; -fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
 
         // Header row
         card.getChildren().add(buildHeaderRow());
@@ -67,7 +69,7 @@ public class UserManagementView {
 
         if (rows.isEmpty()) {
             Label empty = new Label("No users registered yet.");
-            empty.setStyle("-fx-font-size: 13px; -fx-text-fill: #aaaaaa; -fx-padding: 24 20 24 20;");
+            empty.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-padding: 24 20 24 20;");
             card.getChildren().add(empty);
         }
 
@@ -75,7 +77,7 @@ public class UserManagementView {
 
         ScrollPane scroll = new ScrollPane(page);
         scroll.setFitToWidth(true);
-        scroll.setStyle("-fx-background-color: #fafafa; -fx-background: #fafafa;");
+        scroll.setStyle("-fx-background-color: #f8fafc; -fx-background: #f8fafc;");
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         return scroll;
     }
@@ -88,7 +90,7 @@ public class UserManagementView {
             rows.add(new UserRow(
                 ta.getTAId(),
                 ta.getName() != null ? ta.getName() : "—",
-                "TA",
+                    "TA",
                 ta.getMajor() != null ? ta.getMajor() : "—"
             ));
         }
@@ -108,7 +110,7 @@ public class UserManagementView {
     private HBox buildHeaderRow() {
         HBox row = new HBox();
         row.setPadding(new Insets(10, 20, 10, 20));
-        row.setStyle("-fx-background-color: #fafafa; -fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0;");
+        row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
 
         row.getChildren().addAll(
             headerCell("Account",       120),
@@ -122,7 +124,7 @@ public class UserManagementView {
 
     private Label headerCell(String text, double width) {
         Label lbl = new Label(text);
-        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #888888; -fx-font-weight: 500;");
+        lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-font-weight: 500;");
         lbl.setPrefWidth(width);
         return lbl;
     }
@@ -133,14 +135,14 @@ public class UserManagementView {
         HBox row = new HBox();
         row.setPadding(new Insets(13, 20, 13, 20));
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-border-color: #eeeeee; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
+        row.setStyle("-fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0; -fx-background-color: #ffffff;");
 
         Label lAccount = new Label(userRow.account);
-        lAccount.setStyle("-fx-font-size: 13px; -fx-text-fill: #222222;");
+        lAccount.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
         lAccount.setPrefWidth(120);
 
         Label lName = new Label(userRow.name);
-        lName.setStyle("-fx-font-size: 13px; -fx-text-fill: #222222;");
+        lName.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
         lName.setPrefWidth(110);
 
         // Role badge
@@ -150,19 +152,21 @@ public class UserManagementView {
         badgeWrap.setAlignment(Pos.CENTER_LEFT);
 
         Label lDept = new Label(userRow.department);
-        lDept.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+        lDept.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
         lDept.setPrefWidth(200);
 
         // Actions
         Button resetBtn = new Button("Reset Password");
         resetBtn.setStyle(
-            "-fx-font-size: 11px; -fx-text-fill: #333333; -fx-background-color: #ffffff;" +
-            "-fx-border-color: #cccccc; -fx-border-width: 1; -fx-cursor: hand; -fx-padding: 5 12 5 12;");
+            "-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #ffffff;" +
+            "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-cursor: hand; -fx-padding: 5 12 5 12;" +
+            "-fx-border-radius: 6; -fx-background-radius: 6;");
 
         Button deleteBtn = new Button("Delete");
         deleteBtn.setStyle(
-            "-fx-font-size: 11px; -fx-text-fill: #cc0000; -fx-background-color: #ffffff;" +
-            "-fx-border-color: #eeaaaa; -fx-border-width: 1; -fx-cursor: hand; -fx-padding: 5 12 5 12;");
+            "-fx-font-size: 11px; -fx-text-fill: #ef4444; -fx-background-color: #ffffff;" +
+            "-fx-border-color: #fecaca; -fx-border-width: 1; -fx-cursor: hand; -fx-padding: 5 12 5 12;" +
+            "-fx-border-radius: 6; -fx-background-radius: 6;");
 
         resetBtn.setOnAction(e -> showResetPasswordDialog(userRow.account, userRow.role));
         deleteBtn.setOnAction(e -> showDeleteConfirmDialog(userRow, row, parentCard));
@@ -187,8 +191,8 @@ public class UserManagementView {
                 "-fx-border-color: #ddccaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
         } else {
             badge.setText(role);
-            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #333333; -fx-background-color: #f0f0f0;" +
-                "-fx-border-color: #aaaaaa; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
+            badge.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748b; -fx-background-color: #f8fafc;" +
+                "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 2 8 2 8;");
         }
         return badge;
     }
@@ -205,11 +209,11 @@ public class UserManagementView {
 
         PasswordField pwField = new PasswordField();
         pwField.setPromptText("New password (min 6 chars)");
-        pwField.setStyle("-fx-font-size: 13px; -fx-padding: 8 10 8 10; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        pwField.setStyle("-fx-font-size: 13px; -fx-padding: 8 10 8 10; -fx-border-color: #e2e8f0; -fx-border-width: 1;");
 
         PasswordField confirmField = new PasswordField();
         confirmField.setPromptText("Confirm new password");
-        confirmField.setStyle("-fx-font-size: 13px; -fx-padding: 8 10 8 10; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        confirmField.setStyle("-fx-font-size: 13px; -fx-padding: 8 10 8 10; -fx-border-color: #e2e8f0; -fx-border-width: 1;");
 
         VBox content = new VBox(10,
             new Label("New password:"), pwField,
