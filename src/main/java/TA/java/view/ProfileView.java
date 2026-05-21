@@ -32,9 +32,7 @@ public class ProfileView {
 
     private TAApplication currentUser;
     private ObjectMapper objectMapper = new ObjectMapper();
-    private TAApplicationRecordManager recordManager = new TAApplicationRecordManager();
     private String currentStudentId = "2024999";
-    private boolean hasActiveApplication = false;
 
     public void setCurrentStudentId(String studentId) {
         this.currentStudentId = studentId;
@@ -131,9 +129,6 @@ public class ProfileView {
         VBox field6 = createFormField("Available Time", currentUser != null ? currentUser.getAvailableTime() : "", "availableTime");
         VBox field7 = createFormField("Skills", currentUser != null ? currentUser.getSkill() : "", "skill");
 
-        FileUploader fileUploader = new FileUploader(currentUser.getTAId());
-        VBox fileUploadBox = fileUploader.getUploadComponent();
-
         HBox buttonBox = new HBox();
         buttonBox.setAlignment(Pos.CENTER_LEFT);
         buttonBox.setSpacing(12);
@@ -159,7 +154,7 @@ public class ProfileView {
 
         buttonBox.getChildren().addAll(saveButton, cancelButton, exportButton);
 
-        formBox.getChildren().addAll(titleBox, statusBox, field1, field2, field3, field4, field5, field6, field7, fileUploadBox, buttonBox);
+        formBox.getChildren().addAll(titleBox, field1, field2, field3, field4, field5, field6, field7, buttonBox);
 
         return formBox;
     }
@@ -205,7 +200,7 @@ public class ProfileView {
         valueField.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 10px 16px;");
         valueField.setPrefWidth(400);
 
-        if (fieldName.equals("studentId") || isLocked) {
+        if (fieldName.equals("studentId")) {
             valueField.setDisable(true);
             valueField.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 10px 16px;");
         }
@@ -220,7 +215,7 @@ public class ProfileView {
             updateUserField(fieldName, newValue);
         });
 
-        fieldBox.getChildren().addAll(labelBox, valueField);
+        fieldBox.getChildren().addAll(labelLabel, valueField);
         return fieldBox;
     }
 
