@@ -16,6 +16,7 @@ public class AdminDashboard extends Application {
 
     private String adminId;
     private BorderPane root;
+    private BorderPane contentPane;
 
     private Label activeNavLabel;
     private Region navIndicator;
@@ -47,19 +48,52 @@ public class AdminDashboard extends Application {
     private void buildUI() {
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
-        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
-            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
         root.setLeft(buildSidebar());
+
+        contentPane = new BorderPane();
+        contentPane.setStyle("-fx-background-color: #f8fafc;");
+        contentPane.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
+        contentPane.setTop(buildTopBar());
+        root.setCenter(contentPane);
+
         showWithFade(new DashboardView().build());
+    }
+
+    private HBox buildTopBar() {
+        HBox topBar = new HBox(10);
+        topBar.setAlignment(Pos.CENTER_RIGHT);
+        topBar.setPadding(new Insets(8, 16, 8, 16));
+        topBar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;");
+
+        Label welcomeLabel = new Label(core.UiText.tr("Welcome back, "));
+        welcomeLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #1e293b;");
+
+        Label nameLabel = new Label(adminId);
+        nameLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+
+        Label roleLabel = new Label(core.UiText.tr("(Admin)"));
+        roleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-background-color: #eef2ff; -fx-padding: 2 8 2 8; -fx-border-radius: 4; -fx-background-radius: 4;");
+
+        HBox langBox = core.LanguageSwitcher.create(() -> {
+            buildUI();
+            core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA Recruitment System - Admin Console");
+        });
+        langBox.setPadding(Insets.EMPTY);
+
+        topBar.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, langBox);
+        return topBar;
     }
 
     private VBox buildSidebar() {
         VBox sidebar = new VBox();
-        sidebar.setPrefWidth(220);
+        sidebar.setPrefWidth(240);
+        sidebar.setMaxHeight(Double.MAX_VALUE);
         sidebar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 0 0;");
 
-        Label topSpacer = new Label();
-        topSpacer.setPrefHeight(24);
+        Label titleLabel = new Label("Admin System");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+        titleLabel.setPadding(new Insets(20, 0, 20, 16));
 
         Label navDashboard = buildNavItem("Dashboard");
         Label navUsers     = buildNavItem("User Management");
@@ -72,8 +106,8 @@ public class AdminDashboard extends Application {
 
         // Sliding indicator
         navIndicator = new Region();
-        navIndicator.setPrefWidth(220);
-        navIndicator.setMaxWidth(220);
+        navIndicator.setPrefWidth(240);
+        navIndicator.setMaxWidth(240);
         navIndicator.setPrefHeight(NAV_H);
         navIndicator.setMaxHeight(NAV_H);
         navIndicator.setStyle(
@@ -112,14 +146,14 @@ public class AdminDashboard extends Application {
         VBox spacer = new VBox();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        javafx.scene.control.Button logoutBtn = new javafx.scene.control.Button("Log out");
+        javafx.scene.control.Button logoutBtn = new javafx.scene.control.Button("Log Out");
         logoutBtn.setMaxWidth(Double.MAX_VALUE);
-        String logoutOff = "-fx-font-size: 13px; -fx-text-fill: #ef4444; -fx-background-color: transparent;" +
-            "-fx-border-color: #ef4444; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
-            "-fx-border-radius: 6; -fx-background-radius: 6;";
-        String logoutOn  = "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #ef4444;" +
-            "-fx-border-color: #ef4444; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
-            "-fx-border-radius: 6; -fx-background-radius: 6;";
+        String logoutOff = "-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-background-color: transparent;" +
+            "-fx-border-color: #6366f1; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;";
+        String logoutOn  = "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1;" +
+            "-fx-border-color: #6366f1; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+            "-fx-border-radius: 8; -fx-background-radius: 8;";
         logoutBtn.setStyle(logoutOff);
         logoutBtn.setOnMouseEntered(e -> logoutBtn.setStyle(logoutOn));
         logoutBtn.setOnMouseExited(e ->  logoutBtn.setStyle(logoutOff));
@@ -130,16 +164,10 @@ public class AdminDashboard extends Application {
             } catch (Exception ex) { ex.printStackTrace(); }
         });
 
-        VBox languageBox = new VBox(core.LanguageSwitcher.create(() -> {
-            buildUI();
-            core.AppNavigator.getInstance().navigateTo(new Scene(root), "TA Recruitment System - Admin Console");
-        }));
-        languageBox.setPadding(new Insets(0, 16, 10, 16));
-
         VBox logoutBox = new VBox(logoutBtn);
         logoutBox.setPadding(new Insets(0, 16, 16, 16));
 
-        sidebar.getChildren().addAll(topSpacer, navStack, spacer, languageBox, logoutBox);
+        sidebar.getChildren().addAll(titleLabel, navStack, spacer, logoutBox);
         return sidebar;
     }
 
@@ -168,7 +196,7 @@ public class AdminDashboard extends Application {
 
     private void showWithFade(Node content) {
         content.setOpacity(0);
-        root.setCenter(content);
+        contentPane.setCenter(content);
         core.UiText.localize(root);
         FadeTransition ft = new FadeTransition(Duration.millis(180), content);
         ft.setFromValue(0.0);

@@ -23,7 +23,6 @@ public class SidebarComponent {
 
     private Navigable navigable;
     private LogoutListener logoutListener;
-    private Runnable languageChangeListener;
 
     private Label navItem1;
     private Label navItem2;
@@ -45,15 +44,11 @@ public class SidebarComponent {
         this.logoutListener = listener;
     }
 
-    public void setLanguageChangeListener(Runnable listener) {
-        this.languageChangeListener = listener;
-    }
-
     public VBox createSidebar() {
         VBox sidebar = new VBox();
         sidebar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 0 0;");
-        sidebar.setPrefWidth(220);
-        sidebar.setMaxWidth(220);
+        sidebar.setPrefWidth(240);
+        sidebar.setMaxWidth(240);
         sidebar.setMaxHeight(Double.MAX_VALUE);
         sidebar.setPadding(new Insets(20, 0, 20, 0));
         sidebar.setSpacing(0);
@@ -68,8 +63,8 @@ public class SidebarComponent {
         navStack.setAlignment(Pos.TOP_LEFT);
 
         navIndicator = new Region();
-        navIndicator.setPrefWidth(220);
-        navIndicator.setMaxWidth(220);
+        navIndicator.setPrefWidth(240);
+        navIndicator.setMaxWidth(240);
         navIndicator.setPrefHeight(40);
         navIndicator.setMaxHeight(40);
         navIndicator.setStyle(
@@ -123,14 +118,7 @@ public class SidebarComponent {
         VBox logoutBox = new VBox(logoutButton);
         logoutBox.setPadding(new Insets(0, 16, 16, 16));
 
-        VBox languageBox = new VBox(core.LanguageSwitcher.create(() -> {
-            if (languageChangeListener != null) {
-                languageChangeListener.run();
-            }
-        }));
-        languageBox.setPadding(new Insets(0, 16, 10, 16));
-
-        sidebar.getChildren().addAll(titleLabel, navStack, spacer, languageBox, logoutBox);
+        sidebar.getChildren().addAll(titleLabel, navStack, spacer, logoutBox);
 
         core.UiText.localize(sidebar);
 
@@ -173,7 +161,7 @@ public class SidebarComponent {
     private Label createNavItem(String text, String viewName) {
         Label item = new Label(text);
         item.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-padding: 10 16 10 16; -fx-cursor: hand;");
-        item.setPrefWidth(220);
+        item.setPrefWidth(240);
         item.setPrefHeight(40);
         item.setMinHeight(40);
         item.setMaxHeight(40);

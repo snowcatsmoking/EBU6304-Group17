@@ -44,12 +44,11 @@ public class DashboardView {
         content.setPadding(new Insets(20, 20, 20, 20));
         content.setSpacing(20);
 
-        HBox headerBox = createHeaderBox();
         HBox statsBox = createStatsBox();
         VBox profileBox = createProfileBox();
         VBox applicationsBox = createApplicationsBox();
 
-        content.getChildren().addAll(headerBox, statsBox, profileBox, applicationsBox);
+        content.getChildren().addAll(statsBox, profileBox, applicationsBox);
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(content);
@@ -82,33 +81,6 @@ public class DashboardView {
             e.printStackTrace();
             currentUser = new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
         }
-    }
-
-    private HBox createHeaderBox() {
-        HBox headerBox = new HBox();
-        headerBox.setAlignment(Pos.CENTER_RIGHT);
-        headerBox.setPadding(new Insets(0, 0, 10, 0));
-
-        Label welcomeLabel = new Label(core.UiText.tr("Welcome back, "));
-        welcomeLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
-
-        Label nameLabel = new Label(currentUser != null ? currentUser.getName() : core.UiText.tr("Unknown User"));
-        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
-
-        Label roleLabel = new Label(core.UiText.tr("(TA)"));
-        roleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6366f1; -fx-background-color: #f1f5f9; -fx-padding: 2 8 2 8; -fx-border-radius: 4; -fx-background-radius: 4;");
-
-        Label idLabel = new Label(currentUser != null ? currentUser.getTAId() : "");
-        idLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
-
-        HBox userInfoBox = new HBox();
-        userInfoBox.setSpacing(8);
-        userInfoBox.setAlignment(Pos.CENTER);
-        userInfoBox.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, idLabel);
-
-        headerBox.getChildren().add(userInfoBox);
-
-        return headerBox;
     }
 
     private HBox createStatsBox() {
