@@ -1,7 +1,7 @@
 package ZiqianCao;
 
-import ZiqianCao.java.TAApplication;
-import ZiqianCao.java.TAApplicationManager;
+import TA.java.TAApplication;
+import TA.java.TAApplicationManager;
 import java.io.File;
 
 public class TAApplicationManagerTest {

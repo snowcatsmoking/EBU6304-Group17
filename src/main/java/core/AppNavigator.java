@@ -39,7 +39,12 @@ public class AppNavigator {
     }
 
     public void navigateTo(Scene scene, String title) {
-        primaryStage.setTitle(title);
+        String css = getClass().getResource("/styles/global.css").toExternalForm();
+        if (!scene.getStylesheets().contains(css)) {
+            scene.getStylesheets().add(css);
+        }
+        UiText.localize(scene.getRoot());
+        primaryStage.setTitle(UiText.tr(title));
         primaryStage.setScene(scene);
         if (!primaryStage.isShowing()) {
             primaryStage.show();

@@ -1,108 +1,153 @@
 # EBU6304 Group 17 – TA Recruitment System
 
-> BUPT International School Teaching Assistant Recruitment System
+> BUPT International School Teaching Assistant Recruitment System  
 > EBU6304 Software Engineering Group Project
 
 ---
 
 ## Team Members
 
-| Name | GitHub | Role |
-|------|--------|------|
-| TBD  | TBD    | Project Lead |
-| TBD  | TBD    | Developer |
-| TBD  | TBD    | Developer |
-| TBD  | TBD    | Developer |
-| TBD  | TBD    | Developer |
-| TBD  | TBD    | Developer |
+| Name        | GitHub | Role |
+|-------------|--------|------|
+| Minghui Pan | [snowcatsmoking](https://github.com/snowcatsmoking) | Project Lead |
+| Ziqian Cao  | [laishengzuoyun](https://github.com/laishengzuoyun) | Developer |
+| Hongze Zhao | [ZHngze](https://github.com/ZHngze) | Developer |
+| Shiyang Xie | [MAVERICKDGD](https://github.com/MAVERICKDGD) | Developer |
+| Zishen Ma   | [ArimaKana608](https://github.com/ArimaKana608) | Developer |
+| Haoyang Qin | [zhengtingxia](https://github.com/zhengtingxia) | Developer |
 
 ---
 
 ## Project Overview
 
-A Java desktop application that streamlines the Teaching Assistant recruitment process at BUPT International School, replacing the current Excel/form-based workflow.
+A JavaFX desktop application that streamlines the Teaching Assistant recruitment process at BUPT International School, replacing the current Excel/form-based workflow.
 
-**Key users:**
-- **TA (Teaching Assistant)** – create profile, upload CV, browse and apply for jobs, track application status
-- **MO (Module Organiser)** – post job openings, review and select applicants
-- **Admin** – oversee TA workload across all modules
+**Three user roles:**
+- **TA (Teaching Assistant Applicant)** – complete profile, browse open positions, apply, upload CV, track application status and review feedback
+- **MO (Module Organiser)** – post positions with deadlines, review applications (approve / reject with comments, undo decisions), manage position status (open / close / reopen)
+- **Admin** – manage all user accounts, view global positions, inspect operation logs
 
 **Tech stack:**
-- Language: Java (Swing desktop application)
-- Data storage: JSON files (no database)
-- Build tool: TBD
+- Language: Java 21
+- UI Framework: JavaFX 21
+- Data storage: JSON files via Jackson (no database)
+- Build tool: Maven
 
 ---
 
-## Branch Strategy
+## Features
 
-We use a centralised branching model:
+### TA Side
+- Register / login with role detection
+- Dashboard with live stats (submitted, approved, under review, available positions)
+- Browse and filter positions (by course name, available time, openings)
+- Apply for positions with profile snapshot; upload Word / PDF attachments
+- Track application history with date-range filtering
+- View application details including MO review comments
+- Withdraw pending applications
 
-```
-main
- └── dev
-      ├── feature/name-feature
-      ├── feature/name-feature
-      └── ...
-```
+### MO Side
+- Post new positions with deadline validation (must be at least tomorrow)
+- My Positions list with per-position pending-review badge
+- Close / Reopen positions (with confirmation dialog); expired positions shown separately
+- View applicant details (full profile: name, major, phone, email, available time, skills)
+- Approve or reject applications with optional review comment
+- Undo Approve / Reject decisions (reset back to Pending)
+- Batch approve / reject across multiple applications
+- Pagination for position and applicant lists
 
-| Branch | Purpose |
-|--------|---------|
-| `main` | Stable releases only. Merged from `dev` before each assessment. |
-| `dev` | Integration branch. All feature branches merge here via PR. |
-| `feature/name-feature` | Each member's development branch. One branch per feature. |
-
-### Rules
-1. **Never push directly to `main` or `dev`.**
-2. All work happens on a `feature/` branch.
-3. When a feature is complete, open a **Pull Request to `dev`**.
-4. The project lead reviews and merges all PRs.
-5. Before each assessment, `dev` is merged into `main` and a version tag is created.
-
-### Version Tags
-| Tag | Assessment |
-|-----|-----------|
-| `v1.0` | First assessment – 22 March |
-| `v2.0` | Intermediate assessment – 12 April |
-| `v4.0` | Final assessment – 24 May |
+### Admin Side
+- User account management (view, reset password, delete)
+- Global positions overview
+- Operation log viewer
 
 ---
 
 ## Getting Started
 
-### Clone the repository
+### Prerequisites
+- Java 21+
+- Maven 3.6+
+
+### Clone and run
 ```bash
 git clone https://github.com/snowcatsmoking/EBU6304-Group17.git
 cd EBU6304-Group17
+mvn javafx:run
 ```
 
-### Create your feature branch
-```bash
-git checkout dev
-git pull origin dev
-git checkout -b feature/yourname-featurename
+### Default entry point
+`src/main/java/ZiqianCao/java/TAPositionListUI.java`  
+(or launch via `LoginScreen/LoginLauncher.java` for the login screen)
+
+### Test accounts (local data)
+| Role | Account | Password |
+|------|---------|----------|
+| TA   | TAPan   | (set at registration) |
+| MO   | MOPan   | (set at registration) |
+| Admin | Admin001 | (requires admin auth code: `BUPTAdmin`) |
+
+---
+
+## Repository Structure
+
+```
+EBU6304-Group17/
+├── src/
+│   ├── main/java/
+│   │   ├── core/                  # AppNavigator (shared Stage routing)
+│   │   ├── data/                  # DataConfig, JobDataManager, UserDataManager,
+│   │   │                          #   LogManager, LocalStorageManager
+│   │   ├── LoginScreen/           # LoginView, UserManager, User, LoginLauncher
+│   │   ├── Admin/                 # AdminDashboard, MODashboard,
+│   │   │                          #   UserManagementView, GlobalPositionsView,
+│   │   │                          #   OperationLogView, DashboardView (admin)
+│   │   └── ZiqianCao/java/        # TA-side UI & logic:
+│   │                              #   TAPositionListUI, DashboardView,
+│   │                              #   MyApplicationsView, ApplicationDetailView,
+│   │                              #   ProfileView, TAApplicationFormView,
+│   │                              #   FileUploader, TAJob, TAApplication,
+│   │                              #   TAApplicationRecord(Manager),
+│   │                              #   TAApplicationManager
+│   └── test/java/                 # Unit tests
+├── data/                          # Runtime JSON data (gitignored in part)
+│   ├── TAData/                    # TA profile JSON files
+│   ├── MOData/                    # MO profile JSON files
+│   ├── AdminData/                 # Admin account JSON files
+│   ├── JobData/                   # Posted position JSON files
+│   ├── ApplicationData/           # Application record JSON files
+│   ├── Logs/                      # Operation log JSON files
+│   └── Uploads/                   # Uploaded CV / attachment files
+├── docs/                          # Assessment documents
+├── resources/                     # Handout, prototype, analysis, survey
+├── Product_Backlog.xlsx
+├── pom.xml
+└── README.md
 ```
 
-### Daily workflow
-```bash
-# Before starting work, sync with dev
-git pull origin dev
+---
 
-# After finishing work
-git add .
-git commit -m "feat: short description of what you did"
-git push origin feature/yourname-featurename
+## Branch Strategy
 
-# Then open a Pull Request to dev on GitHub
-```
+| Branch | Purpose |
+|--------|---------|
+| `main` | Stable releases only. Merged from `dev` before each assessment. |
+| `dev`  | Integration branch. All feature branches merge here via PR. |
+| `<name>` | Each member's personal development branch. |
+
+### Rules
+1. Never push directly to `main` or `dev`.
+2. All work happens on a personal branch.
+3. When work is complete, open a **Pull Request to `dev`**.
+4. The project lead reviews and merges all PRs.
 
 ### Commit message format
 ```
 feat:     new feature
 fix:      bug fix
 docs:     documentation update
-test:     adding or updating tests
 refactor: code restructure without behaviour change
+test:     adding or updating tests
 ```
 
 ---
@@ -111,27 +156,6 @@ refactor: code restructure without behaviour change
 
 | Date | Milestone | Weight |
 |------|-----------|--------|
-| 22 March 2026 | First Assessment – Product Backlog, Prototype, Report | 30% |
-| 12 April 2026 | Intermediate Assessment – Demo & Viva | 20% |
-| 24 May 2026   | Final Assessment – Software, Video, Report, Demo & Viva | 50% |
-
----
-
-## Repository Structure
-
-```
-EBU6304-Group17/
-├── docs/
-│   ├── assessment1/      # Assessment 1: Backlog, Prototype, Report
-│   ├── assessment2/      # Assessment 2: Design documents
-│   └── assessment3/      # Assessment 3: Testing reports
-├── src/
-│   ├── main/java/        # Production source code
-│   └── test/java/        # Test source code
-├── resources/
-│   ├── handout/          # Original course handout
-│   ├── analysis/         # Internal working notes and analysis
-│   ├── figma/            # Prototype source files
-│   └── survey/           # Survey and interview evidence
-└── README.md
-```
+| 22 March 2026   | First Assessment – Product Backlog, Prototype, Report | 30% |
+| 12 April 2026   | Intermediate Assessment – Demo & Viva | 20% |
+| 24 May 2026     | Final Assessment – Software, Video, Report, Demo & Viva | 50% |

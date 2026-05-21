@@ -31,8 +31,14 @@ public class DataConfig {
     /** 申请记录，文件名格式：{UUID}.json，内容为 TAApplicationRecord 对象 */
     public static final String APPLICATION_DIR  = BASE_DIR + "ApplicationData/";
 
+    /** 收藏数据，文件名格式：{favoriteId}.json，内容为 Favorite 对象 */
+    public static final String FAVORITE_DIR     = BASE_DIR + "FavoriteData/";
+
     /** 操作日志，文件名格式：log_{yyyy-MM-dd}.txt */
     public static final String LOG_DIR          = BASE_DIR + "Logs/";
+
+    /** AI匹配结果，文件名格式：{studentId}_{jobId}.json，内容为 MatchingResult 对象 */
+    public static final String MATCHING_DIR     = BASE_DIR + "MatchingData/";
 
     // ==================== 工具方法 ====================
 
@@ -56,6 +62,8 @@ public class DataConfig {
         ensureDir(ADMIN_DIR);
         ensureDir(JOB_DIR);
         ensureDir(APPLICATION_DIR);
+        ensureDir(FAVORITE_DIR);
         ensureDir(LOG_DIR);
+        ensureDir(MATCHING_DIR);
     }
 }
