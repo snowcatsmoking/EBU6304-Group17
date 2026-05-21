@@ -24,16 +24,24 @@ public final class UiText {
         }
 
         if (node instanceof Labeled labeled) {
-            labeled.setText(tr(labeled.getText()));
+            if (!labeled.textProperty().isBound()) {
+                labeled.setText(tr(labeled.getText()));
+            }
         }
 
         if (node instanceof TextInputControl textInput) {
-            textInput.setPromptText(tr(textInput.getPromptText()));
+            if (!textInput.promptTextProperty().isBound()) {
+                textInput.setPromptText(tr(textInput.getPromptText()));
+            }
         }
 
         if (node instanceof DatePicker datePicker) {
-            datePicker.setPromptText(tr(datePicker.getPromptText()));
-            datePicker.getEditor().setPromptText(tr(datePicker.getEditor().getPromptText()));
+            if (!datePicker.promptTextProperty().isBound()) {
+                datePicker.setPromptText(tr(datePicker.getPromptText()));
+            }
+            if (!datePicker.getEditor().promptTextProperty().isBound()) {
+                datePicker.getEditor().setPromptText(tr(datePicker.getEditor().getPromptText()));
+            }
         }
 
         if (node instanceof ComboBox<?> comboBox) {

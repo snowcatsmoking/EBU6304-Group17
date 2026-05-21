@@ -1,5 +1,6 @@
 package TA.java;
 
+import TA.java.TAApplication;
 import TA.java.utils.TAApplicationUtils;
 import TA.java.view.DashboardView;
 import TA.java.view.FavoritesView;
@@ -55,6 +56,7 @@ public class TAPositionListUI extends Application {
     private PositionListComponent positionListComponent;
     private SidebarComponent sidebarComponent;
     private String currentViewName = "dashboard";
+    private BorderPane contentPane;
 
     public void setCurrentStudentId(String studentId) {
         this.currentStudentId = studentId;
@@ -89,8 +91,6 @@ public class TAPositionListUI extends Application {
 
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
-        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
-            Platform.runLater(() -> core.UiText.localize(root)));
 
         // 璁?BorderPane 濮嬬粓濉弧 StackPane锛岄槻姝㈠唴瀹圭煭鏃朵晶杈规爮鏀剁缉
         rootContainer = new StackPane();
@@ -117,17 +117,20 @@ public class TAPositionListUI extends Application {
                 ex.printStackTrace();
             }
         });
-        sidebarComponent.setLanguageChangeListener(() -> {
-            buildUI();
-            core.AppNavigator.getInstance().navigateTo(createStyledScene(), "TA Application System");
-        });
         VBox sidebar = sidebarComponent.createSidebar();
         root.setLeft(sidebar);
+
+        contentPane = new BorderPane();
+        contentPane.setStyle("-fx-background-color: #f8fafc;");
+        contentPane.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            Platform.runLater(() -> core.UiText.localize(root)));
+        contentPane.setTop(buildTopBar());
+        root.setCenter(contentPane);
 
         dashboardView = new DashboardView();
         dashboardView.setCurrentStudentId(currentStudentId);
         dashboardView.setNavigationListener(() -> switchToView("profile"));
-        root.setCenter(dashboardView.getView());
+        contentPane.setCenter(dashboardView.getView());
         sidebarComponent.setActiveNavItem("dashboard");
 
         overlay = new VBox();
@@ -165,13 +168,13 @@ public class TAPositionListUI extends Application {
         sidebarComponent.setActiveNavItem(viewName);
         switch (viewName) {
             case "dashboard":
-                root.setCenter(dashboardView.getView());
+                contentPane.setCenter(dashboardView.getView());
                 break;
             case "positions":
-                root.setCenter(createPositionListView());
+                contentPane.setCenter(createPositionListView());
                 break;
             case "applications":
-                root.setCenter(new MyApplicationsView(currentStudentId).getView());
+                contentPane.setCenter(new MyApplicationsView(currentStudentId).getView());
                 break;
             case "favorites":
                 FavoritesView favoritesView = new FavoritesView(currentStudentId, favoriteManager, recordManager);
@@ -188,18 +191,18 @@ public class TAPositionListUI extends Application {
                         showIncompleteProfileDialog(() -> switchToView("profile"));
                     }
                 });
-                root.setCenter(favoritesView.getView());
+                contentPane.setCenter(favoritesView.getView());
                 break;
             case "ai":
                 ai.config.AIConfig aiConfig = new ai.config.AIConfig();
                 ai.ui.AIChatView aiChatView = new ai.ui.AIChatView(aiConfig.getApiKey());
                 aiChatView.setPrimaryStage(primaryStage);
-                root.setCenter(aiChatView.createChatView());
+                contentPane.setCenter(aiChatView.createChatView());
                 break;
             case "profile":
                 ProfileView profileView = new ProfileView();
                 profileView.setCurrentStudentId(currentStudentId);
-                root.setCenter(profileView.getView());
+                contentPane.setCenter(profileView.getView());
                 break;
         }
     }
@@ -388,6 +391,43 @@ public class TAPositionListUI extends Application {
         formView.showDialog(primaryStage);
     }
 
+
+    private HBox buildTopBar() {
+        String userName = currentStudentId;
+        try {
+            java.io.File file = new java.io.File(data.DataConfig.TA_DIR + currentStudentId + ".json");
+            if (file.exists()) {
+                TAApplication app = new com.fasterxml.jackson.databind.ObjectMapper()
+                    .readValue(file, TAApplication.class);
+                if (app.getName() != null && !app.getName().isBlank()) {
+                    userName = app.getName();
+                }
+            }
+        } catch (Exception ignored) {}
+
+        HBox topBar = new HBox(10);
+        topBar.setAlignment(Pos.CENTER_RIGHT);
+        topBar.setPadding(new Insets(8, 16, 8, 16));
+        topBar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;");
+
+        Label welcomeLabel = new Label(core.UiText.tr("Welcome back, "));
+        welcomeLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #1e293b;");
+
+        Label nameLabel = new Label(userName);
+        nameLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+
+        Label roleLabel = new Label(core.UiText.tr("(TA)"));
+        roleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-background-color: #eef2ff; -fx-padding: 2 8 2 8; -fx-border-radius: 4; -fx-background-radius: 4;");
+
+        HBox langBox = core.LanguageSwitcher.create(() -> {
+            buildUI();
+            core.AppNavigator.getInstance().navigateTo(createStyledScene(), "TA Application System");
+        });
+        langBox.setPadding(javafx.geometry.Insets.EMPTY);
+
+        topBar.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, langBox);
+        return topBar;
+    }
 
     public static void main(String[] args) {
         launch(args);

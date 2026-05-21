@@ -67,6 +67,7 @@ public class MODashboard extends javafx.application.Application {
 
     private final String moStaffId;
     private BorderPane root;
+    private BorderPane contentPane;
     private Node activeNavNode;
     private Region navIndicator;
     private TranslateTransition indicatorAnim;
@@ -88,10 +89,14 @@ public class MODashboard extends javafx.application.Application {
         this.stage = core.AppNavigator.getInstance().getStage();
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
-        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
-            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
         root.setLeft(buildSidebar());
-        root.setCenter(buildDashboardView());
+        contentPane = new BorderPane();
+        contentPane.setStyle("-fx-background-color: #f8fafc;");
+        contentPane.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
+        contentPane.setTop(buildTopBar());
+        contentPane.setCenter(buildDashboardView());
+        root.setCenter(contentPane);
         core.AppNavigator.getInstance().navigateTo(
             new Scene(root, 1180, 720), "TA Recruitment System - Module Organiser Console");
     }
@@ -102,25 +107,51 @@ public class MODashboard extends javafx.application.Application {
         core.AppNavigator.getInstance().init(stage);
         root = new BorderPane();
         root.setStyle("-fx-background-color: #f8fafc;");
-        root.centerProperty().addListener((obs, oldCenter, newCenter) ->
-            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
         root.setLeft(buildSidebar());
-        root.setCenter(buildDashboardView());
+        contentPane = new BorderPane();
+        contentPane.setStyle("-fx-background-color: #f8fafc;");
+        contentPane.centerProperty().addListener((obs, oldCenter, newCenter) ->
+            javafx.application.Platform.runLater(() -> core.UiText.localize(root)));
+        contentPane.setTop(buildTopBar());
+        contentPane.setCenter(buildDashboardView());
+        root.setCenter(contentPane);
         core.AppNavigator.getInstance().navigateTo(
             new Scene(root, 1180, 720), "TA Recruitment System - Module Organiser Console");
+    }
+
+    private HBox buildTopBar() {
+        HBox topBar = new HBox(10);
+        topBar.setAlignment(Pos.CENTER_RIGHT);
+        topBar.setPadding(new Insets(8, 16, 8, 16));
+        topBar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;");
+
+        Label welcomeLabel = new Label(core.UiText.tr("Welcome back, "));
+        welcomeLabel.setStyle("-fx-font-size: 15px; -fx-text-fill: #1e293b;");
+
+        Label nameLabel = new Label(moStaffId);
+        nameLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+
+        Label roleLabel = new Label(core.UiText.tr("(MO)"));
+        roleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-background-color: #eef2ff; -fx-padding: 2 8 2 8; -fx-border-radius: 4; -fx-background-radius: 4;");
+
+        HBox langBox = core.LanguageSwitcher.create(this::navigateTo);
+        langBox.setPadding(Insets.EMPTY);
+
+        topBar.getChildren().addAll(welcomeLabel, nameLabel, roleLabel, langBox);
+        return topBar;
     }
 
     private VBox buildSidebar() {
         VBox sidebar = new VBox();
         sidebar.setPrefWidth(240);
+        sidebar.setMaxHeight(Double.MAX_VALUE);
         sidebar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 0 0;");
-        sidebar.setPadding(new Insets(24, 0, 24, 0));
+        sidebar.setPadding(new Insets(20, 0, 20, 0));
         sidebar.setSpacing(0);
 
-        Label titleLabel = new Label("Module Organiser Console");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
-        titleLabel.setWrapText(true);
-        titleLabel.setPadding(new Insets(0, 0, 24, 20));
+        Label titleLabel = new Label("MO System");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
+        titleLabel.setPadding(new Insets(0, 0, 20, 20));
 
         Label navDashboard    = buildNavItem("Dashboard");
         Label navPublish      = buildNavItem("Post Position");
@@ -165,10 +196,16 @@ public class MODashboard extends javafx.application.Application {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        Label logoutLabel = new Label("Log Out");
-        logoutLabel.setMaxWidth(Double.MAX_VALUE);
-        logoutLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-cursor: hand; -fx-padding: 10 16 24 16;");
-        logoutLabel.setOnMouseClicked(e -> {
+        Button logoutButton = new Button("Log Out");
+        logoutButton.setMaxWidth(Double.MAX_VALUE);
+        String logoutOff = "-fx-font-size: 13px; -fx-text-fill: #6366f1; -fx-background-color: transparent;" +
+            "-fx-border-color: #6366f1; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;";
+        String logoutOn = "-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1;" +
+            "-fx-border-color: #6366f1; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;";
+        logoutButton.setStyle(logoutOff);
+        logoutButton.setOnMouseEntered(e -> logoutButton.setStyle(logoutOn));
+        logoutButton.setOnMouseExited(e -> logoutButton.setStyle(logoutOff));
+        logoutButton.setOnAction(e -> {
             try {
                 core.AppNavigator.getInstance().navigateTo(
                     new LoginScreen.LoginView().buildLoginScene(), "TA Recruitment System - Login");
@@ -177,10 +214,10 @@ public class MODashboard extends javafx.application.Application {
             }
         });
 
-        VBox languageBox = new VBox(core.LanguageSwitcher.create(() -> navigateTo()));
-        languageBox.setPadding(new Insets(0, 16, 10, 16));
+        VBox logoutBox = new VBox(logoutButton);
+        logoutBox.setPadding(new Insets(0, 16, 16, 16));
 
-        sidebar.getChildren().addAll(titleLabel, navStack, spacer, languageBox, logoutLabel);
+        sidebar.getChildren().addAll(titleLabel, navStack, spacer, logoutBox);
         return sidebar;
     }
 
@@ -263,7 +300,7 @@ public class MODashboard extends javafx.application.Application {
 
     private void showWithFade(Node content) {
         content.setOpacity(0);
-        root.setCenter(content);
+        contentPane.setCenter(content);
         core.UiText.localize(root);
         FadeTransition ft = new FadeTransition(Duration.millis(180), content);
         ft.setFromValue(0.0);
@@ -275,9 +312,6 @@ public class MODashboard extends javafx.application.Application {
         VBox box = new VBox();
         box.setPadding(new Insets(24));
         box.setSpacing(24);
-
-        Label header = new Label("Welcome, " + moStaffId);
-        header.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         HBox statRow = new HBox();
         statRow.setSpacing(16);
@@ -292,7 +326,7 @@ public class MODashboard extends javafx.application.Application {
             buildStatCard((int) myApplications.stream().filter(r -> TAApplicationRecord.STATUS_APPROVED.equals(r.getStatus())).count(), "Approved")
         );
 
-        box.getChildren().addAll(header, statRow, buildSectionCard("Quick Access", buildDashboardTips()));
+        box.getChildren().addAll(statRow, buildSectionCard("Quick Access", buildDashboardTips()));
         return box;
     }
 
@@ -451,6 +485,10 @@ public class MODashboard extends javafx.application.Application {
             }
         });
 
+        HBox submitRow = new HBox(12);
+        submitRow.setAlignment(Pos.CENTER_RIGHT);
+        submitRow.getChildren().addAll(messageLabel, submitButton);
+
         form.getChildren().addAll(
             positionNameField,
             courseNameField,
@@ -459,11 +497,10 @@ public class MODashboard extends javafx.application.Application {
             new Label("Requirements"), requirementsArea,
             new Label("Skill Requirements"), skillInput.getView(),
             new Label("Application Deadline"), deadlinePicker,
-            submitButton,
-            messageLabel
+            submitRow
         );
         page.getChildren().addAll(title, form);
-        return page;
+        return wrapScrollablePage(page);
     }
 
     private Node buildEditPositionView(TAJob job) {
