@@ -1,5 +1,6 @@
 package TA.java.service;
 
+import core.UiText;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -56,10 +57,10 @@ public class FileUploader {
         container.setSpacing(12);
         container.setPadding(new Insets(0, 0, 0, 0));
 
-        Label titleLabel = new Label("Attachments");
+        Label titleLabel = new Label(UiText.tr("Attachments"));
         titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #1e293b;");
 
-        Button uploadButton = new Button("Choose File");
+        Button uploadButton = new Button(UiText.tr("Choose File"));
         uploadButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;");
         uploadButton.setOnMouseEntered(e ->
             uploadButton.setStyle("-fx-font-size: 13px; -fx-text-fill: #ffffff; -fx-background-color: #4f46e5; -fx-background-radius: 8; -fx-padding: 8 20 8 20; -fx-cursor: hand;")
@@ -69,7 +70,7 @@ public class FileUploader {
         );
         uploadButton.setOnAction(e -> openFileChooser());
 
-        Label hintLabel = new Label("Supports Word (.doc, .docx) and PDF (.pdf) files, max 10MB");
+        Label hintLabel = new Label(UiText.tr("Supports Word (.doc, .docx) and PDF (.pdf) files, max 10MB"));
         hintLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94a3b8;");
 
         HBox uploadBox = new HBox();
@@ -88,11 +89,11 @@ public class FileUploader {
 
     private void openFileChooser() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose File");
+        fileChooser.setTitle(UiText.tr("Choose File"));
         fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Word and PDF Files", "*.doc", "*.docx", "*.pdf"),
-            new FileChooser.ExtensionFilter("Word Files", "*.doc", "*.docx"),
-            new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+            new FileChooser.ExtensionFilter(UiText.tr("Word and PDF Files"), "*.doc", "*.docx", "*.pdf"),
+            new FileChooser.ExtensionFilter(UiText.tr("Word Files"), "*.doc", "*.docx"),
+            new FileChooser.ExtensionFilter(UiText.tr("PDF Files"), "*.pdf")
         );
 
         Stage stage = new Stage();
@@ -147,7 +148,7 @@ public class FileUploader {
         fileListContainer.getChildren().clear();
 
         if (uploadedFiles.isEmpty()) {
-            Label emptyLabel = new Label(core.UiText.tr("No files uploaded"));
+            Label emptyLabel = new Label(UiText.tr("No files uploaded"));
             emptyLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-padding: 8 0 8 0;");
             fileListContainer.getChildren().add(emptyLabel);
         } else {
@@ -171,7 +172,7 @@ public class FileUploader {
         Label nameLabel = new Label(fileName);
         nameLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
 
-        Button deleteButton = new Button(core.UiText.tr("Delete"));
+        Button deleteButton = new Button(UiText.tr("Delete"));
         deleteButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ff4d4f; -fx-background-color: transparent; -fx-cursor: hand; -fx-border-width: 0;");
         deleteButton.setOnAction(e -> deleteFile(fileName));
 
