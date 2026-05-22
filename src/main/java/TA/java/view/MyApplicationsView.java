@@ -3,20 +3,16 @@ import TA.java.TAApplicationRecordManager;
 import TA.java.TAApplicationRecord;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseEvent;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class MyApplicationsView {
@@ -72,19 +68,7 @@ public class MyApplicationsView {
 
         filterBox.getChildren().addAll(availableTimeLabel, availableTimeField, filterButton, resetButton);
 
-        // 获取所有申请记录（含已撤回、未通过）
-        allApplications = recordManager.getApplicationsByStudentId(currentStudentId);
-
-        // 按照申请时间排序，从新到旧
-        java.util.Collections.sort(allApplications, (a1, a2) -> {
-            if (a1.getApplicationDate() != null && a2.getApplicationDate() != null) {
-                return a2.getApplicationDate().compareTo(a1.getApplicationDate());
-            }
-            return 0;
-        });
-
-        // 初始化当前显示的记录为所有记录
-        currentApplications = new java.util.ArrayList<>(allApplications);
+        loadApplicationsFromStore();
 
         HBox tableHeader = createTableHeader();
 
@@ -119,6 +103,29 @@ public class MyApplicationsView {
         outerScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         return outerScrollPane;
+    }
+
+    private void loadApplicationsFromStore() {
+        allApplications = recordManager.getApplicationsByStudentId(currentStudentId);
+
+        java.util.Collections.sort(allApplications, (a1, a2) -> {
+            if (a1.getApplicationDate() != null && a2.getApplicationDate() != null) {
+                return a2.getApplicationDate().compareTo(a1.getApplicationDate());
+            }
+            return 0;
+        });
+
+        currentApplications = new java.util.ArrayList<>(allApplications);
+    }
+
+    private void refreshAfterWithdrawal() {
+        loadApplicationsFromStore();
+        if (availableTimeField != null && availableTimeField.getValue() != null) {
+            applyDateFilter();
+            return;
+        }
+        emptyLabel.setText(core.UiText.tr("No application records"));
+        refreshTableContent();
     }
 
     private void refreshTableContent() {
@@ -255,26 +262,12 @@ public class MyApplicationsView {
         if (canWithdraw) {
             Button withdrawButton = new Button(core.UiText.tr("Withdraw"));
             withdrawButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6; -fx-background-color: #ffffff; -fx-padding: 4 12 4 12; -fx-cursor: hand;");
+            withdrawButton.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> e.consume());
             withdrawButton.setOnAction(e -> {
                 boolean success = recordManager.withdrawApplication(applicationId);
                 if (success) {
                     System.out.println("Application withdrawn successfully: " + applicationId);
-                    // 查找主 BorderPane 并刷新当前视图
-                    if (row.getScene() != null && row.getScene().getRoot() != null) {
-                        javafx.scene.Node newView = getView();
-                        Parent root = row.getScene().getRoot();
-                        if (root instanceof StackPane) {
-                            StackPane stackPane = (StackPane) root;
-                            for (Node node : stackPane.getChildren()) {
-                                if (node instanceof BorderPane) {
-                                    ((BorderPane) node).setCenter(newView);
-                                    break;
-                                }
-                            }
-                        } else if (root instanceof BorderPane) {
-                            ((BorderPane) root).setCenter(newView);
-                        }
-                    }
+                    refreshAfterWithdrawal();
                 } else {
                     System.out.println("Withdrawal failed: " + applicationId);
                 }
