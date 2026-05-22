@@ -1,0 +1,13 @@
+{
+  "jobId" : "TestMo-1779433432023",
+  "positionName" : "1",
+  "courseName" : "2",
+  "courseCode" : "3",
+  "recruitmentCount" : 4,
+  "requirements" : "1234",
+  "deadline" : "2026-05-24",
+  "publisher" : "MO:TestMo",
+  "moStaffId" : "TestMo",
+  "requiredSkills" : [ "Python" ],
+  "active" : false
+}

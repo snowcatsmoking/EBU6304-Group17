@@ -1,6 +1,6 @@
 package LoginScreen;
 
-import ZiqianCao.java.TAApplication;
+import TA.java.TAApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import data.DataConfig;
