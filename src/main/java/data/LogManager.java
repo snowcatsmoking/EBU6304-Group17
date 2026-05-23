@@ -65,7 +65,7 @@ public class LogManager {
         try {
             objectMapper.writeValue(new File(fileName), entry);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to write admin log " + fileName + ": " + e.getMessage());
         }
     }
 
@@ -80,7 +80,7 @@ public class LogManager {
                 LogEntry entry = objectMapper.readValue(file, LogEntry.class);
                 result.add(entry);
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Skipping unreadable log file " + file.getName() + ": " + e.getMessage());
             }
         }
         return result;
