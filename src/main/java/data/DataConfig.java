@@ -40,6 +40,9 @@ public class DataConfig {
     /** AI匹配结果，文件名格式：{studentId}_{jobId}.json，内容为 MatchingResult 对象 */
     public static final String MATCHING_DIR     = BASE_DIR + "MatchingData/";
 
+    /** TA 上传附件，按学号分目录保存。 */
+    public static final String UPLOAD_DIR       = "resources/Data/Uploads/";
+
     // ==================== 工具方法 ====================
 
     /**
@@ -65,5 +68,6 @@ public class DataConfig {
         ensureDir(FAVORITE_DIR);
         ensureDir(LOG_DIR);
         ensureDir(MATCHING_DIR);
+        ensureDir(UPLOAD_DIR);
     }
 }
