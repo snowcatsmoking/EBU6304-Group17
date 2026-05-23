@@ -1455,7 +1455,16 @@ public class MODashboard extends javafx.application.Application {
             approveButton.setStyle("-fx-background-color: #16a34a; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
                 "-fx-border-radius: 8; -fx-background-radius: 8;");
             approveButton.setOnAction(e -> {
-                recordManager.approveApplicationForMo(record.getApplicationId(), moStaffId);
+                boolean approved = recordManager.approveApplicationForMo(record.getApplicationId(), moStaffId);
+                if (!approved) {
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                            javafx.scene.control.Alert.AlertType.WARNING);
+                    alert.setTitle(core.UiText.tr("Cannot Approve"));
+                    alert.setHeaderText(core.UiText.tr("Recruitment quota reached"));
+                    alert.setContentText(core.UiText.tr(
+                            "This position has already reached its maximum number of approved applicants."));
+                    alert.showAndWait();
+                }
                 refreshAction.run();
             });
 
