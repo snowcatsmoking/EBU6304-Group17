@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户数据管理类。
@@ -38,19 +40,22 @@ public class UserDataManager {
      * Admin 全局视图中展示所有 TA 信息时使用。
      */
     public List<TAApplication> getAllTAs() {
-        List<TAApplication> result = new ArrayList<>();
+        Map<String, TAApplication> seen = new LinkedHashMap<>();
         File dir = new File(DataConfig.TA_DIR);
         File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
-        if (files == null) return result;
+        if (files == null) return new ArrayList<>();
         for (File file : files) {
             try {
                 TAApplication ta = objectMapper.readValue(file, TAApplication.class);
-                result.add(ta);
+                // 以 TAId 为键去重，防止导出文件等副本造成重复显示
+                if (ta.getTAId() != null && !seen.containsKey(ta.getTAId())) {
+                    seen.put(ta.getTAId(), ta);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return result;
+        return new ArrayList<>(seen.values());
     }
 
     /**
