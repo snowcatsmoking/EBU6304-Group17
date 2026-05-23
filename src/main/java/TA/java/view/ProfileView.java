@@ -304,6 +304,16 @@ public class ProfileView {
     }
 
     private void saveProfile() {
+        String name = currentUser.getName();
+        if (name == null || name.trim().isEmpty()) {
+            TAAlertDialog.showError(null, "Name Required", "Name cannot be empty", "Please enter your full name before saving.");
+            return;
+        }
+        String phone = currentUser.getPhone();
+        if (phone == null || phone.trim().isEmpty()) {
+            TAAlertDialog.showError(null, "Phone Required", "Phone number cannot be empty", "Please enter your phone number before saving.");
+            return;
+        }
         String email = currentUser.getEmail();
         if (email != null && !email.isEmpty()) {
             String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";

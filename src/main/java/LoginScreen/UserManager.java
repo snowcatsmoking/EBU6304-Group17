@@ -54,6 +54,9 @@ public class UserManager {
         if (account == null || account.trim().isEmpty()) {
             return "Please enter your account";
         }
+        if (account.trim().length() < 3) {
+            return "Account must be at least 3 characters";
+        }
         if (password == null || password.isEmpty()) {
             return "Please enter your password";
         }
