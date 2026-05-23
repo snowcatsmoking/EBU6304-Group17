@@ -1,11 +1,14 @@
 package TA.java.view;
 import TA.java.TAJob;
 import TA.java.TAApplication;
+import TA.java.SkillUtils;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -13,11 +16,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SkillGapAnalysisView {
 
@@ -58,24 +59,9 @@ public class SkillGapAnalysisView {
         VBox contentBox = new VBox();
         contentBox.setSpacing(16);
 
-        String applicantSkills = applicant.getSkill() != null ? applicant.getSkill().toLowerCase() : "";
-        String requirements = job.getRequirements() != null ? job.getRequirements().toLowerCase() : "";
-
-        List<String> applicantSkillList = parseSkills(applicantSkills);
-        List<String> requiredSkillList = parseSkills(requirements);
-
-        List<String> matchedSkills = new ArrayList<>();
-        List<String> missingSkills = new ArrayList<>();
-
-        for (String required : requiredSkillList) {
-            boolean found = applicantSkillList.stream()
-                .anyMatch(skill -> skill.contains(required) || required.contains(skill));
-            if (found) {
-                matchedSkills.add(required);
-            } else {
-                missingSkills.add(required);
-            }
-        }
+        AnalysisResult analysis = buildAnalysis(job, applicant);
+        List<String> matchedSkills = analysis.getMatchedSkills();
+        List<String> missingSkills = analysis.getMissingSkills();
 
         VBox summaryBox = new VBox();
         summaryBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
@@ -90,7 +76,7 @@ public class SkillGapAnalysisView {
         matchRateBox.setAlignment(Pos.CENTER_LEFT);
         Label matchRateLabel = new Label("Match Rate: ");
         matchRateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #374151;");
-        Label matchRateValue = new Label(calculateMatchRate(matchedSkills, requiredSkillList) + "%");
+        Label matchRateValue = new Label(analysis.getMatchRate() + "%");
         matchRateValue.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #15803d;");
         matchRateBox.getChildren().addAll(matchRateLabel, matchRateValue);
 
@@ -184,21 +170,51 @@ public class SkillGapAnalysisView {
         contentBox.getChildren().addAll(summaryBox, gapBox, suggestionBox);
         root.getChildren().addAll(titleLabel, contentBox, closeButton);
 
-        Scene scene = new Scene(root, 550, 600);
+        ScrollPane scrollPane = new ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+
+        Scene scene = new Scene(scrollPane, 550, 600);
         scene.getStylesheets().add("data:text/css,");
         stage.setScene(scene);
         stage.setResizable(false);
+        stage.setOnShown(e -> Platform.runLater(() -> scrollPane.setVvalue(0)));
         stage.show();
     }
 
-    private static List<String> parseSkills(String skillsText) {
-        if (skillsText == null || skillsText.trim().isEmpty()) {
+    static AnalysisResult buildAnalysis(TAJob job, TAApplication applicant) {
+        List<String> applicantSkillList = applicant == null
+            ? new ArrayList<>()
+            : SkillUtils.parseSkills(applicant.getSkill());
+        List<String> requiredSkillList = getRequiredSkillList(job);
+
+        List<String> matchedSkills = new ArrayList<>();
+        List<String> missingSkills = new ArrayList<>();
+
+        for (String required : requiredSkillList) {
+            boolean found = applicantSkillList.stream()
+                .anyMatch(skill -> SkillUtils.looselyMatches(required, skill));
+            if (found) {
+                matchedSkills.add(required);
+            } else {
+                missingSkills.add(required);
+            }
+        }
+
+        return new AnalysisResult(matchedSkills, missingSkills, calculateMatchRate(matchedSkills, requiredSkillList));
+    }
+
+    private static List<String> getRequiredSkillList(TAJob job) {
+        if (job == null) {
             return new ArrayList<>();
         }
-        return Arrays.stream(skillsText.split("[,\\n;\\t]+"))
-            .map(s -> s.trim().toLowerCase())
-            .filter(s -> !s.isEmpty())
-            .collect(Collectors.toList());
+
+        List<String> requiredSkills = SkillUtils.normalizeSkills(job.getRequiredSkills());
+        if (!requiredSkills.isEmpty()) {
+            return requiredSkills;
+        }
+
+        return SkillUtils.parseSkills(job.getRequirements());
     }
 
     private static int calculateMatchRate(List<String> matched, List<String> required) {
@@ -209,11 +225,37 @@ public class SkillGapAnalysisView {
     }
 
     private static String getSuggestion(String skill) {
+        String normalizedSkill = SkillUtils.normalizeForCompare(skill);
         for (Map.Entry<String, String> entry : SKILL_SUGGESTIONS.entrySet()) {
-            if (skill.contains(entry.getKey()) || entry.getKey().contains(skill)) {
+            String normalizedKey = SkillUtils.normalizeForCompare(entry.getKey());
+            if (normalizedSkill.contains(normalizedKey) || normalizedKey.contains(normalizedSkill)) {
                 return entry.getValue();
             }
         }
         return "Consider learning " + skill + " through online courses (Coursera, Udemy), practice projects, and relevant documentation.";
+    }
+
+    static final class AnalysisResult {
+        private final List<String> matchedSkills;
+        private final List<String> missingSkills;
+        private final int matchRate;
+
+        AnalysisResult(List<String> matchedSkills, List<String> missingSkills, int matchRate) {
+            this.matchedSkills = new ArrayList<>(matchedSkills);
+            this.missingSkills = new ArrayList<>(missingSkills);
+            this.matchRate = matchRate;
+        }
+
+        public List<String> getMatchedSkills() {
+            return new ArrayList<>(matchedSkills);
+        }
+
+        public List<String> getMissingSkills() {
+            return new ArrayList<>(missingSkills);
+        }
+
+        public int getMatchRate() {
+            return matchRate;
+        }
     }
 }
