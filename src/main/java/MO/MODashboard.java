@@ -834,6 +834,37 @@ public class MODashboard extends javafx.application.Application {
                 actionBox.getChildren().add(closeButton);
             }
 
+            Button deleteButton = new Button(core.UiText.tr("Delete"));
+            deleteButton.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-border-color: #fca5a5; -fx-border-width: 1; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
+            deleteButton.setOnAction(e -> {
+                long appCount = recordManager.getApplicationsByMoStaffId(moStaffId).stream()
+                        .filter(r -> job.getJobId().equals(r.getJobId())).count();
+                if (appCount > 0) {
+                    javafx.scene.control.Alert warn = new javafx.scene.control.Alert(
+                            javafx.scene.control.Alert.AlertType.WARNING);
+                    warn.setTitle(core.UiText.tr("Cannot Delete"));
+                    warn.setHeaderText(core.UiText.tr("This position has existing applications"));
+                    warn.setContentText(core.UiText.tr("Please reject or process all applications before deleting this position."));
+                    warn.showAndWait();
+                    return;
+                }
+                javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.CONFIRMATION);
+                confirm.setTitle(core.UiText.tr("Delete Position"));
+                confirm.setHeaderText(core.LanguageManager.getInstance().isEnglish()
+                        ? "Delete \"" + job.getPositionName() + "\"?"
+                        : "删除 \"" + job.getPositionName() + "\"?");
+                confirm.setContentText(core.UiText.tr("This action cannot be undone. The position will be permanently removed."));
+                confirm.showAndWait().ifPresent(response -> {
+                    if (response == javafx.scene.control.ButtonType.OK) {
+                        jobManager.deleteJob(job.getJobId());
+                        showContent(buildMyPositionsView(currentPage[0]));
+                    }
+                });
+            });
+            actionBox.getChildren().add(deleteButton);
+
             row.getChildren().addAll(textBox, actionBox);
             HBox.setHgrow(textBox, Priority.ALWAYS);
             list.getChildren().add(row);
