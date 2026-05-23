@@ -81,11 +81,11 @@ mvn javafx:run
 (or launch via `LoginScreen/LoginLauncher.java` for the login screen)
 
 ### Test accounts (local data)
-| Role | Account | Password |
-|------|---------|----------|
-| TA   | TAPan   | (set at registration) |
-| MO   | MOPan   | (set at registration) |
-| Admin | Admin001 | (requires admin auth code: `BUPTAdmin`) |
+| Role | Account | Password                                      |
+|------|---------|-----------------------------------------------|
+| TA   | TAPan   | 123456                                        |
+| MO   | MOPan   | 123456                                        |
+| Admin | Admin001 | 123456(requires admin auth code: `BUPTAdmin`) |
 
 ---
 
