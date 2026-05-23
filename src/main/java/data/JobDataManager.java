@@ -15,7 +15,7 @@ import TA.java.TAJob;
 
 /**
  * 职位数据管理类。
- * 负责 TAJob 对象的增删改查，数据存储在 resources/Data/JobData/ 目录下。
+ * 负责 TAJob 对象的增删改查，数据存储在 data/JobData/ 目录下。
  * 文件命名规则：{jobId}.json
  *
  * 使用方：

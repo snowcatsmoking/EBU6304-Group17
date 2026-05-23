@@ -424,14 +424,9 @@ public class TAApplicationFormView {
     }
 
     private void submitApplication() {
-        System.out.println("=== Starting application process ===");
-        System.out.println("Student ID: " + currentUser.getTAId());
-        System.out.println("Position ID: " + currentJob.getJobId());
-
         data.JobDataManager jobDataManager = new data.JobDataManager();
         TAJob latestJob = jobDataManager.getJobById(currentJob.getJobId());
         if (!jobDataManager.isJobOpen(latestJob)) {
-            System.out.println("Position expired or closed, application blocked");
             showAlert("Position Closed", "This position is no longer open for new applications.\n\nExisting applications can still be reviewed by the module organiser.");
             return;
         }
@@ -442,13 +437,11 @@ public class TAApplicationFormView {
             || currentUser.getPhone() == null || currentUser.getPhone().trim().isEmpty()
             || currentUser.getAvailableTime() == null || currentUser.getAvailableTime().trim().isEmpty()
             || currentUser.getSkill() == null || currentUser.getSkill().trim().isEmpty()) {
-            System.out.println("Incomplete profile detected, blocked");
             showAlert("Application Rejected", "Your profile is incomplete.\n\nPlease fill in your Name, Major, Phone, Available Time, and Skills before applying.");
             return;
         }
 
         if (recordManager.hasDuplicateApplication(currentUser.getTAId(), currentJob.getJobId())) {
-            System.out.println("Duplicate application detected, blocked");
             showAlert("Duplicate Application", "You have already applied for this position.");
             return;
         }
@@ -470,13 +463,8 @@ public class TAApplicationFormView {
         String resumeText = resumeTextArea == null ? "" : resumeTextArea.getText().trim();
         record.setResumeText(resumeText);
         record.setResumeKeywords(ResumeKeywordExtractor.extractKeywords(resumeText, currentUser.getSkill(), currentJob));
-
-        System.out.println("Application ID: " + record.getApplicationId());
-        System.out.println("Application status: " + record.getStatus());
-        System.out.println("Extracted keywords: " + SkillUtils.toDisplayText(record.getResumeKeywords(), "None"));
         
         recordManager.saveApplication(record);
-        System.out.println("Application record saved!");
 
         if (dialogStage != null) {
             dialogStage.close();
@@ -493,8 +481,6 @@ public class TAApplicationFormView {
     }
 
     private void showAlert(String title, String message) {
-        System.out.println("Showing alert dialog: " + title + " - " + message);
-
         Stage alertStage = new Stage();
         alertStage.setTitle(core.UiText.tr("Notice"));
         alertStage.initModality(Modality.WINDOW_MODAL);

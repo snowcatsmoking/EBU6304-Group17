@@ -22,6 +22,7 @@ import TA.java.SkillMatcher;
 import TA.java.TAApplicationRecord;
 import TA.java.TAApplicationRecordManager;
 import TA.java.TAJob;
+import data.DataConfig;
 import data.JobDataManager;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
@@ -57,7 +58,7 @@ public class MODashboard extends javafx.application.Application {
     private static final String SORT_DATE = "Application Date";
     private static final String SORT_STATUS = "Review Status";
     private static final String SORT_NAME = "Name / Student ID";
-    private static final Path TA_UPLOAD_BASE_DIR = Path.of("resources", "Data", "Uploads");
+    private static final Path TA_UPLOAD_BASE_DIR = Path.of(DataConfig.UPLOAD_DIR);
 
     private static final String NAV_DEFAULT =
         "-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-cursor: hand;" +
