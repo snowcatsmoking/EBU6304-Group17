@@ -2,6 +2,7 @@ package TA.java.view;
 import TA.java.TAJob;
 import TA.java.TAApplication;
 import TA.java.SkillUtils;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -177,6 +178,7 @@ public class SkillGapAnalysisView {
         scene.getStylesheets().add("data:text/css,");
         stage.setScene(scene);
         stage.setResizable(false);
+        stage.setOnShown(e -> Platform.runLater(() -> scrollPane.setVvalue(0)));
         stage.show();
     }
 
