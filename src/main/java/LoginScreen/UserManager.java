@@ -12,6 +12,7 @@ import java.io.IOException;
 public class UserManager {
 
     private static final String ADMIN_AUTH_CODE = "BUPTAdmin";
+    private static final String MO_AUTH_CODE    = "BUPTMO";
     private static final String TA_DIR    = DataConfig.TA_DIR;
     private static final String MO_DIR    = DataConfig.MO_DIR;
     private static final String ADMIN_DIR = DataConfig.ADMIN_DIR;
@@ -70,6 +71,11 @@ public class UserManager {
         if (role.contains("Admin")) {
             if (authCode == null || !authCode.equals(ADMIN_AUTH_CODE)) {
                 return "Incorrect admin authorisation code";
+            }
+        }
+        if (role.contains("Module Organiser")) {
+            if (authCode == null || !authCode.equals(MO_AUTH_CODE)) {
+                return "Incorrect MO authorisation code";
             }
         }
 
