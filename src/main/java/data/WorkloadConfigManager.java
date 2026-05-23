@@ -30,7 +30,7 @@ public class WorkloadConfigManager {
             if (val instanceof Integer) return (Integer) val;
             if (val instanceof Number)  return ((Number) val).intValue();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to load workload config, using default threshold: " + e.getMessage());
         }
         return DEFAULT_THRESHOLD;
     }
@@ -41,7 +41,7 @@ public class WorkloadConfigManager {
         try {
             objectMapper.writeValue(new File(CONFIG_FILE), payload);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to save workload config: " + e.getMessage());
         }
     }
 }
