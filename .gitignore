@@ -1,7 +1,21 @@
 
-/target/
+/target/*
+!/target/deliverable_docs/
+!/target/deliverable_docs/**
+!/target/deliverable_javadocs/
+!/target/deliverable_javadocs/**
+!/target/manual_screenshots/
+!/target/manual_screenshots/**
+!/target/Software_group17/
+/target/Software_group17/*
+!/target/Software_group17/README.md
+!/target/Software_group17/code_documentation/
+!/target/Software_group17/code_documentation/**
+!/target/Software_group17/user_manual/
+!/target/Software_group17/user_manual/**
 CODEBASE.md
 .DS_Store
 **/.DS_Store
 .claude
 .idea
+.vscode

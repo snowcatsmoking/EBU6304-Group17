@@ -404,12 +404,12 @@ public class LoginView extends Application {
         setLoginHandler(new LoginHandler() {
             @Override
             public void onLogin(String account, String password) {
-                System.out.println("Login: account=" + account + ", password=" + password);
+                System.out.println("Login submitted for account=" + account);
             }
 
             @Override
             public void onRegister(String account, String password, String role) {
-                System.out.println("Register: account=" + account + ", password=" + password + ", role=" + role);
+                System.out.println("Register submitted for account=" + account + ", role=" + role);
             }
         });
 

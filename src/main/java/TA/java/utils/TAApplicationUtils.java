@@ -25,7 +25,7 @@ public class TAApplicationUtils {
             TAApplication user = loadUser(studentId);
             return checkProfileComplete(user);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to check profile completeness for " + studentId + ": " + e.getMessage());
             return false;
         }
     }
@@ -37,9 +37,8 @@ public class TAApplicationUtils {
                 return objectMapper.readValue(file, TAApplication.class);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to load TA profile " + studentId + ": " + e.getMessage());
         }
         return new TAApplication(core.UiText.tr("Unknown User"), studentId, core.UiText.tr("Unknown Major"), "", "", "", "");
     }
 }
-

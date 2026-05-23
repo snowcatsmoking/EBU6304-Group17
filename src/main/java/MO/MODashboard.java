@@ -1,5 +1,9 @@
 package MO;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -8,6 +12,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +22,7 @@ import TA.java.SkillMatcher;
 import TA.java.TAApplicationRecord;
 import TA.java.TAApplicationRecordManager;
 import TA.java.TAJob;
+import data.DataConfig;
 import data.JobDataManager;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
@@ -52,6 +58,7 @@ public class MODashboard extends javafx.application.Application {
     private static final String SORT_DATE = "Application Date";
     private static final String SORT_STATUS = "Review Status";
     private static final String SORT_NAME = "Name / Student ID";
+    private static final Path TA_UPLOAD_BASE_DIR = Path.of(DataConfig.UPLOAD_DIR);
 
     private static final String NAV_DEFAULT =
         "-fx-font-size: 14px; -fx-text-fill: #64748b; -fx-cursor: hand;" +
@@ -298,10 +305,23 @@ public class MODashboard extends javafx.application.Application {
         activeNavIndex = index;
     }
 
+    private void showContent(Node content) {
+        if (content == null) {
+            return;
+        }
+        if (contentPane != null) {
+            contentPane.setCenter(content);
+        } else if (root != null) {
+            root.setCenter(content);
+        }
+        if (root != null) {
+            core.UiText.localize(root);
+        }
+    }
+
     private void showWithFade(Node content) {
         content.setOpacity(0);
-        contentPane.setCenter(content);
-        core.UiText.localize(root);
+        showContent(content);
         FadeTransition ft = new FadeTransition(Duration.millis(180), content);
         ft.setFromValue(0.0);
         ft.setToValue(1.0);
@@ -359,7 +379,7 @@ public class MODashboard extends javafx.application.Application {
         Button backButton = new Button(core.UiText.tr("Back to My Positions"));
         backButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
             "-fx-border-radius: 8; -fx-background-radius: 8;");
-        backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+        backButton.setOnAction(e -> showContent(buildMyPositionsView()));
 
         page.getChildren().addAll(title, body, backButton);
         return wrapScrollablePage(page);
@@ -510,7 +530,7 @@ public class MODashboard extends javafx.application.Application {
 
         Button backButton = new Button(core.UiText.tr("← Back to My Positions"));
         backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
-        backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+        backButton.setOnAction(e -> showContent(buildMyPositionsView()));
 
         Label title = new Label("Edit Published Position");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
@@ -616,7 +636,7 @@ public class MODashboard extends javafx.application.Application {
 
             try {
                 if (jobManager.saveJobForMo(latestJob, moStaffId)) {
-                    root.setCenter(buildMyPositionsView());
+                    showContent(buildMyPositionsView());
                 } else {
                     showMessage(messageLabel, core.UiText.tr("You do not have permission to edit this position."), false);
                 }
@@ -629,7 +649,7 @@ public class MODashboard extends javafx.application.Application {
         Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 10 20 10 20; -fx-cursor: hand;" +
             "-fx-border-radius: 8; -fx-background-radius: 8;");
-        cancelButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+        cancelButton.setOnAction(e -> showContent(buildMyPositionsView()));
 
         HBox buttonBox = new HBox();
         buttonBox.setSpacing(10);
@@ -748,13 +768,13 @@ public class MODashboard extends javafx.application.Application {
             editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
                 "-fx-border-radius: 8; -fx-background-radius: 8;");
             editButton.setDisable(!canEditJob(job));
-            editButton.setOnAction(e -> root.setCenter(buildEditPositionView(job)));
+            editButton.setOnAction(e -> showContent(buildEditPositionView(job)));
             actionBox.getChildren().add(editButton);
 
             Button detailButton = new Button(core.UiText.tr("View Details"));
             detailButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
                 "-fx-border-radius: 8; -fx-background-radius: 8;");
-            detailButton.setOnAction(e -> root.setCenter(buildJobDetailView(job, 1)));
+            detailButton.setOnAction(e -> showContent(buildJobDetailView(job, 1)));
             actionBox.getChildren().add(detailButton);
 
             boolean expired = isJobExpired(job);
@@ -774,7 +794,7 @@ public class MODashboard extends javafx.application.Application {
                     latestJob.setActive(false);
                     try {
                         jobManager.saveJobForMo(latestJob, moStaffId);
-                        root.setCenter(buildMyPositionsView(currentPage[0]));
+                        showContent(buildMyPositionsView(currentPage[0]));
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -796,7 +816,7 @@ public class MODashboard extends javafx.application.Application {
                         if (response == javafx.scene.control.ButtonType.OK) {
                             try {
                                 jobManager.deactivateJobForMo(job.getJobId(), moStaffId);
-                                root.setCenter(buildMyPositionsView(currentPage[0]));
+                                showContent(buildMyPositionsView(currentPage[0]));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -857,7 +877,7 @@ public class MODashboard extends javafx.application.Application {
         Button refreshButton = new Button(core.UiText.tr("Refresh"));
         refreshButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 10 18 10 18; -fx-cursor: hand;" +
             "-fx-border-radius: 8; -fx-background-radius: 8;");
-        refreshButton.setOnAction(e -> root.setCenter(buildPositionStatisticsView()));
+        refreshButton.setOnAction(e -> showContent(buildPositionStatisticsView()));
 
         headerRow.getChildren().addAll(titleBox, spacer, refreshButton);
 
@@ -954,7 +974,7 @@ public class MODashboard extends javafx.application.Application {
 
         Button backButton = new Button(core.UiText.tr("← Back to My Positions"));
         backButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-padding: 6 12 6 12; -fx-cursor: hand;");
-        backButton.setOnAction(e -> root.setCenter(buildMyPositionsView()));
+        backButton.setOnAction(e -> showContent(buildMyPositionsView()));
 
         Label title = new Label(displayJob.getPositionName() + " (" + displayJob.getCourseCode() + ")");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
@@ -978,7 +998,7 @@ public class MODashboard extends javafx.application.Application {
         editButton.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #64748b; -fx-border-color: #e2e8f0; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
             "-fx-border-radius: 8; -fx-background-radius: 8;");
         editButton.setDisable(!canEditJob(displayJob));
-        editButton.setOnAction(e -> root.setCenter(buildEditPositionView(displayJob)));
+        editButton.setOnAction(e -> showContent(buildEditPositionView(displayJob)));
 
         Label editHint = new Label(canEditJob(displayJob)
             ? core.UiText.tr("This position can still be edited.")
@@ -1058,8 +1078,8 @@ public class MODashboard extends javafx.application.Application {
             Button viewBtn = new Button(core.UiText.tr("View Application"));
             viewBtn.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 7 14 7 14; -fx-cursor: hand;" +
                 "-fx-border-radius: 8; -fx-background-radius: 8;");
-            viewBtn.setOnAction(e -> root.setCenter(
-                buildApplicationDetailView(record, () -> root.setCenter(buildJobDetailView(job, currentPage[0])))));
+            viewBtn.setOnAction(e -> showContent(
+                buildApplicationDetailView(record, () -> showContent(buildJobDetailView(job, currentPage[0])))));
 
             HBox.setHgrow(textBox, Priority.ALWAYS);
             row.getChildren().addAll(textBox, statusLabel, viewBtn);
@@ -1416,8 +1436,8 @@ public class MODashboard extends javafx.application.Application {
         Button openButton = new Button(core.UiText.tr("Open Review"));
         openButton.setStyle("-fx-background-color: #6366f1; -fx-text-fill: #ffffff; -fx-padding: 8 16 8 16; -fx-cursor: hand;" +
             "-fx-border-radius: 8; -fx-background-radius: 8;");
-        openButton.setOnAction(e -> root.setCenter(
-            buildApplicationDetailView(record, () -> root.setCenter(buildApplicantReviewView()))));
+        openButton.setOnAction(e -> showContent(
+            buildApplicationDetailView(record, () -> showContent(buildApplicantReviewView()))));
 
         HBox actionBox = new HBox();
         actionBox.setSpacing(8);
@@ -1475,6 +1495,7 @@ public class MODashboard extends javafx.application.Application {
 
         // 申请人信息卡片
         VBox profileCard = buildDetailCard("Applicant Profile", buildProfileGrid(record));
+        VBox attachmentCard = buildDetailCard("Resume Attachments", buildAttachmentList(record));
 
         VBox matchCard = buildDetailCard("Skill Match", buildMatchDetail(record));
         VBox keywordCard = buildKeywordReviewCard(record, onBack);
@@ -1482,8 +1503,8 @@ public class MODashboard extends javafx.application.Application {
         // 审核操作区
         VBox reviewCard = buildReviewCard(record, onBack);
 
-        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, matchCard, keywordCard, reviewCard);
-        return page;
+        page.getChildren().addAll(backButton, titleRow, courseInfo, profileCard, attachmentCard, matchCard, keywordCard, reviewCard);
+        return wrapScrollablePage(page);
     }
 
     private VBox buildDetailCard(String cardTitle, Node content) {
@@ -1492,10 +1513,97 @@ public class MODashboard extends javafx.application.Application {
         card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-padding: 20;" +
             "-fx-border-radius: 12; -fx-background-radius: 12;" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0, 0, 4);");
-        Label label = new Label(cardTitle);
+        Label label = new Label(core.UiText.tr(cardTitle));
         label.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         card.getChildren().addAll(label, content);
         return card;
+    }
+
+    private Node buildAttachmentList(TAApplicationRecord record) {
+        VBox box = new VBox();
+        box.setSpacing(10);
+
+        List<Path> attachments = getUploadedResumeAttachments(record);
+        if (attachments.isEmpty()) {
+            Label empty = new Label(core.UiText.tr("No resume attachments uploaded"));
+            empty.setWrapText(true);
+            empty.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-padding: 4 0 4 0;");
+            box.getChildren().add(empty);
+            return box;
+        }
+
+        Label feedback = new Label();
+        feedback.setStyle("-fx-font-size: 13px;");
+
+        for (Path attachment : attachments) {
+            HBox row = new HBox();
+            row.setSpacing(12);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setPadding(new Insets(8, 12, 8, 12));
+            row.setStyle("-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;");
+
+            Label name = new Label(attachment.getFileName().toString());
+            name.setWrapText(true);
+            name.setStyle("-fx-font-size: 13px; -fx-text-fill: #1e293b;");
+            HBox.setHgrow(name, Priority.ALWAYS);
+
+            Button openButton = new Button(core.UiText.tr("Open Attachment"));
+            openButton.setStyle("-fx-font-size: 12px; -fx-text-fill: #ffffff; -fx-background-color: #6366f1;" +
+                "-fx-background-radius: 8; -fx-padding: 6 14 6 14; -fx-cursor: hand;");
+            openButton.setOnAction(e -> openAttachment(attachment, feedback));
+
+            row.getChildren().addAll(name, openButton);
+            box.getChildren().add(row);
+        }
+
+        box.getChildren().add(feedback);
+        return box;
+    }
+
+    private List<Path> getUploadedResumeAttachments(TAApplicationRecord record) {
+        if (record == null || isBlank(record.getTaStudentId())) {
+            return List.of();
+        }
+
+        Path baseDir = TA_UPLOAD_BASE_DIR.toAbsolutePath().normalize();
+        Path studentDir = baseDir.resolve(record.getTaStudentId().trim()).normalize();
+        if (!studentDir.startsWith(baseDir) || !Files.isDirectory(studentDir)) {
+            return List.of();
+        }
+
+        try (var paths = Files.list(studentDir)) {
+            return paths
+                .filter(Files::isRegularFile)
+                .filter(this::isSupportedResumeAttachment)
+                .sorted(Comparator.comparing(path -> path.getFileName().toString().toLowerCase(Locale.ROOT)))
+                .toList();
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+
+    private boolean isSupportedResumeAttachment(Path path) {
+        String fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        return fileName.endsWith(".pdf") || fileName.endsWith(".doc") || fileName.endsWith(".docx");
+    }
+
+    private void openAttachment(Path attachment, Label feedback) {
+        try {
+            Path normalized = attachment.toAbsolutePath().normalize();
+            if (!Files.isRegularFile(normalized)) {
+                showMessage(feedback, core.UiText.tr("Attachment file is no longer available."), false);
+                return;
+            }
+            if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+                showMessage(feedback, core.UiText.tr("This device cannot open attachments automatically."), false);
+                return;
+            }
+            Desktop.getDesktop().open(normalized.toFile());
+            showMessage(feedback, core.UiText.tr("Attachment opened."), true);
+        } catch (IOException | RuntimeException e) {
+            showMessage(feedback, core.UiText.tr("Unable to open attachment."), false);
+        }
     }
 
     private Node buildProfileGrid(TAApplicationRecord record) {
@@ -1600,7 +1708,7 @@ public class MODashboard extends javafx.application.Application {
             List<String> keywords = SkillUtils.parseKeywords(keywordArea.getText());
             if (recordManager.saveVerifiedKeywordsForMo(record.getApplicationId(), moStaffId, keywords)) {
                 showMessage(feedback, core.UiText.tr("Verified keywords saved."), true);
-                root.setCenter(buildApplicationDetailView(record, onBack));
+                showContent(buildApplicationDetailView(record, onBack));
             } else {
                 showMessage(feedback, core.UiText.tr("You do not have permission to update these keywords."), false);
             }
@@ -1612,7 +1720,7 @@ public class MODashboard extends javafx.application.Application {
         reextractButton.setOnAction(e -> {
             if (recordManager.reextractKeywordsForMo(record.getApplicationId(), moStaffId)) {
                 showMessage(feedback, core.UiText.tr("Automatic keywords refreshed. Verified keywords were not overwritten."), true);
-                root.setCenter(buildApplicationDetailView(record, onBack));
+                showContent(buildApplicationDetailView(record, onBack));
             } else {
                 showMessage(feedback, core.UiText.tr("You do not have permission to refresh these keywords."), false);
             }

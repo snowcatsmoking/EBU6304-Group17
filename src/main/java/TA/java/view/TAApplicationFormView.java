@@ -37,6 +37,7 @@ public class TAApplicationFormView {
     private DialogCloseListener dialogCloseListener;
     private Stage dialogStage;
     private javafx.scene.control.TextArea resumeTextArea;
+    private static final double DETAIL_VALUE_MAX_WIDTH = 500;
 
     public TAApplicationFormView(TAJob job) {
         this.currentJob = job;
@@ -158,6 +159,7 @@ public class TAApplicationFormView {
 
         Label titleValue = new Label(currentJob.getPositionName());
         titleValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(titleValue);
 
         titleRow.getChildren().addAll(titleLabel, titleValue);
 
@@ -170,6 +172,7 @@ public class TAApplicationFormView {
 
         Label courseValue = new Label(currentJob.getCourseName());
         courseValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(courseValue);
 
         courseRow.getChildren().addAll(courseLabel, courseValue);
 
@@ -194,6 +197,8 @@ public class TAApplicationFormView {
 
         Label requirementValue = new Label(currentJob.getRequirements());
         requirementValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(requirementValue);
+        requirementRow.setAlignment(Pos.TOP_LEFT);
 
         requirementRow.getChildren().addAll(requirementLabel, requirementValue);
 
@@ -208,7 +213,8 @@ public class TAApplicationFormView {
             SkillUtils.toDisplayText(currentJob.getRequiredSkills(), "No specific skill requirements")
         );
         requiredSkillsValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
-        requiredSkillsValue.setWrapText(true);
+        prepareLongTextValue(requiredSkillsValue);
+        requiredSkillsRow.setAlignment(Pos.TOP_LEFT);
 
         requiredSkillsRow.getChildren().addAll(requiredSkillsLabel, requiredSkillsValue);
 
@@ -233,6 +239,7 @@ public class TAApplicationFormView {
 
         Label publisherValue = new Label(currentJob.getPublisher());
         publisherValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(publisherValue);
 
         publisherRow.getChildren().addAll(publisherLabel, publisherValue);
 
@@ -263,6 +270,7 @@ public class TAApplicationFormView {
 
         Label nameValue = new Label(currentUser.getName());
         nameValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(nameValue);
 
         nameRow.getChildren().addAll(nameLabel, nameValue);
 
@@ -287,6 +295,7 @@ public class TAApplicationFormView {
 
         Label majorValue = new Label(currentUser.getMajor());
         majorValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(majorValue);
 
         majorRow.getChildren().addAll(majorLabel, majorValue);
 
@@ -299,6 +308,7 @@ public class TAApplicationFormView {
 
         Label emailValue = new Label(currentUser.getEmail());
         emailValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(emailValue);
 
         emailRow.getChildren().addAll(emailLabel, emailValue);
 
@@ -311,6 +321,7 @@ public class TAApplicationFormView {
 
         Label phoneValue = new Label(currentUser.getPhone());
         phoneValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(phoneValue);
 
         phoneRow.getChildren().addAll(phoneLabel, phoneValue);
 
@@ -323,6 +334,8 @@ public class TAApplicationFormView {
 
         Label skillsValue = new Label(currentUser.getSkill());
         skillsValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(skillsValue);
+        skillsRow.setAlignment(Pos.TOP_LEFT);
 
         skillsRow.getChildren().addAll(skillsLabel, skillsValue);
 
@@ -335,6 +348,7 @@ public class TAApplicationFormView {
 
         Label timeValue = new Label(currentUser.getAvailableTime());
         timeValue.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748b;");
+        prepareLongTextValue(timeValue);
 
         timeRow.getChildren().addAll(timeLabel, timeValue);
 
@@ -342,6 +356,13 @@ public class TAApplicationFormView {
         personalBox.getChildren().addAll(sectionTitle, detailsBox);
 
         return personalBox;
+    }
+
+    private void prepareLongTextValue(Label valueLabel) {
+        valueLabel.setWrapText(true);
+        valueLabel.setMaxWidth(DETAIL_VALUE_MAX_WIDTH);
+        valueLabel.setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
+        HBox.setHgrow(valueLabel, javafx.scene.layout.Priority.ALWAYS);
     }
 
     private VBox createResumeBox() {
@@ -403,14 +424,9 @@ public class TAApplicationFormView {
     }
 
     private void submitApplication() {
-        System.out.println("=== Starting application process ===");
-        System.out.println("Student ID: " + currentUser.getTAId());
-        System.out.println("Position ID: " + currentJob.getJobId());
-
         data.JobDataManager jobDataManager = new data.JobDataManager();
         TAJob latestJob = jobDataManager.getJobById(currentJob.getJobId());
         if (!jobDataManager.isJobOpen(latestJob)) {
-            System.out.println("Position expired or closed, application blocked");
             showAlert("Position Closed", "This position is no longer open for new applications.\n\nExisting applications can still be reviewed by the module organiser.");
             return;
         }
@@ -421,13 +437,11 @@ public class TAApplicationFormView {
             || currentUser.getPhone() == null || currentUser.getPhone().trim().isEmpty()
             || currentUser.getAvailableTime() == null || currentUser.getAvailableTime().trim().isEmpty()
             || currentUser.getSkill() == null || currentUser.getSkill().trim().isEmpty()) {
-            System.out.println("Incomplete profile detected, blocked");
             showAlert("Application Rejected", "Your profile is incomplete.\n\nPlease fill in your Name, Major, Phone, Available Time, and Skills before applying.");
             return;
         }
 
         if (recordManager.hasDuplicateApplication(currentUser.getTAId(), currentJob.getJobId())) {
-            System.out.println("Duplicate application detected, blocked");
             showAlert("Duplicate Application", "You have already applied for this position.");
             return;
         }
@@ -449,13 +463,8 @@ public class TAApplicationFormView {
         String resumeText = resumeTextArea == null ? "" : resumeTextArea.getText().trim();
         record.setResumeText(resumeText);
         record.setResumeKeywords(ResumeKeywordExtractor.extractKeywords(resumeText, currentUser.getSkill(), currentJob));
-
-        System.out.println("Application ID: " + record.getApplicationId());
-        System.out.println("Application status: " + record.getStatus());
-        System.out.println("Extracted keywords: " + SkillUtils.toDisplayText(record.getResumeKeywords(), "None"));
         
         recordManager.saveApplication(record);
-        System.out.println("Application record saved!");
 
         if (dialogStage != null) {
             dialogStage.close();
@@ -472,8 +481,6 @@ public class TAApplicationFormView {
     }
 
     private void showAlert(String title, String message) {
-        System.out.println("Showing alert dialog: " + title + " - " + message);
-
         Stage alertStage = new Stage();
         alertStage.setTitle(core.UiText.tr("Notice"));
         alertStage.initModality(Modality.WINDOW_MODAL);

@@ -1,6 +1,7 @@
 package TA.java.service;
 
 import core.UiText;
+import data.DataConfig;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -21,7 +22,6 @@ import java.util.List;
 
 public class FileUploader {
 
-    private static final String UPLOAD_DIR = "resources/Data/Uploads/";
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     private String studentId;
@@ -36,14 +36,14 @@ public class FileUploader {
     }
 
     private void initUploadDirectory() {
-        File uploadDir = new File(UPLOAD_DIR + studentId);
+        File uploadDir = new File(DataConfig.UPLOAD_DIR, studentId);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
     }
 
     private void loadExistingFiles() {
-        File userDir = new File(UPLOAD_DIR + studentId);
+        File userDir = new File(DataConfig.UPLOAD_DIR, studentId);
         File[] files = userDir.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -118,7 +118,7 @@ public class FileUploader {
 
     private void saveFile(File sourceFile) {
         try {
-            Path targetPath = Paths.get(UPLOAD_DIR + studentId, sourceFile.getName());
+            Path targetPath = Paths.get(DataConfig.UPLOAD_DIR, studentId, sourceFile.getName());
             Files.copy(sourceFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
             if (!uploadedFiles.contains(sourceFile.getName())) {
@@ -135,7 +135,7 @@ public class FileUploader {
     }
 
     private void deleteFile(String fileName) {
-        File file = new File(UPLOAD_DIR + studentId + "/" + fileName);
+        File file = new File(new File(DataConfig.UPLOAD_DIR, studentId), fileName);
         if (file.exists()) {
             file.delete();
         }
