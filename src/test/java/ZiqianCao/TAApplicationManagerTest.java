@@ -182,9 +182,10 @@ public class TAApplicationManagerTest {
     private void listCreatedFiles() {
         File dir = new File(DataConfig.TA_DIR);
         if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
+            File[] files = dir.listFiles((d, name) ->
+                    name.startsWith(TEST_ID_PREFIX) && name.endsWith(".json"));
             if (files != null && files.length > 0) {
-                System.out.println("  当前目录下的 JSON 文件：");
+                System.out.println("  测试创建的 JSON 文件：");
                 for (File file : files) {
                     System.out.println("    - " + file.getName());
                 }
