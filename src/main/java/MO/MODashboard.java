@@ -456,6 +456,10 @@ public class MODashboard extends javafx.application.Application {
                 showMessage(messageLabel, core.UiText.tr("Please fill in all required fields and select a deadline."), false);
                 return;
             }
+            if (isBlank(requirements)) {
+                showMessage(messageLabel, core.UiText.tr("Please enter the job requirements."), false);
+                return;
+            }
             if (skillError != null) {
                 showMessage(messageLabel, skillError, false);
                 return;
@@ -603,6 +607,10 @@ public class MODashboard extends javafx.application.Application {
 
             if (isBlank(positionName) || isBlank(courseName) || isBlank(courseCode) || isBlank(recruitText) || deadline == null) {
                 showMessage(messageLabel, core.UiText.tr("Please fill in all required fields and select a deadline."), false);
+                return;
+            }
+            if (isBlank(requirements)) {
+                showMessage(messageLabel, core.UiText.tr("Please enter the job requirements."), false);
                 return;
             }
             if (skillError != null) {
