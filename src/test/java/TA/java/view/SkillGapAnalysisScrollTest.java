@@ -142,10 +142,14 @@ public class SkillGapAnalysisScrollTest {
     private void startToolkit() {
         try {
             CountDownLatch latch = new CountDownLatch(1);
-            Platform.startup(latch::countDown);
+            Platform.startup(() -> {
+                Platform.setImplicitExit(false);
+                latch.countDown();
+            });
             require(latch.await(5, TimeUnit.SECONDS), "JavaFX toolkit startup timed out");
         } catch (IllegalStateException alreadyStarted) {
             // JavaFX toolkit can only be started once in the same JVM.
+            Platform.setImplicitExit(false);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while starting JavaFX toolkit", e);

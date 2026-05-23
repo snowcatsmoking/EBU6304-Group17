@@ -178,8 +178,22 @@ public class SkillGapAnalysisView {
         scene.getStylesheets().add("data:text/css,");
         stage.setScene(scene);
         stage.setResizable(false);
-        stage.setOnShown(e -> Platform.runLater(() -> scrollPane.setVvalue(0)));
+        stage.setOnShown(e -> resetScrollToTop(scrollPane));
         stage.show();
+    }
+
+    private static void resetScrollToTop(ScrollPane scrollPane) {
+        forceScrollToTop(scrollPane);
+        Platform.runLater(() -> {
+            forceScrollToTop(scrollPane);
+            Platform.runLater(() -> forceScrollToTop(scrollPane));
+        });
+    }
+
+    private static void forceScrollToTop(ScrollPane scrollPane) {
+        scrollPane.applyCss();
+        scrollPane.layout();
+        scrollPane.setVvalue(0.0);
     }
 
     static AnalysisResult buildAnalysis(TAJob job, TAApplication applicant) {
