@@ -23,11 +23,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProfileView {
 
@@ -36,6 +37,7 @@ public class ProfileView {
     private TAApplicationRecordManager recordManager = new TAApplicationRecordManager();
     private String currentStudentId = "2024999";
     private boolean hasActiveApplication = false;
+    private final Map<String, Label> fieldErrorLabels = new HashMap<>();
 
     public void setCurrentStudentId(String studentId) {
         this.currentStudentId = studentId;
@@ -125,7 +127,7 @@ public class ProfileView {
         }
 
         VBox field1 = createFormField("Name", currentUser != null ? currentUser.getName() : "", "name");
-        VBox field2 = createFormField("Student ID", currentUser != null ? currentUser.getTAId() : "", "studentId");
+        VBox field2 = createFormField("User ID", currentUser != null ? currentUser.getTAId() : "", "studentId");
         VBox field3 = createFormField("Major", currentUser != null ? currentUser.getMajor() : "", "major");
         VBox field4 = createFormField("Phone", currentUser != null ? currentUser.getPhone() : "", "phone");
         VBox field5 = createFormField("Email", currentUser != null ? currentUser.getEmail() : "", "email");
@@ -202,6 +204,17 @@ public class ProfileView {
             labelBox.getChildren().add(labelLabel);
         }
 
+        // Shared inline error label for this field
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #dc2626;");
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+
+        if (fieldName.equals("availableTime")) {
+            fieldBox.getChildren().addAll(labelBox, createAvailableTimePicker(value, isLocked));
+            return fieldBox;
+        }
+
         if (fieldName.equals("skill")) {
             javafx.scene.control.TextArea valueArea = new javafx.scene.control.TextArea(value);
             valueArea.setWrapText(true);
@@ -209,16 +222,13 @@ public class ProfileView {
             valueArea.setPrefWidth(400);
             valueArea.setMinHeight(Region.USE_PREF_SIZE);
             valueArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #1e293b; -fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 12px;");
-
             if (isLocked) {
                 valueArea.setDisable(true);
                 valueArea.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 8px 12px;");
             }
-
             valueArea.textProperty().addListener((observable, oldValue, newValue) -> {
                 updateUserField(fieldName, newValue);
             });
-
             fieldBox.getChildren().addAll(labelBox, valueArea);
             return fieldBox;
         }
@@ -230,19 +240,22 @@ public class ProfileView {
         if (fieldName.equals("studentId") || isLocked) {
             valueField.setDisable(true);
             valueField.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-background-color: #f8fafc; -fx-background-radius: 8px; -fx-border-color: #e2e8f0; -fx-border-width: 1px; -fx-border-radius: 8px; -fx-padding: 10px 16px;");
-        }
-
-        if (fieldName.equals("availableTime")) {
-            fieldBox.getChildren().clear();
-            fieldBox.getChildren().addAll(labelBox, createAvailableTimePicker(value, isLocked));
+            fieldBox.getChildren().addAll(labelBox, valueField);
             return fieldBox;
         }
 
+        // Register error label so saveProfile() can trigger it
+        fieldErrorLabels.put(fieldName, errorLabel);
+
         valueField.textProperty().addListener((observable, oldValue, newValue) -> {
             updateUserField(fieldName, newValue);
+            String error = validateField(fieldName, newValue);
+            errorLabel.setText(error != null ? error : "");
+            errorLabel.setVisible(error != null);
+            errorLabel.setManaged(error != null);
         });
 
-        fieldBox.getChildren().addAll(labelBox, valueField);
+        fieldBox.getChildren().addAll(labelBox, valueField, errorLabel);
         return fieldBox;
     }
 
@@ -284,6 +297,42 @@ public class ProfileView {
         return container;
     }
 
+    /**
+     * Validates a single field's value (format only — empty is allowed for draft saving).
+     * Returns null if valid, or a localised error message if invalid.
+     */
+    private String validateField(String fieldName, String value) {
+        if (value == null || value.trim().isEmpty()) return null; // empty = OK for save
+        switch (fieldName) {
+            case "name":
+                return value.trim().length() < 2
+                        ? core.UiText.tr("Name must be at least 2 characters") : null;
+            case "phone":
+                return value.trim().matches("\\d{11}")
+                        ? null : core.UiText.tr("Phone must be exactly 11 digits");
+            case "email":
+                String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+                return value.matches(emailRegex)
+                        ? null : core.UiText.tr("Invalid email format (e.g. user@example.com)");
+            default:
+                return null;
+        }
+    }
+
+    /** Returns the current value of a field from the model. */
+    private String getFieldValue(String fieldName) {
+        if (currentUser == null) return "";
+        switch (fieldName) {
+            case "name":          return currentUser.getName()          != null ? currentUser.getName()          : "";
+            case "phone":         return currentUser.getPhone()         != null ? currentUser.getPhone()         : "";
+            case "email":         return currentUser.getEmail()         != null ? currentUser.getEmail()         : "";
+            case "major":         return currentUser.getMajor()         != null ? currentUser.getMajor()         : "";
+            case "skill":         return currentUser.getSkill()         != null ? currentUser.getSkill()         : "";
+            case "availableTime": return currentUser.getAvailableTime() != null ? currentUser.getAvailableTime() : "";
+            default:              return "";
+        }
+    }
+
     private void updateUserField(String fieldName, String value) {
         if (currentUser == null) {
             currentUser = new TAApplication("", "2024004", "", "", "", "", "");
@@ -313,40 +362,42 @@ public class ProfileView {
     }
 
     private void saveProfile() {
-        String name = currentUser.getName();
-        if (name == null || name.trim().isEmpty()) {
-            TAAlertDialog.showError(null, "Name Required", "Name cannot be empty", "Please enter your full name before saving.");
-            return;
-        }
-        String phone = currentUser.getPhone();
-        if (phone == null || phone.trim().isEmpty()) {
-            TAAlertDialog.showError(null, "Phone Required", "Phone number cannot be empty", "Please enter your phone number before saving.");
-            return;
-        }
-        String email = currentUser.getEmail();
-        if (email != null && !email.isEmpty()) {
-            String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-            if (!email.matches(emailRegex)) {
-                String errorMsg = "Invalid email format. Email must follow standard format:\n" +
-                        "- Contains '@' symbol in correct position\n" +
-                        "- Local part before '@' cannot start or end with '.'\n" +
-                        "- Domain part after '@' must have at least one '.' (like .com, .org)\n" +
-                        "- No consecutive '.' in local part\n" +
-                        "- No '.' immediately before or after '@'";
-
-                TAAlertDialog.showError(null, "Invalid Email Format", "Email format is incorrect", errorMsg);
-                return;
-            }
+        // Run format validation on all registered fields and show inline errors
+        boolean hasFormatErrors = false;
+        for (Map.Entry<String, Label> entry : fieldErrorLabels.entrySet()) {
+            String fieldName = entry.getKey();
+            String value     = getFieldValue(fieldName);
+            String error     = validateField(fieldName, value);
+            Label  errLbl    = entry.getValue();
+            errLbl.setText(error != null ? error : "");
+            errLbl.setVisible(error != null);
+            errLbl.setManaged(error != null);
+            if (error != null) hasFormatErrors = true;
         }
 
+        if (hasFormatErrors) {
+            TAAlertDialog.showError(null,
+                    core.UiText.tr("Validation Error"),
+                    core.UiText.tr("Please fix the highlighted errors before saving."),
+                    core.UiText.tr("Fields marked in red contain invalid values."));
+            return;
+        }
+
+        // Partial profiles (empty required fields) are allowed to save as drafts.
+        // Completeness is enforced at application time via TAApplicationUtils.checkProfileComplete().
         try {
-            String fileName = data.DataConfig.TA_DIR + currentUser.getTAId() + ".json";
-            objectMapper.writeValue(new File(fileName), currentUser);
-            System.out.println("Profile saved successfully.");
-            TAAlertDialog.showSuccess(null, "Save Successful", "Your profile changes have been saved.");
+            objectMapper.writeValue(
+                    new File(data.DataConfig.TA_DIR + currentUser.getTAId() + ".json"),
+                    currentUser);
+            TAAlertDialog.showSuccess(null,
+                    core.UiText.tr("Save Successful"),
+                    core.UiText.tr("Your profile changes have been saved."));
         } catch (IOException e) {
             e.printStackTrace();
-            TAAlertDialog.showError(null, "Save Failed", "Failed to save profile", "Please try again or check whether the profile file is writable.");
+            TAAlertDialog.showError(null,
+                    core.UiText.tr("Save Failed"),
+                    core.UiText.tr("Failed to save profile"),
+                    core.UiText.tr("Please try again or check whether the profile file is writable."));
         }
     }
 
