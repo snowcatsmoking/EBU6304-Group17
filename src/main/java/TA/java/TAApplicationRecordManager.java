@@ -81,7 +81,29 @@ public class TAApplicationRecordManager {
         return records;
     }
 
+    /**
+     * Auto-reject any PENDING applications whose job has expired or been closed.
+     * Called before displaying a TA's application list so the TA never sees
+     * a permanently-hanging "PENDING" entry for a job that is no longer open.
+     */
+    private void autoRejectPendingApplicationsForExpiredJobs() {
+        for (TAApplicationRecord record : getAllApplications()) {
+            if (TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
+                TAJob job = jobDataManager.getJobById(record.getJobId());
+                // isActive == true means the job is closed/expired (inverted flag)
+                if (job != null && job.isActive()) {
+                    record.setStatus(TAApplicationRecord.STATUS_REJECTED);
+                    record.setStatusChangeDate(new java.util.Date());
+                    record.setReviewComment("Job deadline has passed");
+                    record.setNotified(false);
+                    saveApplication(record);
+                }
+            }
+        }
+    }
+
     public List<TAApplicationRecord> getApplicationsByStudentId(String taStudentId) {
+        autoRejectPendingApplicationsForExpiredJobs();
         List<TAApplicationRecord> records = new ArrayList<>();
         File[] files = new File(APPLICATION_DATA_DIR).listFiles();
         if (files != null) {
@@ -184,6 +206,17 @@ public class TAApplicationRecordManager {
 
     private boolean approveLoadedApplication(TAApplicationRecord record, String reviewComment, String reviewer) {
         if (record != null && TAApplicationRecord.STATUS_PENDING.equals(record.getStatus())) {
+            // Check recruitment cap: do not allow more approvals than the job's recruitment count
+            TAJob job = jobDataManager.getJobById(record.getJobId());
+            if (job != null) {
+                long approvedCount = getAllApplications().stream()
+                        .filter(r -> record.getJobId().equals(r.getJobId())
+                                && TAApplicationRecord.STATUS_APPROVED.equals(r.getStatus()))
+                        .count();
+                if (approvedCount >= job.getRecruitmentCount()) {
+                    return false;
+                }
+            }
             record.setStatus(TAApplicationRecord.STATUS_APPROVED);
             record.setStatusChangeDate(new java.util.Date());
             record.setNotified(false);

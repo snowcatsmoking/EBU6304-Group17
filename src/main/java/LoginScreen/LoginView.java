@@ -806,8 +806,15 @@ public class LoginView extends Application {
         roleCombo.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
             int roleIndex = newVal == null ? 0 : newVal.intValue();
             boolean isAdmin = roleIndex == 3;
-            authCodeBox.setVisible(isAdmin);
-            authCodeBox.setManaged(isAdmin);
+            boolean isMO    = roleIndex == 2;
+            authCodeBox.setVisible(isAdmin || isMO);
+            authCodeBox.setManaged(isAdmin || isMO);
+            authCodeLabel.setText(isAdmin
+                    ? core.UiText.tr("Admin Authorisation Code")
+                    : core.UiText.tr("MO Authorisation Code"));
+            authCodeInput.setPromptText(isAdmin
+                    ? core.UiText.tr("Enter admin authorisation code")
+                    : core.UiText.tr("Enter MO authorisation code"));
             regAccountField.clear();
             if (roleIndex > 0) {
                 String prefix = roleIndex == 1 ? "ta" : (roleIndex == 2 ? "mo" : "ad");
